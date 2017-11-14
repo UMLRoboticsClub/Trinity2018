@@ -6,8 +6,8 @@ class MazeMapper
 {
 public:
 	MazeMapper();
-private:
 	~MazeMapper();
+private:
 	//vector<Point> is sequence of waypoints
 	vector<Point> findNextTarget(GameState state); //only function called by the robot
 	void createTargetPath();//updates distanceField
