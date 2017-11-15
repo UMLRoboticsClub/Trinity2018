@@ -1,5 +1,5 @@
 #include "MazeMapper.h"
-
+#include "Point.h"
 	//constructors
 
 MazeMapper::MazeMapper() {}
@@ -26,5 +26,5 @@ MazeMapper::MazeMapper() {}
 	/////////////////////////////
 
 	void MazeMapper::computeDistanceField(GameState state){ //takes gamestate or type of target, called in find 
-	
+		
 	}

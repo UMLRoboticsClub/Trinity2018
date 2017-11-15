@@ -1,6 +1,8 @@
 #pragma once
 #include<vector>
 #include "GameState.h"
+#include "occupancyGrid.h"
+#include "LaserScanner.h"
 using namespace std;
 class MazeMapper
 {
@@ -17,6 +19,6 @@ private:
 
 	OccupancyGrid occGrid;
 	vector<vector<int>> distanceField;
-	LaserScanner scanner;
+	LaserScanner lidar;
 };
 

@@ -7,24 +7,25 @@
 
 // store realX and realY into an array
 #include "occupancyGrid.h"
+#include "Point.h"
 
-occupancyGrid::occupancyGrid() {
+OccupancyGrid::OccupancyGrid() {
     
 }
 
-occupancyGrid::occupancyGrid(const occupancyGrid& orig) {
+OccupancyGrid::OccupancyGrid(const OccupancyGrid& orig) {
 
 }
 
-int update(float realX, float realY, int val) {
+int OccupancyGrid::update(float realX, float realY, int val) {
     
 }
 
-int getValue(int x, int y) {
+int OccupancyGrid::getValue(int x, int y) {
     
     
 }
 
-int getValue(Point) {
+int OccupancyGrid::getValue(Point) {
     
 }

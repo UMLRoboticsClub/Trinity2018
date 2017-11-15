@@ -5,17 +5,14 @@
  * Created on November 7, 2017, 6:02 PM
  */
 
+
 #ifndef OCCUPANCYGRID_H
 #define	OCCUPANCYGRID_H
-
-struct Point{
-    int x;
-    int y;
-};
-
-class occupancyGrid {
+#include "NavVal.h"
+#include <vector>
+class OccupancyGrid {
 public:
-    occupancyGrid();
+    OccupancyGrid();
     // constructor initialize to width and height 
     
     int update(float realX, float realY, int val);
@@ -23,7 +20,7 @@ public:
     int getValue(Point);   // return array
     
 private:
-    NavVal gridVals[][];
+    vector<vector<NavVal>> gridVals;
     int width;
     int height;
     int resolution;

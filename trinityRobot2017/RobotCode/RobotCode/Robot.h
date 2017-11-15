@@ -6,6 +6,9 @@
 #include "GameState.h"
 #include "Constants.h"
 #include "Drive.h"
+#include "ColorSensor.h"
+#include "IRSensor.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -28,8 +31,8 @@ private:
 	GameState	gameState;
 	Point		safeZoneLocation;
 
-	ColorSensor colorSensor
-	IRSensor	IRsensor
+	ColorSensor colorSensor;
+	IRSensor	IRsensor;
 	Camera		camera;
 };
 
