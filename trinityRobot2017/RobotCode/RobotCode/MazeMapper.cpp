@@ -39,3 +39,4 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
 void MazeMapper::computeDistanceField(GameState state){ //takes gamestate or type of target, called in find 
 		
 }
+	

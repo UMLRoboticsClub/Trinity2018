@@ -9,7 +9,10 @@
 #include "ColorSensor.h"
 #include "IRSensor.h"
 #include "Camera.h"
+<<<<<<< HEAD
 #include <thread>
+=======
+>>>>>>> hopefully fixed all inclusion errors
 
 using namespace std;
 
