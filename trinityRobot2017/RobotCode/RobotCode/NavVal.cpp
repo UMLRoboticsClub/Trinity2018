@@ -1,5 +1,12 @@
 #include "NavVal.h"
 #include "constants.h"
+<<<<<<< HEAD
+=======
+float cellType;
+int timesScanned;
+
+
+>>>>>>> hopefully fixed all inclusion errors
 
 //constructor
 NavVal::NavVal() : cellType(-1), timesScanned(0) {
