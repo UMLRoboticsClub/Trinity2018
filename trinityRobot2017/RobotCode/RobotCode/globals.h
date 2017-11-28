@@ -1,9 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "Point.h"
+#include "DoublePoint.h"
 
 //Robot Position -- set by Drive only
-Point robotPos;
+DoublePoint robotPos;
+double robotAngle;
 
 #endif
