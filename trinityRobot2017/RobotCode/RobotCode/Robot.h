@@ -9,6 +9,7 @@
 #include "ColorSensor.h"
 #include "IRSensor.h"
 #include "Camera.h"
+#include <thread>
 
 using namespace std;
 
@@ -22,6 +23,8 @@ public:
 	void robotLoop(void);
 
 private:
+
+	thread laserScanInputThread;
 	float		robotPos;
 	float		robotAngle;
 
