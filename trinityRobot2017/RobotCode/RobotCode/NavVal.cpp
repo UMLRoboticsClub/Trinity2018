@@ -1,9 +1,5 @@
 #include "NavVal.h"
 #include "constants.h"
-float cellType;
-int timesScanned;
-
-
 
 //constructor
 NavVal::NavVal() : cellType(-1), timesScanned(0) {
