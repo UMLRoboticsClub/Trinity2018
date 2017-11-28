@@ -1,5 +1,6 @@
 #include "MazeMapper.h"
-
+#include "Point.h"
+#include "globals.h"
 	//constructors
 
 MazeMapper::MazeMapper() {}
