@@ -6,6 +6,10 @@
 #include "GameState.h"
 #include "Constants.h"
 #include "Drive.h"
+#include "ColorSensor.h"
+#include "IRSensor.h"
+#include "Camera.h"
+#include <thread>
 
 using namespace std;
 
@@ -19,6 +23,8 @@ public:
 	void robotLoop(void);
 
 private:
+
+	thread laserScanInputThread;
 	float		robotPos;
 	float		robotAngle;
 
@@ -28,8 +34,8 @@ private:
 	GameState	gameState;
 	Point		safeZoneLocation;
 
-	ColorSensor colorSensor
-	IRSensor	IRsensor
+	ColorSensor colorSensor;
+	IRSensor	IRsensor;
 	Camera		camera;
 };
 

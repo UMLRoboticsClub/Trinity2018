@@ -1,19 +1,5 @@
 #include "NavVal.h"
-
-float cellType;
-int timesScanned;
-
-float const NavVal::clearThreshhold = 0.25;
-float const NavVal::UNKNOWN = -1;
-float const NavVal::CLEAR = 0;
-float const NavVal::WALL = 1;
-float const NavVal::FLAME = 2;
-float const NavVal::CANDLE = 3;
-float const NavVal::EXTINGUISHED = 4;
-float const NavVal::SAFE_ZONE = 5;
-float const NavVal::RED_SIDE_CANDLE = 6;
-float const NavVal::BLUE_SIDE_CANDLE = 7;
-float const NavVal::GREEN_SIDE_CANDLE = 8;
+#include "constants.h"
 
 //constructor
 NavVal::NavVal() : cellType(-1), timesScanned(0) {
@@ -51,7 +37,7 @@ int NavVal::updateValue(float newCellType) {
 int NavVal::getCellType(void) {
 	if (this->cellType >= 0 && this->cellType <= 1) {
 		// (basically a clearThreshhold or greater probability will return a WALL and CLEAR otherwise)
-		if(this->cellType >= clearThreshhold){
+		if(this->cellType >= CLEAR_THRESHOLD){
 			return 1;
 		}else{
 			return 0;
