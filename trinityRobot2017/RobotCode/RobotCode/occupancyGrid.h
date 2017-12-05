@@ -10,6 +10,9 @@
 #define	OCCUPANCYGRID_H
 #include "NavVal.h"
 #include <vector>
+
+using namespace std;
+
 class OccupancyGrid {
 public:
     OccupancyGrid();
@@ -17,7 +20,7 @@ public:
     
     int update(float realX, float realY, int val);
     int getValue(int x, int y);
-    int getValue(Point);   // return array
+    int getValue(Point point);   // return array
     
 private:
     vector<vector<NavVal>> gridVals;
@@ -27,4 +30,3 @@ private:
 };
 
 #endif	/* OCCUPANCYGRID_H */
-
