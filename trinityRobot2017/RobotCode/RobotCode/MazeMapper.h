@@ -20,12 +20,12 @@ public:
 
 	void laserScanLoop();
 	void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
-	Point computeDistanceField(); //takes gamestate or type of target, called in find 
+	Point computeDistanceField(); //takes gamestate or type of target, called in find
 	vector<Point> findOpenNeighbors(Point currentPos);
 private:
-	map<int, Point> targetPoints;
+	//map of type of targetPoints to vector of all point of that type
+	map<int, vector<Point>> targetPoints;
 	OccupancyGrid occGrid;
 	vector<vector<int>> distanceField;
 	LaserScanner lidar;
 };
-
