@@ -11,7 +11,7 @@
 
 using namespace std;
 
-	//constructors
+//constructors
 MazeMapper::MazeMapper() {}
 
 ///////////////////////////
@@ -70,11 +70,8 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
 				}
 			}
-			// we now have the closest path available to us, so we return that
-			return shortestPath; // yea boi
 		}
 	}
-
 	//no important points already found, go to distance field and find an unknown
 	Point target = computeDistanceField();
 	//list of solely UDLR directional movements
@@ -347,7 +344,6 @@ vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 		moves[i] = moves[i] - moves[i-1];
 	}
 	moves[0] = moves[0] - robotPos;
-
 	return moves;
 }
 
@@ -368,6 +364,7 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
 }
 
 /////////////////////////////
+
 Point MazeMapper::computeDistanceField() { //takes type of target, called in find
 	//determine appropriate items to look for
 	vector<Point> boundary;
@@ -402,3 +399,4 @@ vector<Point> MazeMapper::findOpenNeighbors(Point currentPos) {
 bool MazeMapper::isDiag(int x_offset, int y_offset) {
 	return ((x_offset + y_offset + 2) % 2 == 0);
 }
+
