@@ -142,7 +142,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorSensor.cpp" />
+    <ClCompile Include="drive.cpp" />
+    <ClCompile Include="IRSensor.cpp" />
+    <ClCompile Include="LaserScanner.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MazeMapper.cpp" />
+    <ClCompile Include="NavVal.cpp" />
+    <ClCompile Include="occupancyGrid.cpp" />
+    <ClCompile Include="Robot.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorSensor.h" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="DoublePoint.h" />
+    <ClInclude Include="drive.h" />
+    <ClInclude Include="GameState.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="IRSensor.h" />
+    <ClInclude Include="LaserScanner.h" />
+    <ClInclude Include="MazeMapper.h" />
+    <ClInclude Include="NavVal.h" />
+    <ClInclude Include="occupancyGrid.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Robot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
