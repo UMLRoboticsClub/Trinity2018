@@ -18,5 +18,6 @@ const float static BLUE_SIDE_CANDLE = 7;
 const float static GREEN_SIDE_CANDLE = 8;
 const float static DOOR = 9;
 const float static EXPLORED_DOOR = 10;
+const float static HALLWAY = 11;
 
 #endif 
