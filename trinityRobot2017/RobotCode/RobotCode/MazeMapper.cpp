@@ -62,7 +62,34 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 }
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
-
+	LaserScan scan = lidar.getLaserScan();
+	
+	// we can change element.getAngle() and element.getDist() but we're using these for now
+	for(auto element : scan){ //for each element in the scan 
+		// given the angle and distance...
+		//everything between robotPos and newPos is clear
+		for(int i = 0; i < element.getDist() - 1; i++){ 
+			float xDist = i * cos(element.getAngle());
+			float YDist = i * sin(element.getAngle());
+			occGrid.update(robotPos.x + xDist, robotPos.y + yDist, CLEAR);
+		}
+		
+		float xDist = element.getDist() * cos(element.getAngle());
+		float yDist = element.getDist() * sin(element.getAngle());
+		
+		occGrid.update(robotPos.x + xDist, robotPos.y + yDist, WALL);
+	}
+	
+	// call find doors & hallways, which will update important values
+	
+	// call find flame, which will update important values
+	
+	// now that we have all important values for this scan, we can update the occ grid
+	for(auto element : targetPoints){ //element.first is the key, element.second is the value
+		for(int i = 0; i < element.second.size(); i++){
+			occGrid.update(element.second[i].x, element.second[i].y, element.first);
+		}
+	}
 }
 
 /////////////////////////////
