@@ -5,6 +5,7 @@
 #include "LaserScanner.h"
 #include "Point.h"
 #include <map>
+#include <cmath>
 using namespace std;
 class MazeMapper
 {
