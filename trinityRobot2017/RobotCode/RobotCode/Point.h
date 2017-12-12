@@ -1,9 +1,11 @@
-#pragma once
+using namespace std;
 
-struct Point {
-	Point() {}
-	Point(int _x, int _y) { x = _x; y = _y; }
-	Point(DoublePoint p) { x = static_cast<int>(p.x); y = static_cast<int>(p.y); }
+class Point {
+
+public:
+	Point();
+	Point(int _x, int _y);
 	int x;
 	int y;
+	bool operator==(const Point &p)const;
 };
