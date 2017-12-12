@@ -21,11 +21,12 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 	//check if we have already found an important point where we need to go
 	vector<int> primaryTargets = state.getTargetType();
 
-	//reverse this loop it's dumb this way
 	for (int type: primaryTargets) {
 		for (auto foundTarget : targetPoints) {
 			if (foundTarget.first == type) {
-				return AStar(foundTarget.second);
+				//second is a vector of points, we want to find the closest, then map to that point.
+				//which means we'd have to call A* on every point in the vector and use the one with the shortest path.
+				return AStar(foundTarget.second);//wait this is a vector of points
 			}
 		}
 	}
@@ -44,7 +45,28 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
 	//start at target which has a specific val in distancie field, locate neighbor with distVal 1 less, repeat.
 	//when the direction changes, push the current point into the moves list.
-	
+	vector<Point> moves;
+	//distance of target from robot position
+	int distVal = distanceField[target.x][target.y];
+	vector<Point> neighbors;//used for calculating path
+	Point direction(0, 0);  //used for detecting changes in direction, which is recorded as a waypoints
+	//until we get back to the robot
+	while(distVal != 0){
+		neighbors = openNeighbors(target); //grab all neighboring cells
+		for(Point neighbor : neighbors){   //find a cell one unit closer to the robot then the current one
+			if(distanceField[neighbor.x][neighbor.y] = distVal -1){
+				if(neighbor-target != direction){
+					//change in direction, add to moves
+					moves.push_back(target);
+					direction = neighbor-target;
+				}
+				target = neighbor;
+				distVal--;
+				break;
+			}
+		}
+	}
+	return moves;
 }
 
 
@@ -204,11 +226,80 @@ vector<Point> AStar(Point target) {
 }
 
 vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
-	//diagonalize to create shortest possible paths
+	//this function currently can end up with targetLocations occuring twice in a single array.
+	//options - ignore that and let the drve people just encounter something twice in a row
+	//clear them out at the end
+	//specifically ignore them as we're adding.  I choose this one.
+
+	//diagonalize to create shortest possible path
+	//grab the starting point, with line to second wayPoint.  Increment end point of that line along the path until hitting a wall, then back one and make that point the second waypoint
+	//then repeat from that point.  This is not a perfect optimization.  But it's good enough for now
+	vector<Point> optMoves;
+	Point startPoint = robotPos;
+	Point endPoint = moves[0];
+	int movesIndex = 0;
+	//for each possible improvement
+	while(movesIndex < moves.size()-1){
+		Point nextMove = moves[movesIndex+1];
+		//fix this to be more robust
+		Point direction = (nextMove - endPoint)/(endPoint.x - nextMove.x + endPoint.y - nextmove.y);
+		while(endPoint != nextMove){//if we reach the next point we have a straight digaonal path to it.
+			if(pathIsBlocked(startPoint, endPoint)){//this path is not okay
+				endPoint -= direction;//go back a step, we overshot
+				break;
+			}
+			else{
+				endPoint += direction;
+			}
+		}
+		//avoid including a waypoint multiple times.  Trust me it could happen otherwise.
+		if(optMoves.size() == 0 || endPoint != optMoves[optMoves.size()-1])
+			optMoves.push_back(endPoint);
+
+		//done with this path, move on
+		startPoint = endPoint;
+		endPoint = nextMove;
+		movesIndex++;
+	}
+	//make sure we don't double count the last move which isn't part of the above loop
+	if(optMoves.size() == 0 || moves[moves.size()-1] != optMoves[optMoves.size()-1])
+		optMoves.push_back(moves[moves.size()-1]);
+}
+
+bool pathIsBlocked(Point start, Point end){
+	//so I decided to pretend the line was fat as padding so we don't get too close to a wall.
+	//literally just iterates along the line and checks the surrounding cells for walls
+	//a more efficient alternative would be to make three lines rather than one fat line
+	//so offset starting points perpindicular to direction and use those three lines
+	//that prevents doublecounting being so much a problem.  I'll make that change.
+	//perpindicular is (-x, y) and (x, -y) I think.
+	DoublePoint direction;
+
+	float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y, start.y, 2));
+	direction.x = (end.x-start.x)/magnitude;
+	direction.y = (end.y-start.y)/magnitude;
+	Point currentCell;
+	for (int i = 0; i < magnitude; i ++){
+		//iterate along the path
+		currentCell.x = static_cast<int>(start.x + direction.x * i);
+		currentCell.y = static_cast<int>(start.y + direction.y * i);
+		for(int j = -1; j <= 1; j++){
+			for(int k = -1; k <= 1; k++){
+				 if(occGrid.getValue(currentCell.x + j, currentCell.y + j) == WALL)
+				 	return true;
+			}
+		}
+	}
+	return false;
 }
 
 vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 	//moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
+	//literally just returns a vector of moves[i] - moves[i-1]
+	for(int i = moves.size()-1; i > 0; i --){
+		moves[i] = moves[i] - moves[i-1];
+	}
+	moves[0] = moves[0] - robotPos;
 }
 
 /////////////////////////////
@@ -228,7 +319,7 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
 }
 
 /////////////////////////////
-Point MazeMapper::computeDistanceField() { //takes type of target, called in find 
+Point MazeMapper::computeDistanceField() { //takes type of target, called in find
 	//determine appropriate items to look for
 	vector<Point> boundary;
 	boundary.push_back(robotPos);
