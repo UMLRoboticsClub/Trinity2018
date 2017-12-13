@@ -9,6 +9,7 @@
 #ifndef OCCUPANCYGRID_H
 #define	OCCUPANCYGRID_H
 #include "NavVal.h"
+#include "Point.h"
 #include <vector>
 
 using namespace std;
@@ -16,9 +17,12 @@ using namespace std;
 class OccupancyGrid {
 public:
     OccupancyGrid();
+	OccupancyGrid(const OccupancyGrid& orig);
     // constructor initialize to width and height 
     
     int update(float realX, float realY, int val);
+	int getHeight();
+	int getWidth();
     int getValue(int x, int y);
     int getValue(Point point);   // return array
     

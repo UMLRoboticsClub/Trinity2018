@@ -52,7 +52,7 @@ vector<Point> MazeMapper::createTargetPath(Point target) {//distance field alrea
 	Point direction(0, 0);  //used for detecting changes in direction, which is recorded as a waypoints
 	//until we get back to the robot
 	while(distVal != 0){
-		neighbors = openNeighbors(target); //grab all neighboring cells
+		neighbors = findOpenNeighbors(target); //grab all neighboring cells
 		for(Point neighbor : neighbors){   //find a cell one unit closer to the robot then the current one
 			if(distanceField[neighbor.x][neighbor.y] = distVal -1){
 				if(neighbor-target != direction){
@@ -88,7 +88,7 @@ struct hash<Point>
 	}
 };
 
-vector<Point> AStar(Point target) {
+vector<Point> MazeMapper::AStar(Point target) {
 	//implement A* pathfinding algorithm for known points in the known space
 
 	vector<Point> path;							// path to return
@@ -114,7 +114,7 @@ vector<Point> AStar(Point target) {
 
 
 	// start where the robot is
-	Point startPos = Point(int(robotPos.x), int(robotPos.y);
+	Point startPos = Point(int(robotPos.x), int(robotPos.y));
 
 
 	// start algorithm with start location in the open list
@@ -155,7 +155,7 @@ vector<Point> AStar(Point target) {
 			newNodePoint = Point(newX, newY);
 
 			//if out of bounds, skip this child (with continue statement)
-			if (newX < 0 || newX >= occGrid.getTotalWidth() || newY < 0 || newY >= occGrid.getTotalHeight()) continue;
+			if (newX < 0 || newX >= occGrid.getWidth() || newY < 0 || newY >= occGrid.getHeight()) continue;
 
 			// if newX and newY are not clear
 			// CLEAR, DOOR, EXPLORED_DOOR, HALLWAY - clear, else -> wall
@@ -242,14 +242,16 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
 	while(movesIndex < moves.size()-1){
 		Point nextMove = moves[movesIndex+1];
 		//fix this to be more robust
-		Point direction = (nextMove - endPoint)/(endPoint.x - nextMove.x + endPoint.y - nextmove.y);
+		Point direction = (nextMove - endPoint);
+		direction.x /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
+		direction.y /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
 		while(endPoint != nextMove){//if we reach the next point we have a straight digaonal path to it.
 			if(pathIsBlocked(startPoint, endPoint)){//this path is not okay
-				endPoint -= direction;//go back a step, we overshot
+				endPoint = endPoint - direction;//go back a step, we overshot
 				break;
 			}
 			else{
-				endPoint += direction;
+				endPoint = endPoint - direction;
 			}
 		}
 		//avoid including a waypoint multiple times.  Trust me it could happen otherwise.
@@ -266,7 +268,7 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
 		optMoves.push_back(moves[moves.size()-1]);
 }
 
-bool pathIsBlocked(Point start, Point end){
+bool MazeMapper::pathIsBlocked(Point start, Point end){
 	//so I decided to pretend the line was fat as padding so we don't get too close to a wall.
 	//literally just iterates along the line and checks the surrounding cells for walls
 	//a more efficient alternative would be to make three lines rather than one fat line
@@ -275,7 +277,7 @@ bool pathIsBlocked(Point start, Point end){
 	//perpindicular is (-x, y) and (x, -y) I think.
 	DoublePoint direction;
 
-	float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y, start.y, 2));
+	float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2));
 	direction.x = (end.x-start.x)/magnitude;
 	direction.y = (end.y-start.y)/magnitude;
 	Point currentCell;
@@ -308,7 +310,7 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 
 
 	while (true) {
-		LaserScanner.getScan();
+		lidar.getScan();
 		// We will figure out how often this should be called later
 		updateOccupancyGrid();
 	}
@@ -350,6 +352,6 @@ vector<Point> MazeMapper::findOpenNeighbors(Point currentPos) {
 	return openNeighbors;
 }
 
-bool isDiag(int x_offset, int y_offset) {
+bool MazeMapper::isDiag(int x_offset, int y_offset) {
 	return ((x_offset + y_offset + 2) % 2 == 0);
 }

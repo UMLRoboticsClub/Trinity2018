@@ -17,6 +17,8 @@ public:
 	vector<Point> AStar(Point target);
 	vector<Point> optimizePath(vector<Point>);
 	vector<Point> convertToDeltas(vector<Point>);
+	bool pathIsBlocked(Point start, Point end);
+	bool isDiag(int x_offset, int y_offset);
 
 	void laserScanLoop();
 	void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan

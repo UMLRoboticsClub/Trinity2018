@@ -4,5 +4,6 @@ class LaserScanner
 public:
 	LaserScanner();
 	~LaserScanner();
+	void getScan();
 };
 

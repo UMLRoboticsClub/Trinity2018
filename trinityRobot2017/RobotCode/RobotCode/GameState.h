@@ -2,6 +2,8 @@
 #include<vector>
 #include "constants.h"
 
+using namespace std;
+
 struct GameState {
 	int levelOfCompetition;
 	bool babySaved;
