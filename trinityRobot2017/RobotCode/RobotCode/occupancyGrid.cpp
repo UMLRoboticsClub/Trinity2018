@@ -14,7 +14,7 @@ using namespace std;
 OccupancyGrid::OccupancyGrid(): width(500), height(500), resolution(1) {
 
 	// initalize them NavVals
-	gridVals( int(width * resolution), vector<NavVal>(int(height * resolution), NavVal()) );
+	gridVals = vector<vector<NavVal>>( int(width * resolution), vector<NavVal>(int(height * resolution), NavVal()) );
 
 }
 
@@ -23,13 +23,20 @@ OccupancyGrid::OccupancyGrid(const OccupancyGrid& orig) {
 }
 
 int OccupancyGrid::update(float realX, float realY, int val) {
-	gridVals[int(realX * resolution)][int(realY * resolution)].updateValue(val);
+	return gridVals[int(realX * resolution)][int(realY * resolution)].updateValue(val);
+}
+
+int OccupancyGrid::getHeight() {
+	return height;
+}
+int OccupancyGrid::getWidth() {
+	return width;
 }
 
 int OccupancyGrid::getValue(int x, int y) {
-	return gridVals[x][y];
+	return gridVals[x][y].getCellType();
 }
 
 int OccupancyGrid::getValue(Point point) {
-	return gridVals[point.x, point.y];
+	return gridVals[point.x][point.y].getCellType();
 }
