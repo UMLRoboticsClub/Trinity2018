@@ -1,21 +1,8 @@
-﻿  Robot.cpp
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(12): error C2143: syntax error: missing ';' before '<'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(12): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(12): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\occupancygrid.h(23): error C2143: syntax error: missing ';' before '<'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\occupancygrid.h(23): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\occupancygrid.h(23): error C2238: unexpected token(s) preceding ';'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\point.h(1): error C2011: 'Point': 'struct' type redefinition
-  c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\point.h(1): note: see declaration of 'Point'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\colorsensor.h(2): error C2236: unexpected token 'class'. Did you forget a ';'?
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\colorsensor.h(3): error C2059: syntax error: '{'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\colorsensor.h(3): error C2143: syntax error: missing ';' before '{'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\colorsensor.h(3): error C2447: '{': missing function header (old-style formal list?)
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\robot.h(35): error C2079: 'Robot::safeZoneLocation' uses undefined struct 'Point'
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\robot.h(37): error C3646: 'colorSensor': unknown override specifier
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\robot.h(37): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\robot.cpp(12): error C2614: 'Robot': illegal member initialization: 'colorSensor' is not a base or member
-c:\users\matt\robotics\umlroboticsclub\trinityrobot2017\robotcode\robotcode\robot.cpp(12): fatal error C1903: unable to recover from previous error(s); stopping compilation
-  INTERNAL COMPILER ERROR in 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\CL.exe'
-      Please choose the Technical Support command on the Visual C++
-      Help menu, or open the Technical Support help file for more information
+﻿  main.cpp
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(19): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(20): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(21): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(28): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(34): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(36): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+  RobotCode.vcxproj -> G:\Robotics Club\UMLRoboticsClub\trinityRobot2017\RobotCode\Debug\RobotCode.exe

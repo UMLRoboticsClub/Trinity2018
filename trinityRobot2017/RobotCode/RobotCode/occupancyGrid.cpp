@@ -40,3 +40,10 @@ int OccupancyGrid::getValue(int x, int y) {
 int OccupancyGrid::getValue(Point point) {
 	return gridVals[point.x][point.y].getCellType();
 }
+
+int OccupancyGrid::getTotalWidth(void) {
+	return this->width * this->resolution;
+}
+int OccupancyGrid::getTotalHeight(void) {
+	return this->height * this->resolution;
+}
