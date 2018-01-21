@@ -25,6 +25,9 @@ public:
 	int getWidth();
     int getValue(int x, int y);
     int getValue(Point point);   // return array
+
+	int getTotalWidth(void);
+	int getTotalHeight(void);
     
 private:
     vector<vector<NavVal>> gridVals;

@@ -16,18 +16,62 @@ MazeMapper::MazeMapper() {}
 
 ///////////////////////////
 
+
+int computePathLength(vector<Point> deltas) {
+	// sum up euclidean distances between delta points and return
+	int sum;
+	// iterate to size()-1 because the last point doens't have another point to get distance between
+	for (int i = 0; i < deltas.size() - 1; i++) {
+		// distance between two points
+		sum += sqrt(pow(deltas[i + 1].x - deltas[i].x, 2.0) +
+			pow(deltas[i + 1].y - deltas[i].y, 2.0));
+	}
+	// function review: 6/10, "It's ok.."   -IGN
+	return sum;
+}
+
 //vector<Point> is sequence of waypoints
 vector<Point> MazeMapper::findNextTarget(GameState state) { //only function called by the robot
+
 	//check if we have already found an important point where we need to go
 	vector<int> primaryTargets = state.getTargetType();
-
-	for (int type: primaryTargets) {
-		for (auto foundTarget : targetPoints) {
-			if (foundTarget.first == type) {
-				//second is a vector of points, we want to find the closest, then map to that point.
-				//which means we'd have to call A* on every point in the vector and use the one with the shortest path.
-				return AStar(foundTarget.second);//wait this is a vector of points
+	for (int type : primaryTargets) {
+		// if we have a destination in mind
+		if (targetPoints[type].size() > 0) {
+			// these are for finding the shortest path to the closest known target
+			vector<Point> path;
+			vector<Point> shortestPath;
+			int pathLength = 0;
+			int shortestPathLength = 0;
+			bool firstPass = true;
+			// iterate over all our points associated with this type
+			// first point is closest path until another is shorter
+			for (int i = 0; i < targetPoints.size(); i++) {
+				// AStar path
+				path = AStar(targetPoints[type][i]);
+				// 'diagonalized' path (optimnal)
+				path = optimizePath(path);
+				// return-ready vector of deltas
+				path = convertToDeltas(path);
+				// length of these deltas (we want the shortest length)
+				pathLength = computePathLength(path);
+				if (firstPass) {
+					// on the first pass, closest path is the first path found (obviously)
+					shortestPath = path;
+					shortestPathLength = pathLength;
+					firstPass = false;
+				}
+				else {
+					// compare shortest path to current path and update accordingly
+					if (pathLength < shortestPathLength) {
+						shortestPath = path;
+						shortestPathLength = pathLength;
+					}
+					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+				}
 			}
+			// we now have the closest path available to us, so we return that
+			return shortestPath; // yea boi
 		}
 	}
 
@@ -39,7 +83,6 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 	moves = optimizePath(moves);
 	return convertToDeltas(moves);
 }
-
 /////////////////////////
 
 vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
@@ -266,6 +309,8 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
 	//make sure we don't double count the last move which isn't part of the above loop
 	if(optMoves.size() == 0 || moves[moves.size()-1] != optMoves[optMoves.size()-1])
 		optMoves.push_back(moves[moves.size()-1]);
+
+	return optMoves;
 }
 
 bool MazeMapper::pathIsBlocked(Point start, Point end){
@@ -302,6 +347,8 @@ vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 		moves[i] = moves[i] - moves[i-1];
 	}
 	moves[0] = moves[0] - robotPos;
+
+	return moves;
 }
 
 /////////////////////////////
