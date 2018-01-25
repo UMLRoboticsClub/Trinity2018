@@ -150,9 +150,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MazeMapper.cpp" />
     <ClCompile Include="NavVal.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="occupancyGrid.cpp" />
     <ClCompile Include="Point.cpp" />
+=======
+    <ClCompile Include="occupancyGrid.cpp" />
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3
     <ClCompile Include="Robot.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,7 +171,10 @@
     <ClInclude Include="LaserScanner.h" />
     <ClInclude Include="MazeMapper.h" />
     <ClInclude Include="NavVal.h" />
+<<<<<<< HEAD
     <ClInclude Include="Node.h" />
+=======
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3
     <ClInclude Include="occupancyGrid.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Robot.h" />

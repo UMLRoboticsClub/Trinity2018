@@ -21,7 +21,7 @@ struct GameState {
 			targets.push_back(DOOR);
 			return targets;
 		}
-			
+
 		//level 3, baby not saved
 		if (babyObtained) {
 			//we have the baby we just need to shove it out the window

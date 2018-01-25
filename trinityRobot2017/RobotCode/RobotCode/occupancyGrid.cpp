@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   occupancyGrid.cpp
  * Author: Mong Mary Touch     & SAM
- * 
+ *
  * Created on November 7, 2017
  */
 

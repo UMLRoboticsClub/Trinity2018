@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//constructors
+	//constructors
 MazeMapper::MazeMapper() {}
 
 ///////////////////////////
@@ -69,9 +69,13 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 						shortestPathLength = pathLength;
 					}
 					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+				}
 			}
+			// we now have the closest path available to us, so we return that
+			return shortestPath; // yea boi
 		}
 	}
+
 	//no important points already found, go to distance field and find an unknown
 	Point target = computeDistanceField();
 	//list of solely UDLR directional movements
@@ -337,7 +341,6 @@ bool MazeMapper::pathIsBlocked(Point start, Point end){
 	return false;
 }
 
-
 vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 	//moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
 	//literally just returns a vector of moves[i] - moves[i-1]
@@ -345,6 +348,7 @@ vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 		moves[i] = moves[i] - moves[i-1];
 	}
 	moves[0] = moves[0] - robotPos;
+
 	return moves;
 }
 
@@ -359,6 +363,7 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 		updateOccupancyGrid();
 	}
 }
+
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
 	LaserScan scan = lidar.getLaserScan();
@@ -452,7 +457,6 @@ vector<DoublePoint> MazeMapper::pointsFromPeaks(vector<double> averaged, vector<
 }
 
 /////////////////////////////
-
 Point MazeMapper::computeDistanceField() { //takes type of target, called in find
 	//determine appropriate items to look for
 	vector<Point> boundary;
@@ -487,4 +491,3 @@ vector<Point> MazeMapper::findOpenNeighbors(Point currentPos) {
 bool MazeMapper::isDiag(int x_offset, int y_offset) {
 	return ((x_offset + y_offset + 2) % 2 == 0);
 }
-

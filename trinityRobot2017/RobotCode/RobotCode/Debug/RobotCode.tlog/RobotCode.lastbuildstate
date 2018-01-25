@@ -1,2 +1,6 @@
 #TargetFrameworkVersion=v4.0:PlatformToolSet=v141:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.16299.0
+<<<<<<< HEAD
 Debug|Win32|G:\Robotics Club\UMLRoboticsClub\trinityRobot2017\RobotCode\|
+=======
+Debug|Win32|C:\Users\matt\Robotics\UMLRoboticsClub\trinityRobot2017\RobotCode\|
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3

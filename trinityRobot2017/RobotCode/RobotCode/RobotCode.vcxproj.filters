@@ -45,12 +45,15 @@
     <ClCompile Include="Robot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+=======
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -95,8 +98,11 @@
     <ClInclude Include="Robot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+=======
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3
   </ItemGroup>
 </Project>

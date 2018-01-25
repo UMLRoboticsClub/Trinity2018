@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   occupancyGrid.h
  * Author: Mong Mary Touch
  *
@@ -18,8 +18,8 @@ class OccupancyGrid {
 public:
     OccupancyGrid();
 	OccupancyGrid(const OccupancyGrid& orig);
-    // constructor initialize to width and height 
-    
+    // constructor initialize to width and height
+
     int update(float realX, float realY, int val);
 	int getHeight();
 	int getWidth();
@@ -28,7 +28,7 @@ public:
 
 	int getTotalWidth(void);
 	int getTotalHeight(void);
-    
+
 private:
     vector<vector<NavVal>> gridVals;
     int width;

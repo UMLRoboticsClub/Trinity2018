@@ -18,6 +18,7 @@ public:
 	vector<Point> AStar(Point target);
 	vector<Point> optimizePath(vector<Point>);
 	vector<Point> convertToDeltas(vector<Point>);
+<<<<<<< HEAD
 	bool pathIsBlocked(Point start, Point end);
 	bool isDiag(int x_offset, int y_offset);
 
@@ -28,6 +29,15 @@ public:
 private:
 	//map of type of targetPoints to vector of all point of that type
 	map<int, vector<Point>> targetPoints;
+=======
+
+	void laserScanLoop();
+	void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
+	Point computeDistanceField(); //takes gamestate or type of target, called in find 
+	vector<Point> findOpenNeighbors(Point currentPos);
+private:
+	map<int, Point> targetPoints;
+>>>>>>> 1ed45d09ad7edbea85a7bcea1539cfc474996be3
 	OccupancyGrid occGrid;
 	vector<vector<int>> distanceField;
 	LaserScanner lidar;
