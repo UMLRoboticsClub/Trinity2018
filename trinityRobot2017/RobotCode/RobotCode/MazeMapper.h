@@ -31,4 +31,11 @@ private:
 	OccupancyGrid occGrid;
 	vector<vector<int>> distanceField;
 	LaserScanner lidar;
+
+	//door finding helper functions
+	void findDoorsAndHallways(LaserScanner scan);
+	vector<double> average(deque<double> scan, int numSections);
+	vector<int> findPeaks(vector<double> averaged, int start, int nd, bool checkEndpoints);
+	vector<int> sortPeaks(deque<double> scan, vector<double> averaged, vector<int> peaks, bool isHallway);
+	vector<DoublePoint> pointsFromPeaks(vector<double> averaged, vector<int> peaks, int rotation);
 };

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <algorithm>
+#include <deque>
 
 using namespace std;
 
@@ -68,7 +69,6 @@ vector<Point> MazeMapper::findNextTarget(GameState state) { //only function call
 						shortestPathLength = pathLength;
 					}
 					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
-				}
 			}
 		}
 	}
@@ -337,6 +337,7 @@ bool MazeMapper::pathIsBlocked(Point start, Point end){
 	return false;
 }
 
+
 vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 	//moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
 	//literally just returns a vector of moves[i] - moves[i-1]
@@ -361,33 +362,93 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
 	LaserScan scan = lidar.getLaserScan();
-	
+
 	// we can change element.getAngle() and element.getDist() but we're using these for now
-	for(auto element : scan){ //for each element in the scan 
+	for(auto element : scan){ //for each element in the scan
 		// given the angle and distance...
 		//everything between robotPos and newPos is clear
-		for(int i = 0; i < element.getDist() - 1; i++){ 
+		for(int i = 0; i < element.getDist() - 1; i++){
 			float xDist = i * cos(element.getAngle());
 			float YDist = i * sin(element.getAngle());
 			occGrid.update(robotPos.x + xDist, robotPos.y + yDist, CLEAR);
 		}
-		
+
 		float xDist = element.getDist() * cos(element.getAngle());
 		float yDist = element.getDist() * sin(element.getAngle());
-		
+
 		occGrid.update(robotPos.x + xDist, robotPos.y + yDist, WALL);
 	}
-	
+
 	// call find doors & hallways, which will update important values
-	
+	findDoorsAndHallways(scan);
+
 	// call find flame, which will update important values
-	
+
 	// now that we have all important values for this scan, we can update the occ grid
 	for(auto element : targetPoints){ //element.first is the key, element.second is the value
 		for(int i = 0; i < element.second.size(); i++){
 			occGrid.update(element.second[i].x, element.second[i].y, element.first);
 		}
 	}
+}
+
+void MazeMapper::findDoorsAndHallways(LaserScanner scan){
+    //constants: NUM_SECTIONS,
+	//convert the array part of the scan to a deque
+	std::deque<double> scanDeque;
+	std::vector<DoublePoint> allDoors;
+	std::vector<DoublePoint> allHall;
+	scanDeque.assign(scan.getData(), scan.getData() + scan.getSize()); //idk if this is right
+
+	//loop through x times
+	for(int i = 0; i < scan.getSize(); i++){
+		//average current scan into sections
+		std::vector<double> sections = average(scanDeque, NUM_SECTIONS);
+		//find the peaks of the sections
+		std::vector<int> peaks = findPeaks(sections, 1, sections.size() - 1, true);
+		if(peaks.size() == 0){ //no peaks were found, let's try again
+            // do shit, idk what until we see a real laser scan
+		} else {
+            //sort peaks into doors vs hallways
+            allDoors += pointsFromPeaks(sections, sortPeaks(scanDeque, sections, peaks, false), i);
+            allHall += pointsFromPeaks(sections, sortPeaks(scanDeque, sections, peaks, true), i);
+		}
+	}
+	//average all estimations to find out which are of the same door/hallway
+	allDoors = averagePoints(allDoors);
+	allHall = averagePoints(allHall);
+
+	//put final results into the important values list
+}
+
+vector<double> MazeMapper::average(deque<double> scan, int numSections){
+    vector<double> averaged;
+    if(scan.size() != 0){
+        int numItems = scan.size() / numSections;
+        int start = 0;
+        int nd = numItems;
+
+        for(int i = 0; i < numParts, i++){
+            for(int j = start; j < nd; j++){
+                averaged.at(i) += scan[j];
+            }
+            averaged.at(i) /= numItems;
+            start = nd;
+            nd += numItems;
+        }
+    } else {
+        //ooh an error
+    }
+    return averaged;
+}
+vector<int> MazeMapper::findPeaks(vector<double> averaged, int start, int nd, bool checkEndpoints){
+
+}
+vector<int> MazeMapper::sortPeaks(deque<double> scan, vector<double> averaged, vector<int> peaks, bool isHallway){
+
+}
+vector<DoublePoint> MazeMapper::pointsFromPeaks(vector<double> averaged, vector<int> peaks, int rotation){
+
 }
 
 /////////////////////////////
