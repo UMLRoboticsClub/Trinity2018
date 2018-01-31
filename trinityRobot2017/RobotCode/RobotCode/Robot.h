@@ -9,6 +9,7 @@
 #include "ColorSensor.h"
 #include "IRSensor.h"
 #include "Camera.h"
+#include <iostream>
 #include <thread>
 
 using namespace std;
@@ -21,6 +22,13 @@ public:
 	void start(void);
 
 	void robotLoop(void);
+
+	void robotDrive(vector<Point> instructions);
+	void getBaby(void);
+	void tossBaby(void);
+	void blowCandle(void);
+	void spinAndScan(void);
+	void hallwaySweep(void);
 
 private:
 

@@ -31,7 +31,13 @@ int computePathLength(vector<Point> deltas) {
 }
 
 //vector<Point> is sequence of waypoints
-vector<Point> MazeMapper::findNextTarget(GameState state) { //only function called by the robot
+vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp) { //only function called by the robot
+
+	//===TEST===============================================
+	nextRobotOp = CRADLE;
+	vector<Point> testPath = { Point(2,5) };
+	return testPath;
+	//====================================================
 
 	//check if we have already found an important point where we need to go
 	vector<int> primaryTargets = state.getTargetType();
