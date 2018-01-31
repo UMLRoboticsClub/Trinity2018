@@ -9,10 +9,16 @@ using namespace std;
 class MazeMapper
 {
 public:
+
+	// enum of what findNextTarget's return by reference data.
+	// (robot operations)
+	enum robotOps { NOTHING, CRADLE, SAFEZONE, EXTINGUISH, SCANROOM,	 HALLWAY };
+
+
 	MazeMapper();
 
 	//vector<Point> is sequence of waypoints
-	vector<Point> findNextTarget(GameState state); //only function called by the robot
+	vector<Point> findNextTarget(GameState state, robotOps &nextRobotOp); //only function called by the robot
 	vector<Point> createTargetPath(Point target);//updates distanceField
 	vector<Point> AStar(Point target);
 	vector<Point> optimizePath(vector<Point>);
@@ -24,6 +30,8 @@ public:
 	void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
 	Point computeDistanceField(); //takes gamestate or type of target, called in find
 	vector<Point> findOpenNeighbors(Point currentPos);
+
+
 private:
 	//map of type of targetPoints to vector of all point of that type
 	map<int, vector<Point>> targetPoints;
