@@ -13,11 +13,11 @@ const float static FLAME = 2;
 const float static CANDLE = 3;
 const float static EXTINGUISHED = 4;
 const float static SAFE_ZONE = 5;
-const float static RED_SIDE_CANDLE = 6;
-const float static BLUE_SIDE_CANDLE = 7;
-const float static GREEN_SIDE_CANDLE = 8;
+const float static RED_SIDE_CRADLE = 6;
+const float static BLUE_SIDE_CRADLE = 7;
+const float static GREEN_SIDE_CRADLE = 8;
 const float static DOOR = 9;
 const float static EXPLORED_DOOR = 10;
 const float static HALLWAY = 11;
 
-#endif 
+#endif

@@ -16,15 +16,15 @@ MazeMapper::MazeMapper() {}
 
 ///////////////////////////
 
-
-int computePathLength(vector<Point> deltas) {
+//Precondition:  deltas is a vector of delta positions, not absolute positions
+//PostCondition: returns the total path length of the path represented by deltas
+int MazeMapper::computePathLength(vector<Point> deltas) {
 	// sum up euclidean distances between delta points and return
 	int sum;
-	// iterate to size()-1 because the last point doens't have another point to get distance between
-	for (int i = 0; i < deltas.size() - 1; i++) {
-		// distance between two points
-		sum += sqrt(pow(deltas[i + 1].x - deltas[i].x, 2.0) +
-			pow(deltas[i + 1].y - deltas[i].y, 2.0));
+	// iterate to size()-1 because the last point doesn't have another point to get distance between
+	for (int i = 0; i < deltas.size(); i++) {
+		//compute magnitude of each delta
+		sum += sqrt(pow(deltas[i].x, 2) + pow(deltas[i].y, 2));
 	}
 	// function review: 6/10, "It's ok.."   -IGN
 	return sum;
@@ -279,7 +279,6 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
 	//options - ignore that and let the drve people just encounter something twice in a row
 	//clear them out at the end
 	//specifically ignore them as we're adding.  I choose this one.
-
 	//diagonalize to create shortest possible path
 	//grab the starting point, with line to second wayPoint.  Increment end point of that line along the path until hitting a wall, then back one and make that point the second waypoint
 	//then repeat from that point.  This is not a perfect optimization.  But it's good enough for now
@@ -320,25 +319,28 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
 }
 
 bool MazeMapper::pathIsBlocked(Point start, Point end){
-	//so I decided to pretend the line was fat as padding so we don't get too close to a wall.
-	//literally just iterates along the line and checks the surrounding cells for walls
-	//a more efficient alternative would be to make three lines rather than one fat line
-	//so offset starting points perpindicular to direction and use those three lines
-	//that prevents doublecounting being so much a problem.  I'll make that change.
-	//perpindicular is (-x, y) and (x, -y) I think.
+	//creates fatter version of line (three cells wide) and iterates along that path until reaching target destination or colliding with a WALL
+	//if we hit a wall, the path is blocked
+	//if we make it to the end point, the path is CLEAR
 	DoublePoint direction;
-
 	float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2));
 	direction.x = (end.x-start.x)/magnitude;
 	direction.y = (end.y-start.y)/magnitude;
+	doublePoint offset2(-direction.y, direction.x);
+	doublePoint offset3(direction.y, -direction.x);
 	Point currentCell;
+	doublePoint currentCell2, currentCell3;//currentCell is base line, 2 and 3 add thickness to line
 	for (int i = 0; i < magnitude; i ++){
 		//iterate along the path
 		currentCell.x = static_cast<int>(start.x + direction.x * i);
 		currentCell.y = static_cast<int>(start.y + direction.y * i);
+		currentCell2 = currentCell + offset2;
+		currentCell3 = currentCell + offset3;
 		for(int j = -1; j <= 1; j++){
 			for(int k = -1; k <= 1; k++){
-				 if(occGrid.getValue(currentCell.x + j, currentCell.y + j) == WALL)
+				 if(occGrid.getValue(currentCell.x + j, currentCell.y + k) == WALL)
+				 	|| occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL)
+					|| occGrid.getValue(currentcell3.x + j, currentCell.y + k) == WALL)
 				 	return true;
 			}
 		}
