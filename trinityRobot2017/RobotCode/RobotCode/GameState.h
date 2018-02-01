@@ -3,7 +3,8 @@
 #include "constants.h"
 
 using namespace std;
-
+//right now we don;t have baby as a target type wut
+//we need baby to be atarget type
 struct GameState {
 	int levelOfCompetition;
 	bool babySaved;
@@ -21,7 +22,7 @@ struct GameState {
 			targets.push_back(DOOR);
 			return targets;
 		}
-			
+
 		//level 3, baby not saved
 		if (babyObtained) {
 			//we have the baby we just need to shove it out the window
@@ -33,6 +34,9 @@ struct GameState {
 			if (!secondArena)
 				targets.push_back(HALLWAY);
 			else {
+				targets.push_back(RED_SIDE_CRADLE);
+				targets.push_back(BLUE_SIDE_CRADLE);
+				targets.push_back(GREEN_SIDE_CRADLE);
 				targets.push_back(DOOR);
 			}
 		}
