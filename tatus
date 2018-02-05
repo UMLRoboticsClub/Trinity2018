@@ -1,232 +1,0 @@
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/.suo b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/.suo[m
-[1mindex ff6e1d8..cb72275 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/.suo and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/.suo differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/Browse.VC.db b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/Browse.VC.db[m
-[1mindex 23430eb..de132bf 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/Browse.VC.db and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/Browse.VC.db differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/60c21070b92a44ff/NAVVAL.ipch b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/60c21070b92a44ff/NAVVAL.ipch[m
-[1mindex 3c40b81..6d040aa 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/60c21070b92a44ff/NAVVAL.ipch and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/60c21070b92a44ff/NAVVAL.ipch differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/b0c722c06314f09a/LASERSCANNER.ipch b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/b0c722c06314f09a/LASERSCANNER.ipch[m
-[1mindex 5a291e2..f3bc3b7 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/b0c722c06314f09a/LASERSCANNER.ipch and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/b0c722c06314f09a/LASERSCANNER.ipch differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/cb53189570b45fa8/IRSENSOR.ipch b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/cb53189570b45fa8/IRSENSOR.ipch[m
-[1mindex 7879349..46083d2 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/cb53189570b45fa8/IRSENSOR.ipch and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/cb53189570b45fa8/IRSENSOR.ipch differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/e212ff8b0121c765/MAZEMAPPER.ipch b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/e212ff8b0121c765/MAZEMAPPER.ipch[m
-[1mindex 7c10812..8365674 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/e212ff8b0121c765/MAZEMAPPER.ipch and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/e212ff8b0121c765/MAZEMAPPER.ipch differ
-[1mdiff --git a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/ff6e97102360ce81/ROBOT.ipch b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/ff6e97102360ce81/ROBOT.ipch[m
-[1mindex f6edff3..37e0b86 100755[m
-Binary files a/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/ff6e97102360ce81/ROBOT.ipch and b/trinityRobot2017/RobotCode/.vs/RobotCode/v15/ipch/AutoPCH/ff6e97102360ce81/ROBOT.ipch differ
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/ColorSensor.h b/trinityRobot2017/RobotCode/RobotCode/ColorSensor.h[m
-[1mindex e69de29..4ace9f7 100755[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/ColorSensor.h[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/ColorSensor.h[m
-[36m@@ -0,0 +1,8 @@[m
-[32m+[m[32m#pragma once[m[41m[m
-[32m+[m[32mclass ColorSensor[m[41m[m
-[32m+[m[32m{[m[41m[m
-[32m+[m[32mpublic:[m[41m[m
-[32m+[m	[32mColorSensor();[m[41m[m
-[32m+[m	[32m~ColorSensor();[m[41m[m
-[32m+[m[32m};[m[41m[m
-[32m+[m[41m[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/GameState.h b/trinityRobot2017/RobotCode/RobotCode/GameState.h[m
-[1mindex 647c10e..09cd480 100755[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/GameState.h[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/GameState.h[m
-[36m@@ -1,5 +1,5 @@[m
- #pragma once[m
-[31m-[m
-[32m+[m[32m#include "constants.h"[m[41m[m
- [m
- struct GameState {[m
- 	int levelOfCompetition;[m
-[36m@@ -7,4 +7,8 @@[m [mstruct GameState {[m
- 	bool babyObtained;[m
- 	bool safeZoneFound;[m
- 	bool inRoom;[m
-[32m+[m[41m[m
-[32m+[m	[32mint getTargetType() {[m[41m[m
-[32m+[m[41m		[m
-[32m+[m	[32m}[m[41m[m
- };[m
-\ No newline at end of file[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/NavVal.cpp b/trinityRobot2017/RobotCode/RobotCode/NavVal.cpp[m
-[1mindex 30a5a8c..870e6bf 100644[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/NavVal.cpp[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/NavVal.cpp[m
-[36m@@ -1,9 +1,5 @@[m
- #include "NavVal.h"[m
- #include "constants.h"[m
-[31m-float cellType;[m
-[31m-int timesScanned;[m
-[31m-[m
-[31m-[m
- [m
- //constructor[m
- NavVal::NavVal() : cellType(-1), timesScanned(0) {[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/NavVal.h b/trinityRobot2017/RobotCode/RobotCode/NavVal.h[m
-[1mindex 0fce9a6..8a7ae89 100644[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/NavVal.h[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/NavVal.h[m
-[36m@@ -11,22 +11,6 @@[m [mpublic:[m
- 	int updateValue(float newCellType);[m
- 	int getCellType(void);[m
- [m
-[31m-	// Not sure what this does[m
-[31m-	float static const clearThreshold;[m
-[31m-[m
-[31m-	// Constant cell types, used as parameters to updateValue().[m
-[31m-	// enum can't be floats so...[m
-[31m-	float static const UNKNOWN;[m
-[31m-	float static const CLEAR;[m
-[31m-	float static const WALL;[m
-[31m-	float static const FLAME;[m
-[31m-	float static const CANDLE;[m
-[31m-	float static const EXTINGUISHED;[m
-[31m-	float static const SAFE_ZONE;[m
-[31m-	float static const RED_SIDE_CANDLE;[m
-[31m-	float static const BLUE_SIDE_CANDLE;[m
-[31m-	float static const GREEN_SIDE_CANDLE;[m
-[31m-[m
- private:[m
- [m
- 	float cellType;[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj[m
-[1mindex 5af0dfb..2d08130 100755[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj[m
-[36m@@ -142,7 +142,30 @@[m
-     </Link>[m
-   </ItemDefinitionGroup>[m
-   <ItemGroup>[m
-[32m+[m[32m    <ClCompile Include="Camera.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="ColorSensor.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="drive.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="IRSensor.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="LaserScanner.cpp" />[m[41m[m
-     <ClCompile Include="main.cpp" />[m
-[32m+[m[32m    <ClCompile Include="MazeMapper.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="NavVal.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="occupancyGrid.cpp" />[m[41m[m
-[32m+[m[32m    <ClCompile Include="Robot.cpp" />[m[41m[m
-[32m+[m[32m  </ItemGroup>[m[41m[m
-[32m+[m[32m  <ItemGroup>[m[41m[m
-[32m+[m[32m    <ClInclude Include="Camera.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="ColorSensor.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="constants.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="drive.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="GameState.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="IRSensor.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="LaserScanner.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="MazeMapper.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="NavVal.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="occupancyGrid.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="Point.h" />[m[41m[m
-[32m+[m[32m    <ClInclude Include="Robot.h" />[m[41m[m
-   </ItemGroup>[m
-   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />[m
-   <ImportGroup Label="ExtensionTargets">[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.filters b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.filters[m
-[1mindex d5fe22c..a6c794a 100755[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.filters[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.filters[m
-[36m@@ -18,5 +18,70 @@[m
-     <ClCompile Include="main.cpp">[m
-       <Filter>Source Files</Filter>[m
-     </ClCompile>[m
-[32m+[m[32m    <ClCompile Include="MazeMapper.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="NavVal.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="drive.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="Robot.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="occupancyGrid.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="ColorSensor.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="IRSensor.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="Camera.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m    <ClCompile Include="LaserScanner.cpp">[m[41m[m
-[32m+[m[32m      <Filter>Source Files</Filter>[m[41m[m
-[32m+[m[32m    </ClCompile>[m[41m[m
-[32m+[m[32m  </ItemGroup>[m[41m[m
-[32m+[m[32m  <ItemGroup>[m[41m[m
-[32m+[m[32m    <ClInclude Include="GameState.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="MazeMapper.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="NavVal.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="Robot.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="drive.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="constants.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="occupancyGrid.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="Point.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="ColorSensor.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="IRSensor.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="Camera.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-[32m+[m[32m    <ClInclude Include="LaserScanner.h">[m[41m[m
-[32m+[m[32m      <Filter>Header Files</Filter>[m[41m[m
-[32m+[m[32m    </ClInclude>[m[41m[m
-   </ItemGroup>[m
- </Project>[m
-\ No newline at end of file[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.user b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.user[m
-[1mindex 6e2aec7..7e04c94 100755[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.user[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/RobotCode.vcxproj.user[m
-[36m@@ -1,4 +1,6 @@[m
- ﻿<?xml version="1.0" encoding="utf-8"?>[m
- <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">[m
-[31m-  <PropertyGroup />[m
-[32m+[m[32m  <PropertyGroup>[m[41m[m
-[32m+[m[32m    <ShowAllFiles>false</ShowAllFiles>[m[41m[m
-[32m+[m[32m  </PropertyGroup>[m[41m[m
- </Project>[m
-\ No newline at end of file[m
-[1mdiff --git a/trinityRobot2017/RobotCode/RobotCode/drive.h b/trinityRobot2017/RobotCode/RobotCode/drive.h[m
-[1mindex e3c1e6c..e5edc78 100644[m
-[1m--- a/trinityRobot2017/RobotCode/RobotCode/drive.h[m
-[1m+++ b/trinityRobot2017/RobotCode/RobotCode/drive.h[m
-[36m@@ -8,4 +8,4 @@[m [mclass Drive{[m
- [m
- 	private:[m
- 	//3 motors+1 accelerometer[m
-[31m-}[m
-\ No newline at end of file[m
-[32m+[m[32m};[m
-\ No newline at end of file[m
