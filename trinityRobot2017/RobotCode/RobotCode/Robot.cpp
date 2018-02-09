@@ -38,8 +38,8 @@ void Robot::robotLoop(void){
 	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::NOTHING;
 	// our path variable
 	vector<Point> nextPath;
-
-	while (true) {
+	bool done = false;
+	while (!done) {
 		// most important line of the program?
 		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation);
 
@@ -51,7 +51,9 @@ void Robot::robotLoop(void){
 		case MazeMapper::NOTHING:
 			// This is here for formality
 			break;
-		case MazeMapper::CRADLE:
+		case MazeMapper::CRADLE_FRONT:
+			goToSideFromFront();
+		case MazeMapper::CRADLE_SIDE:
 			getBaby();
 			gameState.babyObtained = true;
 			break;
@@ -76,6 +78,12 @@ void Robot::robotLoop(void){
 		case MazeMapper::HALLWAY:
 			hallwaySweep();
 			break;
+		case MazeMapper::HALLWAY_SIMPLE:
+			hallwaySimple();
+			break;
+		case MazeMapper::STOP:
+			done = true;
+			break;
 		}
 		// annnnd.. repeat
 		break; // without break, code will keep on running forever. Remove this when we start serious testing.
@@ -84,11 +92,15 @@ void Robot::robotLoop(void){
 
 void Robot::robotDrive(vector<Point> instructions) {
 	// Idk how this will work exactly
-
+	//drive.drive(vector<Point> instructions)
+	//drive.rotate(int numDegrees)
 	//drive.drive(instructions);
 }
 
 void Robot::getBaby(void) {
+	//get Camera data
+	//rotate robot to face the cradle /  move robot to be centered
+	//
 	//align robot facing cradle and do whatever we need to do to operate the arm, Matt needs to talk to mechanical for that
 }
 void Robot::tossBaby(void) {
@@ -99,6 +111,7 @@ void Robot::blowCandle(void) {
 	//point robot at candle (can be done via lidar or ir sensor alignment), then activate easy valve
 }
 void Robot::spinAndScan(void) {
+	//MazeMapper.targetPoints[FLAME].push_back(flame_location)
 	//robot will be in appropriate position, so just spin around and get flame and camera data,
 	//updating the important points vector as necessary
 }

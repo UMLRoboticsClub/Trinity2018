@@ -31,6 +31,7 @@ int MazeMapper::computePathLength(vector<Point> deltas) {
 }
 
 //vector<Point> is sequence of waypoints
+//modularize this plz
 vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp) { //only function called by the robot
 
 	//===TEST===============================================
@@ -44,7 +45,14 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 	for (int type : primaryTargets) {
 		// if we have a destination in mind
 		if (targetPoints[type].size() > 0) {
+			//update robotOps
+			nextRobotOp = determineRobotOp(type, state);
+
+			//compute the actual path
+			return specialTargetPath(type, targetPoints[type]);
+			//this whole block could be in a separate function.  And so it shall be
 			// these are for finding the shortest path to the closest known target
+			/*
 			vector<Point> path;
 			vector<Point> shortestPath;
 			int pathLength = 0;
@@ -52,7 +60,7 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 			bool firstPass = true;
 			// iterate over all our points associated with this type
 			// first point is closest path until another is shorter
-			for (int i = 0; i < targetPoints.size(); i++) {
+			for (int i = 0; i < targetPoints[type].size(); i++) {
 				// AStar path
 				path = AStar(targetPoints[type][i]);
 				// 'diagonalized' path (optimnal)
@@ -78,6 +86,7 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 			}
 			// we now have the closest path available to us, so we return that
 			return shortestPath; // yea boi
+			*/
 		}
 	}
 
@@ -89,6 +98,66 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 	moves = optimizePath(moves);
 	return convertToDeltas(moves);
 }
+
+robotOps determineRobotOp(int type, GameState state){
+	switch(type){
+		case START_ZONE:
+			return STOP;
+		case HALLWAY:
+			return state.secondArena ? HALLWAY_SIMPLE : HALLWAY;
+		case FLAME:
+			return EXTINGUISH;
+		case CANDLE:
+			return EXTINGUISH:
+		case DOOR:
+			return state.inRoom ? EXITROOM : SCANROOM;
+		case SAFE_ZONE:
+			return DROP_BABY;
+		case GREEN_SIDE_CRADLE:
+			return CRADLE_FRONT;
+		case RED_SIDE_CRADLE:
+		case BLUE_SIDE_CRADLE:
+			return CRADLE_SIDE;
+	}
+}
+
+vector<Point> specialTargetPath(int targetType, vector<Point> locations){
+	// these are for finding the shortest path to the closest known target
+	vector<Point> path;
+	vector<Point> shortestPath;
+	int pathLength = 0;
+	int shortestPathLength = 0;
+	bool firstPass = true;
+	// iterate over all our points associated with this type
+	// first point is closest path until another is shorter
+	for (int i = 0; i < locations.size(); i++) {
+		// AStar path
+		path = AStar(locations[i]);
+		// 'diagonalized' path (optimnal)
+		path = optimizePath(path);
+		// return-ready vector of deltas
+		path = convertToDeltas(path);
+		// length of these deltas (we want the shortest length)
+		pathLength = computePathLength(path);
+		if (firstPass) {
+			// on the first pass, closest path is the first path found (obviously)
+			shortestPath = path;
+			shortestPathLength = pathLength;
+			firstPass = false;
+		}
+		else {
+			// compare shortest path to current path and update accordingly
+			if (pathLength < shortestPathLength) {
+				shortestPath = path;
+				shortestPathLength = pathLength;
+			}
+			// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+		}
+	}
+	// we now have the closest path available to us, so we return that
+	return shortestPath; // yea boi
+}
+
 /////////////////////////
 
 vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created

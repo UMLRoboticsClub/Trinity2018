@@ -15,13 +15,16 @@ class MazeMapper {
 
         // enum of what findNextTarget's return by reference data.
         // (robot operations)
-        enum robotOps { NOTHING, CRADLE, SAFEZONE, EXTINGUISH, SCANROOM,	 HALLWAY };
+        enum robotOps { NOTHING, CRADLE_SIDE, CRADLE_FRONT, DROP_BABY, SAFEZONE, EXTINGUISH, SCANROOM, EXITROOM, HALLWAY, HALLWAY_SIMPLE, STOP};
 
 
         MazeMapper();
 
         //vector<Point> is sequence of waypoints
         vector<Point> findNextTarget(GameState state, robotOps &nextRobotOp); //only function called by the robot
+        robotOps determineRobotOp(int type, GameState state, Point targetLoc);
+        vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetindex);
+        Point closestClearPoint(Point target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(vector<Point>);

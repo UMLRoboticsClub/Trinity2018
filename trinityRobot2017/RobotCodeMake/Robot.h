@@ -33,7 +33,7 @@ public:
 private:
 
 	thread laserScanInputThread;
-	float		robotPos;
+	Point		robotPos;
 	float		robotAngle;
 
 	MazeMapper	mazeMapper;
@@ -46,6 +46,5 @@ private:
 	IRSensor	IRsensor;
 	Camera		camera;
 };
-
 
 #endif
