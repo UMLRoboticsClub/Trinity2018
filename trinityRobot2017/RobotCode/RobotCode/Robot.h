@@ -33,7 +33,7 @@ public:
 private:
 
 	thread laserScanInputThread;
-	float		robotPos;
+	Point		robotPos;
 	float		robotAngle;
 
 	MazeMapper	mazeMapper;
