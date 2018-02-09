@@ -1,12 +1,24 @@
 #pragma once
-#include<vector>
+#include <vector>
 #include "constants.h"
 
 using namespace std;
 //right now we don;t have baby as a target type wut
 //we need baby to be atarget type
 struct GameState {
+
+	GameState(int _levelOfCompetition = 1, int _numCandlesExtinguished = 0, bool _babySaved = false, bool _babyObtained = false, bool _safeZoneFound = false,  bool _inRoom = true, bool _secondArena){
+		levelOfCompetition = _levelOfCompetition;
+		numCandlesExtinguished = _numCandlesExtinguished;
+		babySaved = _babySaved;
+		babyObtained = _babyObtained;
+		safeZoneFound = _safeZoneFound;
+		inRoom = _inRoom;
+		secondArena = _secondArena;
+	}
+
 	int levelOfCompetition;
+	int numCandlesExtinguished;
 	bool babySaved;
 	bool babyObtained;
 	bool safeZoneFound;
@@ -37,7 +49,7 @@ struct GameState {
 				targets.push_back(RED_SIDE_CRADLE);
 				targets.push_back(BLUE_SIDE_CRADLE);
 				targets.push_back(GREEN_SIDE_CRADLE);
-				targets.push_back(DOOR);
+				targets.push_back(DOOR);//no need to differentiate entering and exiting room here, that's done outside
 			}
 		}
 		return targets;
