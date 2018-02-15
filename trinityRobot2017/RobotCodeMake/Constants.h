@@ -3,9 +3,15 @@
 #define CONSTANTS_H
 
 const float static CLEAR_THRESHOLD = 0.25;
-//make this bigger than 1 so we have more than one cell
-const int GRID_SIZE = 1;
 
+const double RESOLUTION = 1;
+
+constexpr int ARENALENGTH_CM = 244;
+constexpr int CELLSIZE_CM = 1;
+constexpr int ROBOT_DIAMETER_CM = 31;
+//big enough to hold entire maze no matter where we start
+const int GRID_SIZE_CM  = 5 * ARENALENGTH_CM;
+const int GRID_SIZE_CELLS = GRID_SIZE_CM / RESOLUTION;
 // Constant cell types, used as parameters to updateValue().
 // enum can't be floats so...
 //I see no reason for these to be floats
