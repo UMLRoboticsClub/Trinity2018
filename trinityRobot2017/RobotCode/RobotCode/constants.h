@@ -19,5 +19,6 @@ const float static GREEN_SIDE_CRADLE = 8;
 const float static DOOR = 9;
 const float static EXPLORED_DOOR = 10;
 const float static HALLWAY = 11;
+const float static START_ZONE = 12;
 
 #endif

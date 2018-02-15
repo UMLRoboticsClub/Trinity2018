@@ -29,14 +29,17 @@ public:
 	void blowCandle(void);
 	void spinAndScan(void);
 	void hallwaySweep(void);
+	void hallwaySimple(void);
+	void goToSideFromFront(void);
+	void leaveRoom(void);
 
 private:
 
 	thread laserScanInputThread;
-	float		robotPos;
+	Point		robotPos;
 	float		robotAngle;
 
-	MazeMapper	mazeMapper;
+	MazeMapper mazeMapper;
 	Drive		drive;
 
 	GameState	gameState;
@@ -46,6 +49,5 @@ private:
 	IRSensor	IRsensor;
 	Camera		camera;
 };
-
 
 #endif
