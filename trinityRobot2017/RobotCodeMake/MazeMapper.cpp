@@ -13,7 +13,14 @@
 using namespace std;
 
 //constructors
-MazeMapper::MazeMapper() {}
+MazeMapper::MazeMapper() : occGrid(GRID_SIZE_CELLS, RESOLUTION), targetPoints(), lidar(){
+  distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
+  for(unsigned int i = 0; i < distanceField.size(); i ++){
+    distanceField[i] = vector<int>(GRID_SIZE_CELLS);
+    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
+      distanceField[i][j] = -1;
+  }
+}
 
 ///////////////////////////
 
@@ -33,7 +40,9 @@ double MazeMapper::computePathLength(vector<Point> deltas) {
 
 //vector<Point> is sequence of waypoints
 vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
-
+  for(unsigned int i = 0; i < distanceField.size(); i ++)
+    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
+      distanceField[i][j] = -1;
 	//===TEST===============================================
 	//nextRobotOp = CRADLE;
 	//vector<Point> testPath = { Point(2,5) };

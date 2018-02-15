@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   occupancyGrid.cpp
  * Author: Mong Mary Touch     & SAM
- * 
+ *
  * Created on November 7, 2017
  */
 
@@ -11,7 +11,7 @@
 
 using namespace std;
 
-OccupancyGrid::OccupancyGrid(): width(500), height(500), resolution(1) {
+OccupancyGrid::OccupancyGrid(int gridSizeCells, double res): width(gridSizeCells), height(gridSizeCells), resolution(res) {
 
 	// initalize them NavVals
 	gridVals = vector<vector<NavVal>>( int(width * resolution), vector<NavVal>(int(height * resolution), NavVal()) );

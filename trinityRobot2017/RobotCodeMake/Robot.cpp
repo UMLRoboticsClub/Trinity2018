@@ -7,7 +7,7 @@ using namespace std;
 // made using this video: https://www.youtube.com/watch?v=LL8wkskDlbs
 
 Robot::Robot():
-	robotPos(GRID_SIZE/2, GRID_SIZE/2), robotAngle(0), mazeMapper(), drive(), gameState(),
+	robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
 	safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
 	// variables are initialized through the constructor for now

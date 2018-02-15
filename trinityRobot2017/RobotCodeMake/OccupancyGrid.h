@@ -16,7 +16,7 @@ using namespace std;
 
 class OccupancyGrid {
 public:
-    OccupancyGrid();
+    OccupancyGrid(int gridSize, double res);
 	OccupancyGrid(const OccupancyGrid& orig);
     // constructor initialize to width and height
 
@@ -33,7 +33,7 @@ private:
     vector<vector<NavVal>> gridVals;
     int width;
     int height;
-    int resolution;
+    double resolution;
 };
 
 #endif	/* OCCUPANCYGRID_H */

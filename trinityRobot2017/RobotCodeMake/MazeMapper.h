@@ -41,8 +41,9 @@ class MazeMapper {
     private:
         //map of type of targetPoints to vector of all point of that type
 
-        map<int, vector<Point>> targetPoints;
+
         OccupancyGrid occGrid;
+        map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
         LaserScanner lidar;
 };
