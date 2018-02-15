@@ -8,7 +8,7 @@ struct DoublePoint {
 
 template<typename T = double>
 struct Point2 {
-    T x, y; 
+    T x, y;
 
     Point2<T>(T _x, T _y): x(_x), y(_y){}
     Point2(): x(0), y(0){}
@@ -22,6 +22,7 @@ struct Point2 {
         Point2& operator=(const Point2<U> &p){
             x = p.x;
             y = p.y;
+            return *this;
         }
 
     template <typename U>

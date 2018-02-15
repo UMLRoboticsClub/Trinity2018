@@ -7,7 +7,7 @@ using namespace std;
 // made using this video: https://www.youtube.com/watch?v=LL8wkskDlbs
 
 Robot::Robot():
-	robotPos(gridSize/2, gridSize/2), mazeMapper(), robotAngle(0), drive(), gameState(),
+	robotPos(GRID_SIZE/2, GRID_SIZE/2), robotAngle(0), mazeMapper(), drive(), gameState(),
 	safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
 	// variables are initialized through the constructor for now
@@ -41,7 +41,8 @@ void Robot::robotLoop(void){
 	bool done = false;
 	while (!done) {
 		// most important line of the program?
-		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation);
+		Point targetLocation;
+		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetLocation);
 
 		// always drive to next location, then do other stuff depending on nextRobotOperation
 		robotDrive(nextPath);
@@ -57,7 +58,7 @@ void Robot::robotLoop(void){
 			getBaby();
 			gameState.babyObtained = true;
 			break;
-		case MazeMapper::SAFEZONE:
+		case MazeMapper::SAFE_ZONE:
 			tossBaby();
 			gameState.babySaved = true;
 			break;
@@ -71,7 +72,7 @@ void Robot::robotLoop(void){
 			spinAndScan();
 			gameState.inRoom = true;
 			break;
-		case MazeMapper::EXITROOM:
+		case MazeMapper::EXIT_ROOM:
 			leaveRoom(); //doesn't do the spin move enter room has
 			gameState.inRoom = false;
 			break;
@@ -88,6 +89,18 @@ void Robot::robotLoop(void){
 		// annnnd.. repeat
 		break; // without break, code will keep on running forever. Remove this when we start serious testing.
 	}
+}
+
+void Robot::hallwaySimple(){
+
+}
+
+void Robot::leaveRoom(){
+
+}
+
+void Robot::goToSideFromFront(){
+
 }
 
 void Robot::robotDrive(vector<Point> instructions) {

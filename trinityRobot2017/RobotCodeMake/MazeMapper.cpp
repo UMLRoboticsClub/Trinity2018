@@ -19,9 +19,9 @@ MazeMapper::MazeMapper() {}
 
 //Precondition:  deltas is a vector of delta positions, not absolute positions
 //PostCondition: returns the total path length of the path represented by deltas
-int MazeMapper::computePathLength(vector<Point> deltas) {
+double MazeMapper::computePathLength(vector<Point> deltas) {
     // sum up euclidean distances between delta points and return
-    int sum;
+    double sum;
     // iterate to size()-1 because the last point doesn't have another point to get distance between
     for (unsigned int i = 0; i < deltas.size(); i++) {
         //compute magnitude of each delta
@@ -32,12 +32,12 @@ int MazeMapper::computePathLength(vector<Point> deltas) {
 }
 
 //vector<Point> is sequence of waypoints
-vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp) { //only function called by the robot
+vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
 
 	//===TEST===============================================
-	nextRobotOp = CRADLE;
-	vector<Point> testPath = { Point(2,5) };
-	return testPath;
+	//nextRobotOp = CRADLE;
+	//vector<Point> testPath = { Point(2,5) };
+	//return testPath;
 	//====================================================
 
 	//check if we have already found an important point where we need to go
@@ -55,6 +55,7 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 				targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
 			if(type == FLAME)
 				targetPoints[EXTINGUISHED].push_back(targetPoints[type][targetIndex]);
+      targetLocation = targetPoints[type][targetIndex];
 			targetPoints[type].erase(targetPoints[type].begin() + targetIndex);
 			return path;
 			//this whole block could be in a separate function.  And so it shall be
@@ -106,37 +107,26 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp)
 	return convertToDeltas(moves);
 }
 
-robotOps MazeMapper::determineRobotOp(int type, GameState state){
-	switch(type){
-		case START_ZONE:
+MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
+		if(type == START_ZONE)
 			return STOP;
-			break;
-		case HALLWAY:
+		if(type == HALLWAY)
 			return state.secondArena ? HALLWAY_SIMPLE : HALLWAY;
-			break;
-		case FLAME:
+		if(type == FLAME)
 			return EXTINGUISH;
-			break;
-		case CANDLE:
-			return EXTINGUISH:
-			break;
-		case DOOR:
+		if(type == CANDLE)
+			return EXTINGUISH;
+		if(type == DOOR)
 			return SCANROOM;
-			break;
-		case EXPLORED_DOOR:
+		if(type == EXPLORED_DOOR)
 			return EXIT_ROOM;
-			break;
-		case SAFE_ZONE:
-			return DROP_BABY;
-			break;
-		case GREEN_SIDE_CRADLE:
+		if(type == SAFE_ZONE)
+			return SAFE_ZONE;
+		if(type == GREEN_SIDE_CRADLE)
 			return CRADLE_FRONT;
-			break;
-		case RED_SIDE_CRADLE:
-		case BLUE_SIDE_CRADLE:
+		if(type == RED_SIDE_CRADLE || type == BLUE_SIDE_CRADLE)
 			return CRADLE_SIDE;
-			break;
-	}
+    return NOTHING;
 }
 
 vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locations, int& targetIndex){
@@ -148,7 +138,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
 	bool firstPass = true;
 	// iterate over all our points associated with this type
 	// first point is closest path until another is shorter
-	for (int i = 0; i < locations.size(); i++) {
+	for (unsigned int i = 0; i < locations.size(); i++) {
 
 		//find the actual point we need to go to
 		if(targetType == FLAME || targetType == CANDLE || targetType == BLUE_SIDE_CRADLE || targetType == RED_SIDE_CRADLE || targetType == GREEN_SIDE_CRADLE || targetType == SAFE_ZONE){

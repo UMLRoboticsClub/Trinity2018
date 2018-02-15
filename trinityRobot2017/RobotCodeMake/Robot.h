@@ -29,6 +29,9 @@ public:
 	void blowCandle(void);
 	void spinAndScan(void);
 	void hallwaySweep(void);
+	void hallwaySimple(void);
+	void goToSideFromFront(void);
+	void leaveRoom(void);
 
 private:
 
@@ -36,7 +39,7 @@ private:
 	Point		robotPos;
 	float		robotAngle;
 
-	MazeMapper	mazeMapper;
+	MazeMapper mazeMapper;
 	Drive		drive;
 
 	GameState	gameState;

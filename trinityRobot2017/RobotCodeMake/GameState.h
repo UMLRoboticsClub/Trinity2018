@@ -7,7 +7,7 @@ using namespace std;
 //we need baby to be atarget type
 struct GameState {
 
-	GameState(int _levelOfCompetition = 1, int _numCandlesExtinguished = 0, bool _babySaved = false, bool _babyObtained = false, bool _safeZoneFound = false,  bool _inRoom = true, bool _secondArena){
+	GameState(int _levelOfCompetition = 1, int _numCandlesExtinguished = 0, bool _babySaved = false, bool _babyObtained = false, bool _safeZoneFound = false,  bool _inRoom = true, bool _secondArena = false){
 		levelOfCompetition = _levelOfCompetition;
 		numCandlesExtinguished = _numCandlesExtinguished;
 		babySaved = _babySaved;

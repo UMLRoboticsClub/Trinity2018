@@ -51,7 +51,7 @@ bool TestingEnvironment::testComputePathLength(){
   deltas.push_back(Point(-2, 0));
   MazeMapper mapper;
   //prolly did the math for this right
-  return abs(mapper.computePathLength(deltas) - 10.6594) < .1;
+  return abs(mapper.computePathLength(deltas) - static_cast<double>(10.6594)) < .1;
 }
 bool TestingEnvironment::testFindNextTarget(){
   //lotsa testing for this dude.  Might want to compartmentalize it for easier testing
