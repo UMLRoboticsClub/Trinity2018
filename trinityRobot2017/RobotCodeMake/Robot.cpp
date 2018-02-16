@@ -7,10 +7,8 @@
 using namespace std;
 
 
-// made using this video (threading): https://www.youtube.com/watch?v=LL8wkskDlbs
-
-Robot::Robot() :
-	robotPos(), mazeMapper(), robotAngle(0), drive(), gameState(),
+Robot::Robot():
+	robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
 	safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
 	// variables are initialized through the constructor for now
@@ -39,43 +37,81 @@ void Robot::start(void) {
 void Robot::robotLoop(void) {
 	// initialize to nothing (doesn't really matter)
 	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::NOTHING;
+
 	// location of our target (left as null if no target)
-	Point targetPoint;
+	Point targetLocation;
+
 	// our path variable
 	vector<Point> nextPath;
+	bool done = false;
+	
 
-	while (true) {
-		// most important line of the program?
-		//extPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetPoint);
-		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation);
+	while (!done) {
 
+		// call this bad boy
+		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetLocation);
 		// always drive to next location, then do other stuff depending on nextRobotOperation
 		robotDrive(nextPath);
 
 		// switch the nextRobotOperation variable and act accordingly
 		switch (nextRobotOperation) {
+
 		case MazeMapper::NOTHING:
 			// This is here for formality
 			break;
-		case MazeMapper::CRADLE:
-			getBaby(targetPoint);
+		case MazeMapper::CRADLE_FRONT:
+			goToSideFromFront();
+
+		case MazeMapper::CRADLE_SIDE:
+			getBaby(targetLocation);
 			break;
-		case MazeMapper::SAFEZONE:
-			tossBaby(targetPoint);
+
+		case MazeMapper::SAFE_ZONE:
+			tossBaby(targetLocation);
 			break;
+
 		case MazeMapper::EXTINGUISH:
-			blowCandle(targetPoint);
+			blowCandle(targetLocation);
 			break;
+
+		//differentiation between scanroom and exitroom occurs when door is target,
+		//return scan or exit based on whether or not currently in room.
 		case MazeMapper::SCANROOM:
 			spinAndScan();
 			break;
+
+		case MazeMapper::EXIT_ROOM:
+			leaveRoom(); //doesn't do the spin move enter room has
+			break;
+
 		case MazeMapper::HALLWAY:
 			hallwaySweep();
+			break;
+
+		case MazeMapper::HALLWAY_SIMPLE:
+			hallwaySimple();
+			break;
+
+		case MazeMapper::STOP:
+			done = true;
 			break;
 		}
 		// annnnd.. repeat
 		break; // without break, code will keep on running forever. Remove this when we start serious testing.
 	}
+}
+
+void Robot::hallwaySimple(){
+
+}
+
+void Robot::leaveRoom(){
+
+	gameState.inRoom = false;
+}
+
+void Robot::goToSideFromFront(){
+
 }
 
 void Robot::robotDrive(vector<Point> instructions) {
@@ -89,52 +125,48 @@ void Robot::robotDrive(vector<Point> instructions) {
 }
 
 void Robot::getBaby(Point targetPoint) {
-
 	// rotate towards baby and stare into soul
 	rotateTowards(targetPoint);
 
-	// extend arms()
+	// kidnapBaby.exe
 
 	// job well done
 	gameState.babyObtained = true;
 }
+
 void Robot::tossBaby(Point targetPoint) {
-
-
 	// rotate towards window
 	rotateTowards(targetPoint);
 
-
-	// murder baby
-	// cradleArm.toss() ???
-
-
+	// "save baby".exe
 
 	// job well done
 	gameState.babySaved = true;
 }
+
 void Robot::blowCandle(Point targetPoint) {
-
-
 	// face the candle head on
 	rotateTowards(targetPoint);
 
-
-
 	// blow me
 	// extinguisher.extinguish() ??
+
+	// another one down
+	gameState.numCandlesExtinguished++;
 }
+
 void Robot::spinAndScan(void) {
 	//robot will be in appropriate position, so just spin around and get flame and camera data
-	drive.rotate(PI); // degrees right?
-					  // how do i know when this done?
+	//updating the important points vector as necessary
+	drive.rotate(PI);
 
-					  //updating the important points vector as necessary
+	gameState.inRoom = true;
 }
+
 void Robot::hallwaySweep(void) {
 	/*
 	(potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
-	Then turn the robot so camera is facing back where we came from(so it’ll detect the safezone target)
+	Then turn the robot so camera is facing back where we came from(so itï¿½ll detect the safezone target)
 	then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
 	that we find the correct window.
 	*/

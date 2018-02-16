@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include<cmath>
 
 #include "GameState.h"
 #include "OccupancyGrid.h"
@@ -15,13 +16,16 @@ class MazeMapper {
 
         // enum of what findNextTarget's return by reference data.
         // (robot operations)
-        enum robotOps { NOTHING, CRADLE, SAFEZONE, EXTINGUISH, SCANROOM,	 HALLWAY };
+        enum robotOps { NOTHING, CRADLE_SIDE, CRADLE_FRONT, SAFE_ZONE, EXTINGUISH, SCANROOM, EXIT_ROOM, HALLWAY, HALLWAY_SIMPLE, STOP};
 
 
         MazeMapper();
 
         //vector<Point> is sequence of waypoints
-        vector<Point> findNextTarget(GameState state, robotOps &nextRobotOp); //only function called by the robot
+        vector<Point> findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation); //only function called by the robot
+        robotOps determineRobotOp(int type, GameState& state);
+        vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex);
+        Point closestClearPoint(Point target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(vector<Point>);
@@ -33,12 +37,13 @@ class MazeMapper {
         void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
         Point computeDistanceField(); //takes gamestate or type of target, called in find
         vector<Point> findOpenNeighbors(Point currentPos);
-        int computePathLength(vector<Point> deltas);
+        double computePathLength(vector<Point> deltas);
     private:
         //map of type of targetPoints to vector of all point of that type
 
-        map<int, vector<Point>> targetPoints;
+
         OccupancyGrid occGrid;
+        map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
         LaserScanner lidar;
 };

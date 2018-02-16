@@ -7,7 +7,7 @@ using namespace std;
 // made using this video: https://www.youtube.com/watch?v=LL8wkskDlbs
 
 Robot::Robot():
-	robotPos(0), mazeMapper(), robotAngle(0), drive(), gameState(),
+	robotPos(gridSize/2, gridSize/2), mazeMapper(), robotAngle(0), drive(), gameState(),
 	safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
 	// variables are initialized through the constructor for now
@@ -38,8 +38,8 @@ void Robot::robotLoop(void){
 	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::NOTHING;
 	// our path variable
 	vector<Point> nextPath;
-
-	while (true) {
+	bool done = false;
+	while (!done) {
 		// most important line of the program?
 		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation);
 
@@ -51,20 +51,38 @@ void Robot::robotLoop(void){
 		case MazeMapper::NOTHING:
 			// This is here for formality
 			break;
-		case MazeMapper::CRADLE:
+		case MazeMapper::CRADLE_FRONT:
+			goToSideFromFront();
+		case MazeMapper::CRADLE_SIDE:
 			getBaby();
+			gameState.babyObtained = true;
 			break;
 		case MazeMapper::SAFEZONE:
 			tossBaby();
+			gameState.babySaved = true;
 			break;
 		case MazeMapper::EXTINGUISH:
 			blowCandle();
+			gameState.numCandlesExtinguished++;
 			break;
+		//differentiation between scanroom and exitroom occurs when door is target,
+		//return scan or exit based on whether or not currently in room.
 		case MazeMapper::SCANROOM:
 			spinAndScan();
+			gameState.inRoom = true;
+			break;
+		case MazeMapper::EXITROOM:
+			leaveRoom(); //doesn't do the spin move enter room has
+			gameState.inRoom = false;
 			break;
 		case MazeMapper::HALLWAY:
 			hallwaySweep();
+			break;
+		case MazeMapper::HALLWAY_SIMPLE:
+			hallwaySimple();
+			break;
+		case MazeMapper::STOP:
+			done = true;
 			break;
 		}
 		// annnnd.. repeat
@@ -74,31 +92,33 @@ void Robot::robotLoop(void){
 
 void Robot::robotDrive(vector<Point> instructions) {
 	// Idk how this will work exactly
-
+	//drive.drive(vector<Point> instructions)
+	//drive.rotate(int numDegrees)
 	//drive.drive(instructions);
 }
 
 void Robot::getBaby(void) {
+	//get Camera data
+	//rotate robot to face the cradle /  move robot to be centered
+	//
 	//align robot facing cradle and do whatever we need to do to operate the arm, Matt needs to talk to mechanical for that
-
-	gameState.babyObtained = true;
 }
 void Robot::tossBaby(void) {
 	//align robot facing window and do whatever we need to do to throw the baby out the window
-
-	gameState.babySaved = true;
 }
 void Robot::blowCandle(void) {
+	gameState.numCandlesExtinguished++;
 	//point robot at candle (can be done via lidar or ir sensor alignment), then activate easy valve
 }
 void Robot::spinAndScan(void) {
-	//robot will be in appropriate position, so just spin around and get flame and camera data, 
+	//MazeMapper.targetPoints[FLAME].push_back(flame_location)
+	//robot will be in appropriate position, so just spin around and get flame and camera data,
 	//updating the important points vector as necessary
 }
 void Robot::hallwaySweep(void) {
 	/*
 	(potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
-	Then turn the robot so camera is facing back where we came from(so it’ll detect the safezone target)
+	Then turn the robot so camera is facing back where we came from(so itï¿½ll detect the safezone target)
 	then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
 	that we find the correct window.
 	*/

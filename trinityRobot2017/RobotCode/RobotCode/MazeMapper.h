@@ -12,7 +12,7 @@ public:
 
 	// enum of what findNextTarget's return by reference data.
 	// (robot operations)
-	enum robotOps { NOTHING, CRADLE, SAFEZONE, EXTINGUISH, SCANROOM,	 HALLWAY };
+	enum robotOps { NOTHING, CRADLE_SIDE, CRADLE_FRONT, DROP_BABY, SAFEZONE, EXTINGUISH, SCANROOM, EXITROOM, HALLWAY, HALLWAY_SIMPLE, STOP};
 
 
 	MazeMapper();

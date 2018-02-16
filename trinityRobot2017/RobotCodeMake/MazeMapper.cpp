@@ -13,15 +13,22 @@
 using namespace std;
 
 //constructors
-MazeMapper::MazeMapper() {}
+MazeMapper::MazeMapper() : occGrid(GRID_SIZE_CELLS, RESOLUTION), targetPoints(), lidar(){
+  distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
+  for(unsigned int i = 0; i < distanceField.size(); i ++){
+    distanceField[i] = vector<int>(GRID_SIZE_CELLS);
+    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
+      distanceField[i][j] = -1;
+  }
+}
 
 ///////////////////////////
 
 //Precondition:  deltas is a vector of delta positions, not absolute positions
 //PostCondition: returns the total path length of the path represented by deltas
-int MazeMapper::computePathLength(vector<Point> deltas) {
+double MazeMapper::computePathLength(vector<Point> deltas) {
     // sum up euclidean distances between delta points and return
-    int sum;
+    double sum;
     // iterate to size()-1 because the last point doesn't have another point to get distance between
     for (unsigned int i = 0; i < deltas.size(); i++) {
         //compute magnitude of each delta
@@ -32,65 +39,162 @@ int MazeMapper::computePathLength(vector<Point> deltas) {
 }
 
 //vector<Point> is sequence of waypoints
-vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp) { //only function called by the robot
+vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
+  for(unsigned int i = 0; i < distanceField.size(); i ++)
+    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
+      distanceField[i][j] = -1;
+	//===TEST===============================================
+	//nextRobotOp = CRADLE;
+	//vector<Point> testPath = { Point(2,5) };
+	//return testPath;
+	//====================================================
 
-    //===TEST===============================================
-    nextRobotOp = CRADLE;
-    vector<Point> testPath = { Point(2,5) };
-    return testPath;
-    //====================================================
+	//check if we have already found an important point where we need to go
+	vector<int> primaryTargets = state.getTargetType();
+	for (int type : primaryTargets) {
+		// if we have a destination in mind
+		if (targetPoints[type].size() > 0) {
+			//update robotOps
+			nextRobotOp = determineRobotOp(type, state);
 
-    //check if we have already found an important point where we need to go
-    vector<int> primaryTargets = state.getTargetType();
-    for (int type : primaryTargets) {
-        // if we have a destination in mind
-        if (targetPoints[type].size() > 0) {
-            // these are for finding the shortest path to the closest known target
-            vector<Point> path;
-            vector<Point> shortestPath;
-            int pathLength = 0;
-            int shortestPathLength = 0;
-            bool firstPass = true;
-            // iterate over all our points associated with this type
-            // first point is closest path until another is shorter
-            for (unsigned int i = 0; i < targetPoints.size(); i++) {
-                // AStar path
-                path = AStar(targetPoints[type][i]);
-                // 'diagonalized' path (optimnal)
-                path = optimizePath(path);
-                // return-ready vector of deltas
-                path = convertToDeltas(path);
-                // length of these deltas (we want the shortest length)
-                pathLength = computePathLength(path);
-                if (firstPass) {
-                    // on the first pass, closest path is the first path found (obviously)
-                    shortestPath = path;
-                    shortestPathLength = pathLength;
-                    firstPass = false;
-                }
-                else {
-                    // compare shortest path to current path and update accordingly
-                    if (pathLength < shortestPathLength) {
-                        shortestPath = path;
-                        shortestPathLength = pathLength;
-                    }
-                    // could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
-                }
-            }
-            // we now have the closest path available to us, so we return that
-            return shortestPath; // yea boi
-        }
-    }
+			//compute the actual path
+			int targetIndex;
+			std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
+			if(type == DOOR)
+				targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
+			if(type == FLAME)
+				targetPoints[EXTINGUISHED].push_back(targetPoints[type][targetIndex]);
+      targetLocation = targetPoints[type][targetIndex];
+			targetPoints[type].erase(targetPoints[type].begin() + targetIndex);
+			return path;
+			//this whole block could be in a separate function.  And so it shall be
+			// these are for finding the shortest path to the closest known target
+			/*
+			vector<Point> path;
+			vector<Point> shortestPath;
+			int pathLength = 0;
+			int shortestPathLength = 0;
+			bool firstPass = true;
+			// iterate over all our points associated with this type
+			// first point is closest path until another is shorter
+			for (int i = 0; i < targetPoints[type].size(); i++) {
+				// AStar path
+				path = AStar(targetPoints[type][i]);
+				// 'diagonalized' path (optimnal)
+				path = optimizePath(path);
+				// return-ready vector of deltas
+				path = convertToDeltas(path);
+				// length of these deltas (we want the shortest length)
+				pathLength = computePathLength(path);
+				if (firstPass) {
+					// on the first pass, closest path is the first path found (obviously)
+					shortestPath = path;
+					shortestPathLength = pathLength;
+					firstPass = false;
+				}
+				else {
+					// compare shortest path to current path and update accordingly
+					if (pathLength < shortestPathLength) {
+						shortestPath = path;
+						shortestPathLength = pathLength;
+					}
+					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+				}
+			}
+			// we now have the closest path available to us, so we return that
+			return shortestPath; // yea boi
+			*/
+		}
+	}
 
-    //no important points already found, go to distance field and find an unknown
-    Point target = computeDistanceField();
-    //list of solely UDLR directional movements
-    vector<Point> moves = createTargetPath(target);
-    //optimizes with direct diagonalized motion
-    moves = optimizePath(moves);
-    return convertToDeltas(moves);
+	//no important points already found, go to distance field and find an unknown
+	Point target = computeDistanceField();
+	//list of solely UDLR directional movements
+	vector<Point> moves = createTargetPath(target);
+	//optimizes with direct diagonalized motion
+	moves = optimizePath(moves);
+	return convertToDeltas(moves);
 }
-/////////////////////////
+
+MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
+		if(type == START_ZONE)
+			return STOP;
+		if(type == HALLWAY)
+			return state.secondArena ? HALLWAY_SIMPLE : HALLWAY;
+		if(type == FLAME)
+			return EXTINGUISH;
+		if(type == CANDLE)
+			return EXTINGUISH;
+		if(type == DOOR)
+			return SCANROOM;
+		if(type == EXPLORED_DOOR)
+			return EXIT_ROOM;
+		if(type == SAFE_ZONE)
+			return SAFE_ZONE;
+		if(type == GREEN_SIDE_CRADLE)
+			return CRADLE_FRONT;
+		if(type == RED_SIDE_CRADLE || type == BLUE_SIDE_CRADLE)
+			return CRADLE_SIDE;
+    return NOTHING;
+}
+
+vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locations, int& targetIndex){
+	// these are for finding the shortest path to the closest known target
+	vector<Point> path;
+	vector<Point> shortestPath;
+	int pathLength = 0;
+	int shortestPathLength = 0;
+	bool firstPass = true;
+	// iterate over all our points associated with this type
+	// first point is closest path until another is shorter
+	for (unsigned int i = 0; i < locations.size(); i++) {
+
+		//find the actual point we need to go to
+		if(targetType == FLAME || targetType == CANDLE || targetType == BLUE_SIDE_CRADLE || targetType == RED_SIDE_CRADLE || targetType == GREEN_SIDE_CRADLE || targetType == SAFE_ZONE){
+			locations[i] = closestClearPoint(locations[i]);
+		}
+
+		// AStar path
+		path = AStar(locations[i]);
+		// 'diagonalized' path (optimnal)
+		path = optimizePath(path);
+		// return-ready vector of deltas
+		path = convertToDeltas(path);
+		// length of these deltas (we want the shortest length)
+		pathLength = computePathLength(path);
+		if (firstPass) {
+			// on the first pass, closest path is the first path found (obviously)
+			shortestPath = path;
+			shortestPathLength = pathLength;
+			firstPass = false;
+		}
+		else {
+			// compare shortest path to current path and update accordingly
+			if (pathLength < shortestPathLength) {
+				shortestPath = path;
+				shortestPathLength = pathLength;
+				targetIndex = i;
+			}
+			// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+		}
+	}
+	// we now have the closest path available to us, so we return that
+	return shortestPath; // yea boi
+}
+
+//doesn't need a full distancefield, because the solid around it is square
+Point MazeMapper::closestClearPoint(Point target){
+	for(int i = 0;;i++){
+		if(occGrid.getValue(target + Point(0, i))  == CLEAR)
+			return target + Point(0, i);
+		if(occGrid.getValue(target + Point(0, -i))  == CLEAR)
+			return target + Point(0, -i);
+		if(occGrid.getValue(target + Point(i, 0))  == CLEAR)
+			return target + Point(i, 0);
+		if(occGrid.getValue(target + Point(-i, 0))  == CLEAR)
+			return target + Point(-i, 0);
+	}
+}
 
 vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
     //start at target which has a specific val in distancie field, locate neighbor with distVal 1 less, repeat.

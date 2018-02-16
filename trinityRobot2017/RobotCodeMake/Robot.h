@@ -31,6 +31,9 @@ public:
 	void blowCandle(Point targetPoint);
 	void spinAndScan(void);
 	void hallwaySweep(void);
+	void hallwaySimple(void);
+	void goToSideFromFront(void);
+	void leaveRoom(void);
 
 	void rotateTowards(Point target);
 
@@ -40,7 +43,7 @@ private:
 	DoublePoint	robotPos;
 	double		robotAngle;
 
-	MazeMapper	mazeMapper;
+	MazeMapper mazeMapper;
 	Drive		drive;
 
 	GameState	gameState;
@@ -52,6 +55,5 @@ private:
 
 	const double PI = 3.14159265358979;
 };
-
 
 #endif
