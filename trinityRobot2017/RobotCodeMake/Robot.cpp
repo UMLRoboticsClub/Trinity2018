@@ -1,13 +1,16 @@
 #include "Robot.h"
 #include <thread>
+#include <iostream>
+
+
 
 using namespace std;
 
 
-// made using this video: https://www.youtube.com/watch?v=LL8wkskDlbs
+// made using this video (threading): https://www.youtube.com/watch?v=LL8wkskDlbs
 
-Robot::Robot():
-	robotPos(0), mazeMapper(), robotAngle(0), drive(), gameState(),
+Robot::Robot() :
+	robotPos(), mazeMapper(), robotAngle(0), drive(), gameState(),
 	safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
 	// variables are initialized through the constructor for now
@@ -21,7 +24,7 @@ void Robot::start(void) {
 	thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
 	laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
 
-	// Let's start this thing
+								   // Let's start this thing
 	robotLoop();
 }
 
@@ -33,14 +36,17 @@ void Robot::start(void) {
 //bool secondArena;
 
 
-void Robot::robotLoop(void){
+void Robot::robotLoop(void) {
 	// initialize to nothing (doesn't really matter)
 	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::NOTHING;
+	// location of our target (left as null if no target)
+	Point targetPoint;
 	// our path variable
 	vector<Point> nextPath;
 
 	while (true) {
 		// most important line of the program?
+		//extPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetPoint);
 		nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation);
 
 		// always drive to next location, then do other stuff depending on nextRobotOperation
@@ -52,13 +58,13 @@ void Robot::robotLoop(void){
 			// This is here for formality
 			break;
 		case MazeMapper::CRADLE:
-			getBaby();
+			getBaby(targetPoint);
 			break;
 		case MazeMapper::SAFEZONE:
-			tossBaby();
+			tossBaby(targetPoint);
 			break;
 		case MazeMapper::EXTINGUISH:
-			blowCandle();
+			blowCandle(targetPoint);
 			break;
 		case MazeMapper::SCANROOM:
 			spinAndScan();
@@ -73,27 +79,57 @@ void Robot::robotLoop(void){
 }
 
 void Robot::robotDrive(vector<Point> instructions) {
-	// Idk how this will work exactly
 
-	//drive.drive(instructions);
+	for (unsigned int i = 0; i < instructions.size(); i++) {
+		drive.drive(instructions[i].x, instructions[i].y);
+
+		// double check position
+	}
+
 }
 
-void Robot::getBaby(void) {
-	//align robot facing cradle and do whatever we need to do to operate the arm, Matt needs to talk to mechanical for that
+void Robot::getBaby(Point targetPoint) {
 
+	// rotate towards baby and stare into soul
+	rotateTowards(targetPoint);
+
+	// extend arms()
+
+	// job well done
 	gameState.babyObtained = true;
 }
-void Robot::tossBaby(void) {
-	//align robot facing window and do whatever we need to do to throw the baby out the window
+void Robot::tossBaby(Point targetPoint) {
 
+
+	// rotate towards window
+	rotateTowards(targetPoint);
+
+
+	// murder baby
+	// cradleArm.toss() ???
+
+
+
+	// job well done
 	gameState.babySaved = true;
 }
-void Robot::blowCandle(void) {
-	//point robot at candle (can be done via lidar or ir sensor alignment), then activate easy valve
+void Robot::blowCandle(Point targetPoint) {
+
+
+	// face the candle head on
+	rotateTowards(targetPoint);
+
+
+
+	// blow me
+	// extinguisher.extinguish() ??
 }
 void Robot::spinAndScan(void) {
-	//robot will be in appropriate position, so just spin around and get flame and camera data, 
-	//updating the important points vector as necessary
+	//robot will be in appropriate position, so just spin around and get flame and camera data
+	drive.rotate(PI); // degrees right?
+					  // how do i know when this done?
+
+					  //updating the important points vector as necessary
 }
 void Robot::hallwaySweep(void) {
 	/*
@@ -102,4 +138,14 @@ void Robot::hallwaySweep(void) {
 	then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
 	that we find the correct window.
 	*/
+
+}
+
+void Robot::rotateTowards(Point target) {
+	// convert target to doublepoint for precision, and pass it with robot's position to get angle between them
+	double angleBetweenLocations = DoublePoint::computeAngle(robotPos, DoublePoint(target.x, target.y));
+	// get angle that we need to rotate in order to face target
+	double rotationAngle = angleBetweenLocations - robotAngle;
+	// pass to drive
+	drive.rotate(rotationAngle);
 }

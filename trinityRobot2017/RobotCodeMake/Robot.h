@@ -2,6 +2,7 @@
 #define ROBOT_H
 
 #include "Point.h"
+#include "DoublePoint.h"
 #include "MazeMapper.h"
 #include "GameState.h"
 #include "Constants.h"
@@ -11,6 +12,7 @@
 #include "Camera.h"
 #include <iostream>
 #include <thread>
+
 
 using namespace std;
 
@@ -24,17 +26,19 @@ public:
 	void robotLoop(void);
 
 	void robotDrive(vector<Point> instructions);
-	void getBaby(void);
-	void tossBaby(void);
-	void blowCandle(void);
+	void getBaby(Point targetPoint);
+	void tossBaby(Point targetPoint);
+	void blowCandle(Point targetPoint);
 	void spinAndScan(void);
 	void hallwaySweep(void);
+
+	void rotateTowards(Point target);
 
 private:
 
 	thread laserScanInputThread;
-	float		robotPos;
-	float		robotAngle;
+	DoublePoint	robotPos;
+	double		robotAngle;
 
 	MazeMapper	mazeMapper;
 	Drive		drive;
@@ -43,8 +47,10 @@ private:
 	Point		safeZoneLocation;
 
 	ColorSensor colorSensor;
-	IRSensor	IRsensor;
+	IRSensor		IRsensor;
 	Camera		camera;
+
+	const double PI = 3.14159265358979;
 };
 
 
