@@ -1,9 +1,10 @@
 #pragma once
+
 #include <vector>
-#include "constants.h"
+#include "Constants.h"
 
 using namespace std;
-//right now we don;t have baby as a target type wut
+//right now we don't have baby as a target type wut
 //we need baby to be atarget type
 struct GameState {
 
