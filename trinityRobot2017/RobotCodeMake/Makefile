@@ -1,19 +1,22 @@
-TARGET := robot
-CXX := g++
+TARGET = robot
+CXX = g++
+OBJDIR = obj
 
 #add -O2 for final build
-CXXFLAGS := -std=c++17 -Wall -pedantic -Wfatal-errors -MMD
-LDLIBS := -lpthread -lpigpiod_if2 -lrt
+CXXFLAGS = -std=c++17 -Wall -pedantic -Wfatal-errors
+LDLIBS = -lpthread -lpigpiod_if2 -lrt
 
-srcfiles := $(shell find . -maxdepth 1 -name "*.cpp")
-objects  := $(patsubst %.cpp, %.o, $(srcfiles))
+SRCFILES = $(shell find . -maxdepth 2 -name "*.cpp" | cut -c 3-)
+OBJECTS = $(addprefix $(OBJDIR)/, $(patsubst %.cpp, %.o, $(SRCFILES)))
 
-all: $(TARGET)
+all : $(TARGET)
 
-$(TARGET): $(objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) $(objects) $(LDLIBS)
+$(TARGET) : $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LDLIBS)
+
+$(OBJDIR)/%.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(objects) $(TARGET) *.d
-
--include *.d
+	rm -f $(OBJECTS)
+	rm -f $(TARGET)
