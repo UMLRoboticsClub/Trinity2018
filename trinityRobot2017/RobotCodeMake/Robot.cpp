@@ -2,10 +2,7 @@
 #include <thread>
 #include <iostream>
 
-
-
 using namespace std;
-
 
 Robot::Robot():
 	robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
@@ -33,10 +30,9 @@ void Robot::start(void) {
 //bool inRoom;
 //bool secondArena;
 
-
 void Robot::robotLoop(void) {
 	// initialize to nothing (doesn't really matter)
-	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::NOTHING;
+	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
 
 	// location of our target (left as null if no target)
 	Point targetLocation;
@@ -44,7 +40,6 @@ void Robot::robotLoop(void) {
 	// our path variable
 	vector<Point> nextPath;
 	bool done = false;
-	
 
 	while (!done) {
 
@@ -56,43 +51,43 @@ void Robot::robotLoop(void) {
 		// switch the nextRobotOperation variable and act accordingly
 		switch (nextRobotOperation) {
 
-		case MazeMapper::NOTHING:
+		case MazeMapper::OP_NOTHING:
 			// This is here for formality
 			break;
-		case MazeMapper::CRADLE_FRONT:
+		case MazeMapper::OP_CRADLE_FRONT:
 			goToSideFromFront();
 
-		case MazeMapper::CRADLE_SIDE:
+		case MazeMapper::OP_CRADLE_SIDE:
 			getBaby(targetLocation);
 			break;
 
-		case MazeMapper::SAFE_ZONE:
+		case MazeMapper::OP_SAFE_ZONE:
 			tossBaby(targetLocation);
 			break;
 
-		case MazeMapper::EXTINGUISH:
+		case MazeMapper::OP_EXTINGUISH:
 			blowCandle(targetLocation);
 			break;
 
 		//differentiation between scanroom and exitroom occurs when door is target,
 		//return scan or exit based on whether or not currently in room.
-		case MazeMapper::SCANROOM:
+		case MazeMapper::OP_SCANROOM:
 			spinAndScan();
 			break;
 
-		case MazeMapper::EXIT_ROOM:
+		case MazeMapper::OP_EXIT_ROOM:
 			leaveRoom(); //doesn't do the spin move enter room has
 			break;
 
-		case MazeMapper::HALLWAY:
+		case MazeMapper::OP_HALLWAY:
 			hallwaySweep();
 			break;
 
-		case MazeMapper::HALLWAY_SIMPLE:
+		case MazeMapper::OP_HALLWAY_SIMPLE:
 			hallwaySimple();
 			break;
 
-		case MazeMapper::STOP:
+		case MazeMapper::OP_STOP:
 			done = true;
 			break;
 		}
