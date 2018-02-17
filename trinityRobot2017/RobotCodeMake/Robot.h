@@ -10,9 +10,9 @@
 #include "ColorSensor.h"
 #include "IRSensor.h"
 #include "Camera.h"
+#include "GPIO.h"
 #include <iostream>
 #include <thread>
-
 
 using namespace std;
 
@@ -39,6 +39,7 @@ public:
 
 private:
 
+    GPIO gpio; //needs to be initialized before all sensors
 	thread laserScanInputThread;
 	DoublePoint	robotPos;
 	double		robotAngle;

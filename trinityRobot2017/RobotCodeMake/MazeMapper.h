@@ -16,8 +16,18 @@ class MazeMapper {
 
         // enum of what findNextTarget's return by reference data.
         // (robot operations)
-        enum robotOps { NOTHING, CRADLE_SIDE, CRADLE_FRONT, SAFE_ZONE, EXTINGUISH, SCANROOM, EXIT_ROOM, HALLWAY, HALLWAY_SIMPLE, STOP};
-
+        enum robotOps { 
+            OP_NOTHING,
+            OP_CRADLE_SIDE,
+            OP_CRADLE_FRONT,
+            OP_SAFE_ZONE,
+            OP_EXTINGUISH,
+            OP_SCANROOM,
+            OP_EXIT_ROOM,
+            OP_HALLWAY,
+            OP_HALLWAY_SIMPLE,
+            OP_STOP
+        }; 
 
         MazeMapper();
 

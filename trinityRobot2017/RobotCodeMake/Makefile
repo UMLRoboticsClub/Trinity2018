@@ -2,7 +2,7 @@ TARGET := robot
 CXX := g++
 
 #add -O2 for final build
-CXXFLAGS := -std=c++17 -Wall -pedantic -Wfatal-errors
+CXXFLAGS := -std=c++17 -Wall -pedantic -Wfatal-errors -MMD
 LDLIBS := -lpthread -lpigpiod_if2 -lrt
 
 srcfiles := $(shell find . -maxdepth 1 -name "*.cpp")
@@ -14,4 +14,6 @@ $(TARGET): $(objects)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) $(objects) $(LDLIBS)
 
 clean:
-	rm -f $(objects) $(TARGET)
+	rm -f $(objects) $(TARGET) *.d
+
+-include *.d

@@ -117,83 +117,87 @@ vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp,
 }
 
 MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
-		if(type == START_ZONE)
-			return STOP;
-		if(type == HALLWAY)
-			return state.secondArena ? HALLWAY_SIMPLE : HALLWAY;
-		if(type == FLAME)
-			return EXTINGUISH;
-		if(type == CANDLE)
-			return EXTINGUISH;
-		if(type == DOOR)
-			return SCANROOM;
-		if(type == EXPLORED_DOOR)
-			return EXIT_ROOM;
-		if(type == SAFE_ZONE)
-			return SAFE_ZONE;
-		if(type == GREEN_SIDE_CRADLE)
-			return CRADLE_FRONT;
-		if(type == RED_SIDE_CRADLE || type == BLUE_SIDE_CRADLE)
-			return CRADLE_SIDE;
-    return NOTHING;
+    switch(type){
+        case START_ZONE:
+            return OP_STOP;
+        case HALLWAY:
+            return state.secondArena ? OP_HALLWAY_SIMPLE : OP_HALLWAY;
+        case FLAME:
+            return OP_EXTINGUISH;
+        case CANDLE:
+            return OP_EXTINGUISH;
+        case DOOR:
+            return OP_SCANROOM;
+        case EXPLORED_DOOR:
+            return OP_EXIT_ROOM;
+        case SAFE_ZONE:
+            return OP_SAFE_ZONE;
+        case GREEN_SIDE_CRADLE:
+            return OP_CRADLE_FRONT;
+        case RED_SIDE_CRADLE:
+        case BLUE_SIDE_CRADLE:
+            return OP_CRADLE_SIDE;
+        default:
+            return OP_NOTHING;
+    }
 }
 
 vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locations, int& targetIndex){
-	// these are for finding the shortest path to the closest known target
-	vector<Point> path;
-	vector<Point> shortestPath;
-	int pathLength = 0;
-	int shortestPathLength = 0;
-	bool firstPass = true;
-	// iterate over all our points associated with this type
-	// first point is closest path until another is shorter
-	for (unsigned int i = 0; i < locations.size(); i++) {
+    // these are for finding the shortest path to the closest known target
+    vector<Point> path;
+    vector<Point> shortestPath;
+    int pathLength = 0;
+    int shortestPathLength = 0;
+    bool firstPass = true;
+    // iterate over all our points associated with this type
+    // first point is closest path until another is shorter
+    for (unsigned int i = 0; i < locations.size(); i++) {
 
-		//find the actual point we need to go to
-		if(targetType == FLAME || targetType == CANDLE || targetType == BLUE_SIDE_CRADLE || targetType == RED_SIDE_CRADLE || targetType == GREEN_SIDE_CRADLE || targetType == SAFE_ZONE){
-			locations[i] = closestClearPoint(locations[i]);
-		}
+        //find the actual point we need to go to
+        if(targetType == FLAME || targetType == CANDLE || targetType == BLUE_SIDE_CRADLE || targetType == RED_SIDE_CRADLE || targetType == GREEN_SIDE_CRADLE || targetType == SAFE_ZONE){
+            locations[i] = closestClearPoint(locations[i]);
+        }
 
-		// AStar path
-		path = AStar(locations[i]);
-		// 'diagonalized' path (optimnal)
-		path = optimizePath(path);
-		// return-ready vector of deltas
-		path = convertToDeltas(path);
-		// length of these deltas (we want the shortest length)
-		pathLength = computePathLength(path);
-		if (firstPass) {
-			// on the first pass, closest path is the first path found (obviously)
-			shortestPath = path;
-			shortestPathLength = pathLength;
-			firstPass = false;
-		}
-		else {
-			// compare shortest path to current path and update accordingly
-			if (pathLength < shortestPathLength) {
-				shortestPath = path;
-				shortestPathLength = pathLength;
-				targetIndex = i;
-			}
-			// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
-		}
-	}
-	// we now have the closest path available to us, so we return that
-	return shortestPath; // yea boi
+        // AStar path
+        path = AStar(locations[i]);
+        // 'diagonalized' path (optimnal)
+        path = optimizePath(path);
+        // return-ready vector of deltas
+        path = convertToDeltas(path);
+        // length of these deltas (we want the shortest length)
+        pathLength = computePathLength(path);
+        if (firstPass) {
+            // on the first pass, closest path is the first path found (obviously)
+            shortestPath = path;
+            shortestPathLength = pathLength;
+            firstPass = false;
+        }
+        else {
+            // compare shortest path to current path and update accordingly
+            if (pathLength < shortestPathLength) {
+                shortestPath = path;
+                shortestPathLength = pathLength;
+                targetIndex = i;
+            }
+            // could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+        }
+    }
+    // we now have the closest path available to us, so we return that
+    return shortestPath; // yea boi
 }
 
 //doesn't need a full distancefield, because the solid around it is square
 Point MazeMapper::closestClearPoint(Point target){
-	for(int i = 0;;i++){
-		if(occGrid.getValue(target + Point(0, i))  == CLEAR)
-			return target + Point(0, i);
-		if(occGrid.getValue(target + Point(0, -i))  == CLEAR)
-			return target + Point(0, -i);
-		if(occGrid.getValue(target + Point(i, 0))  == CLEAR)
-			return target + Point(i, 0);
-		if(occGrid.getValue(target + Point(-i, 0))  == CLEAR)
-			return target + Point(-i, 0);
-	}
+    for(int i = 0;;i++){
+        if(occGrid.getValue(target + Point(0, i))  == CLEAR)
+            return target + Point(0, i);
+        if(occGrid.getValue(target + Point(0, -i))  == CLEAR)
+            return target + Point(0, -i);
+        if(occGrid.getValue(target + Point(i, 0))  == CLEAR)
+            return target + Point(i, 0);
+        if(occGrid.getValue(target + Point(-i, 0))  == CLEAR)
+            return target + Point(-i, 0);
+    }
 }
 
 vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
@@ -437,9 +441,9 @@ bool MazeMapper::pathIsBlocked(Point start, Point end){
         for(int j = -1; j <= 1; j++){
             for(int k = -1; k <= 1; k++){
                 if(occGrid.getValue(currentCell.x + j, currentCell.y + k) == WALL
-                    || occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL
+                        || occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL
                         || occGrid.getValue(currentCell3.x + j, currentCell.y + k) == WALL)
-                        return true;
+                    return true;
             }
         }
     }
@@ -460,7 +464,6 @@ vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
 /////////////////////////////
 
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
-
 
     while (true) {
         lidar.getScan();
