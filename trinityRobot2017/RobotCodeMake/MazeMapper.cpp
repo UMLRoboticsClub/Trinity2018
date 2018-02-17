@@ -467,6 +467,14 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 
     while (true) {
         lidar.getScan();
+
+        /*
+         * IMPORTANT:
+         * There needs to be a mutex that locks ANY data that could be accessed by two threads at once
+         * Otherwise, nothing will work and you will go crazy trying to figure it out.
+         * I say this from experience - Jackson
+         */
+
         // We will figure out how often this should be called later
         updateOccupancyGrid();
     }
