@@ -2,6 +2,9 @@
 
 #include <cmath>
 
+//this is very comprehensive
+//you can do pretty much anything with this point
+
 template<typename ValType>
 struct Point2 {
     ValType x, y;
@@ -48,10 +51,24 @@ struct Point2 {
             return *this;
         }
 
+    template <typename U>
+        Point2& operator+=(const U &p) {
+            x += p;
+            y += p;
+            return *this;
+        }
+
     template <typename T>
         Point2& operator-=(const Point2<T> &p) {
             x -= p.x;
             y -= p.y;
+            return *this;
+        }
+
+    template <typename U>
+        Point2& operator-=(const U &p) {
+            x -= p;
+            y -= p;
             return *this;
         }
 
@@ -62,10 +79,24 @@ struct Point2 {
             return *this;
         }
 
+    template <typename U>
+        Point2& operator*=(const U &p) {
+            x *= p;
+            y *= p;
+            return *this;
+        }
+
     template <typename T>
         Point2& operator/=(const Point2<T> &p) {
             x /= p.x;
             y /= p.y;
+            return *this;
+        }
+
+    template <typename U>
+        Point2& operator/=(const U &p) {
+            x /= p;
+            y /= p;
             return *this;
         }
 

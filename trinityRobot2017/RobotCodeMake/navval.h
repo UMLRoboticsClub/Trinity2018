@@ -6,7 +6,7 @@ class NavVal {
         NavVal();
 
         int updateValue(float newCellType);
-        int getCellType();
+        int getCellType() const;
 
     private:
         float cellType;

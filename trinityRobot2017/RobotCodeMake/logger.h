@@ -17,18 +17,18 @@ namespace Logger {
 
     static void log(std::string str, int priority = LOW){
 #ifdef LOGGING
-        cout << BOLD << BLU << "DEBUG: " << RST;
+        std::cout << BOLD << BLU << "DEBUG: " << RST;
         switch(priority){
             case LOW:
                 break;
             case MED:
-                cout << YEL;
+                std::cout << YEL;
                 break;
             case HIGH:
-                cout << RED;
+                std::cout << RED;
                 break;
         };
-        cout << str << RST << endl;
+        std::cout << str << RST << std::endl;
 #endif
     }
 }

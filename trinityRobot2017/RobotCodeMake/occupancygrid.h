@@ -1,8 +1,3 @@
-/*
- * Author: Mong Mary Touch
- *
- */
-
 #ifndef OCCUPANCYGRID_H
 #define	OCCUPANCYGRID_H
 
@@ -14,20 +9,16 @@ using std::vector;
 
 class OccupancyGrid {
     public:
-        OccupancyGrid(int gridSize, double res);
+        OccupancyGrid();
         OccupancyGrid(const OccupancyGrid& orig);
 
         int update(float realX, float realY, int val);
-        int getValue(int x, int y);
-        int getValue(Point point);   // return array
+        int getValue(int x, int y) const;
+        int getValue(const Point &point) const; // return array
 
-        int getTotalWidth();
-        int getTotalHeight();
-
-        int width, height;
+        const int size;
     private:
         vector<vector<NavVal>> gridVals;
-        double resolution;
 };
 
 #endif

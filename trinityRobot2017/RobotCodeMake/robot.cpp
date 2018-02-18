@@ -4,12 +4,13 @@
 #include <thread>
 #include <iostream>
 #include <csignal>
+#include <cstring>
 
 bool Robot::done = false;
 
 void Robot::signalHandler(int signum){
     cout << "\n";
-    Logger::log("signal caught, aborting", Logger::HIGH);
+    Logger::log(string(strsignal(signum)) + ", aborting...", Logger::HIGH);
     done = true;
 
     //remove this soon

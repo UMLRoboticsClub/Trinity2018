@@ -3,7 +3,7 @@
 #define CONSTANTS_H
 
 static const float CLEAR_THRESHOLD = 0.25;
-static const float RESOLUTION = 1;
+static const int RESOLUTION = 1;
 
 constexpr static const int ARENALENGTH_CM = 244;
 constexpr static const int CELLSIZE_CM = 1;

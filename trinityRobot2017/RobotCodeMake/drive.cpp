@@ -1,5 +1,7 @@
 #include "drive.h"
 
+#include "pins.h"
+
 Drive::Drive():
 motorA(motor1APin, motor1BPin),
 motorB(motor2APin, motor2BPin),

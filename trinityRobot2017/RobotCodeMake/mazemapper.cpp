@@ -12,7 +12,7 @@
 #include <functional>
 
 //constructors
-MazeMapper::MazeMapper() : occGrid(GRID_SIZE_CELLS, RESOLUTION), targetPoints(), lidar(){
+MazeMapper::MazeMapper(): occGrid(), targetPoints(), lidar(){
     distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
     for(unsigned int i = 0; i < distanceField.size(); ++i){
         distanceField[i] = vector<int>(GRID_SIZE_CELLS);
@@ -257,7 +257,6 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     Node* childNode;							// one of four child nodes every iteration
     Node* traverseNode;							// traverse node used to generate path when algorithm finishes
 
-    Point point;								// useful point object
     Point newNodePoint;							// point object every iteration
 
     // directions possible to grow openlist, dg must be 1 as long as their are only 4 directions (up, down, left, right)
@@ -267,12 +266,9 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     // and blockValue is the whether the current location is clear or blocked
     int newX = 0, newY = 0, heuristic = 0;
 
-    // start where the robot is
-    Point startPos(robotPos.x, robotPos.y);
-
     // start algorithm with start location in the open list
-    point = Point(startPos.x, startPos.y);
-    openNodes.insert(pair<Point, Node*>(point, new Node(startPos.x, startPos.y, target.x + target.y)));
+    Point point(robotPos);
+    openNodes.insert(pair<Point, Node*>(point, new Node(robotPos.x, robotPos.y, target.x + target.y)));
 
     // set parent of first location to NULL (so we can find it later when generating the path)
     openNodes[point]->setParent(NULL, 0);
@@ -280,8 +276,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     // If the target is never found somehow, then this while loop will keep the program from running indefinitely
     while (!openNodes.empty()) {
 
-        {
-            // take node with smallest f ( we use point to find this node, and point will then be key to this node
+        { // take node with smallest f ( we use point to find this node, and point will then be key to this node
             auto iter = openNodes.begin();
             point = iter->first; // node at beginning is our starting lowest f value point
             while (iter != openNodes.end()) {
@@ -310,8 +305,8 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             newNodePoint = Point(newX, newY);
 
             //if out of bounds, skip this child (with continue statement)
-            if (newX < 0 || newX >= occGrid.width || newY < 0 || newY >= occGrid.height){
-                continue;
+            if (newX < 0 || newX >= occGrid.size || newY < 0 || newY >= occGrid.size){
+               continue;
             }
 
             // if newX and newY are not clear
@@ -371,6 +366,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                     delete p.second;
                 }
                 openNodes.clear();
+
                 for(auto &p : closedNodes){
                     delete p.second;
                 }
@@ -397,23 +393,22 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     //then repeat from that point.  This is not a perfect optimization.  But it's good enough for now
 
     vector<Point> optMoves;
-    Point startPoint = robotPos;
-    Point endPoint = moves[0];
+    Point startPoint(robotPos);
+    Point endPoint(moves[0]);
 
     //for each possible improvement
     for(unsigned i = 0; i < moves.size() - 1; ++i){
-        Point nextMove = moves[i + 1];
+        Point nextMove(moves[i + 1]);
         //fix this to be more robust
-        Point direction = (nextMove - endPoint);
-        direction.x /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
-        direction.y /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
+        Point direction(nextMove - endPoint);
+        direction /= endPoint.x - nextMove.x + endPoint.y - nextMove.y;
 
         while(endPoint != nextMove){ //if we reach the next point we have a straight digaonal path to it.
             if(pathIsBlocked(startPoint, endPoint)){ //this path is not okay
-                endPoint = endPoint - direction; //go back a step, we overshot
+                endPoint -= direction; //go back a step, we overshot
                 break;
             } else {
-                endPoint = endPoint - direction;
+                endPoint -= direction;
             }
         }
         //avoid including a waypoint multiple times. Trust me it could happen otherwise.
@@ -480,7 +475,7 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
     Logger::log("starting laserScanLoop");
-    //vector<int> distances(360); //placeholder
+    //vector<int> distances(360);
     //lidar.init();
     while (true) {
         //placeholder stuff

@@ -1,9 +1,8 @@
 #include "navval.h"
 #include "constants.h"
+#include "logger.h"
 
-NavVal::NavVal() : cellType(-1), timesScanned(0) {
-
-}
+NavVal::NavVal() : cellType(-1), timesScanned(0) {}
 
 // usage: nv.updateValue(NavVal::WALL);
 int NavVal::updateValue(float newCellType) {
@@ -29,13 +28,22 @@ int NavVal::updateValue(float newCellType) {
     //We can change this to void if nothing bad can ever happen in this function
 }
 
-int NavVal::getCellType() {
-    /*if (cellType >= 0 && cellType <= 1) {
+int NavVal::getCellType() const {
+    ///fix this and remove it
+    if(this == nullptr){
+        Logger::log("calling a function of a null NavVal! this should never happen", Logger::HIGH);
+        return 1;
+    }
+
+    if (cellType >= 0 && cellType <= 1) {
+    //if (1) {
         // (basically a clearThreshhold or greater probability will return a WALL and CLEAR otherwise)
         return cellType >= CLEAR_THRESHOLD;
+        //return 1;
     } else {
         // must be a special value or unknown
         return cellType;
-    }*/
+        //return 1;
+    }
     return 1;
 }
