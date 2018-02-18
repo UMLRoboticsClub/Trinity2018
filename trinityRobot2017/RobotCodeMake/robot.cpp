@@ -1,25 +1,49 @@
 #include "robot.h"
+
+#include "logger.h"
 #include <thread>
 #include <iostream>
+#include <csignal>
+
+bool Robot::done = false;
+
+void Robot::signalHandler(int signum){
+    cout << "\n";
+    Logger::log("signal caught, aborting", Logger::HIGH);
+    done = true;
+
+    //remove this soon
+    exit(signum);
+}
 
 Robot::Robot():
-	robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
-	safeZoneLocation(), colorSensor(), IRsensor(), camera()
+    robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
+    safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
-	// variables are initialized through the constructor for now
+    signal(SIGINT , Robot::signalHandler);
+    signal(SIGABRT, Robot::signalHandler);
+    signal(SIGFPE , Robot::signalHandler);
+    signal(SIGILL , Robot::signalHandler);
+    signal(SIGSEGV, Robot::signalHandler);
+    signal(SIGTERM, Robot::signalHandler);
+    signal(SIGHUP , Robot::signalHandler);
+
+    Logger::log("robot initialized");
+    // variables are initialized through the constructor for now
 }
 
 ///////////////////////////
 
-void Robot::start(void) {
-	// maybe this can go in the constructor in the future
-	// Thread dedicated to looping the lazer scanner until the robot dies.
-	thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
-	laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
+void Robot::start() {
+    // maybe this can go in the constructor in the future
+    // Thread dedicated to looping the lazer scanner until the robot dies.
+    thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
+    laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
 
 
+    Logger::log("starting robotLoop");
     // Let's start this thing
-	robotLoop();
+    robotLoop();
 }
 
 ///////////////////////////
@@ -29,20 +53,23 @@ void Robot::start(void) {
 //bool inRoom;
 //bool secondArena;
 
-void Robot::robotLoop(void) {
-	// initialize to nothing (doesn't really matter)
-	MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
+void Robot::robotLoop() {
+    // initialize to nothing (doesn't really matter)
+    MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
 
-	// location of our target (left as null if no target)
-	Point targetLocation;
+    // location of our target (left as null if no target)
+    Point targetLocation;
 
-	// our path variable
-	vector<Point> nextPath;
-	bool done = false;
+    // our path variable
+    vector<Point> nextPath;
+    //bool done = false;
 
     while (!done) {
+        Logger::log("finding next target");
         // call this bad boy
         nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetLocation);
+
+        Logger::log("driving to next path");
         // always drive to next location, then do other stuff depending on nextRobotOperation
         robotDrive(nextPath);
 
@@ -52,37 +79,47 @@ void Robot::robotLoop(void) {
                 // This is here for formality
                 break;
             case MazeMapper::OP_CRADLE_FRONT:
+                Logger::log("goToSideFromFront");
                 goToSideFromFront();
             case MazeMapper::OP_CRADLE_SIDE:
+                Logger::log("getBaby");
                 getBaby(targetLocation);
                 break;
             case MazeMapper::OP_SAFE_ZONE:
+                Logger::log("tossBaby");
                 tossBaby(targetLocation);
                 break;
             case MazeMapper::OP_EXTINGUISH:
+                Logger::log("extinguish");
                 blowCandle(targetLocation);
                 break;
                 //differentiation between scanroom and exitroom occurs when door is target,
                 //return scan or exit based on whether or not currently in room.
             case MazeMapper::OP_SCANROOM:
+                Logger::log("spinAndScan");
                 spinAndScan();
                 break;
             case MazeMapper::OP_EXIT_ROOM:
+                Logger::log("leaveRoom");
                 leaveRoom(); //doesn't do the spin move enter room has
                 break;
             case MazeMapper::OP_HALLWAY:
+                Logger::log("hallwaySweep");
                 hallwaySweep();
                 break;
             case MazeMapper::OP_HALLWAY_SIMPLE:
+                Logger::log("hallwaySimple");
                 hallwaySimple();
                 break;
             case MazeMapper::OP_STOP:
+                Logger::log("success!");
                 done = true;
                 break;
         }
         // annnnd.. repeat
         break; // without break, code will keep on running forever. Remove this when we start serious testing.
     }
+    Logger::log("exiting");
 }
 
 void Robot::hallwaySimple(){
@@ -139,7 +176,7 @@ void Robot::blowCandle(Point targetPoint) {
     gameState.numCandlesExtinguished++;
 }
 
-void Robot::spinAndScan(void) {
+void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
     drive.rotate(M_PI);
@@ -147,7 +184,7 @@ void Robot::spinAndScan(void) {
     gameState.inRoom = true;
 }
 
-void Robot::hallwaySweep(void) {
+void Robot::hallwaySweep() {
     /*
        (potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
        Then turn the robot so camera is facing back where we came from(so it'¿½ll detect the safezone target)

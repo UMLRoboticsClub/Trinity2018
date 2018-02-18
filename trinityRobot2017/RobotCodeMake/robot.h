@@ -21,38 +21,41 @@ class Robot {
 public:
 	Robot();
 
-	void start(void);
+	void start();
 
-	void robotLoop(void);
+	void robotLoop();
 
 	void robotDrive(vector<Point> instructions);
 	void getBaby(Point targetPoint);
 	void tossBaby(Point targetPoint);
 	void blowCandle(Point targetPoint);
-	void spinAndScan(void);
-	void hallwaySweep(void);
-	void hallwaySimple(void);
-	void goToSideFromFront(void);
-	void leaveRoom(void);
+	void spinAndScan();
+	void hallwaySweep();
+	void hallwaySimple();
+	void goToSideFromFront();
+	void leaveRoom();
 
 	void rotateTowards(Point target);
 
 private:
+    static void signalHandler(int signum);
+
+    static bool done;
 
     GPIO gpio; //needs to be initialized before all sensors
-	thread laserScanInputThread;
-	DoublePoint	robotPos;
-	double		robotAngle;
+    thread laserScanInputThread;
+    DoublePoint	robotPos;
+    double		robotAngle;
 
-	MazeMapper mazeMapper;
-	Drive		drive;
+    MazeMapper mazeMapper;
+    Drive		drive;
 
-	GameState	gameState;
-	Point		safeZoneLocation;
+    GameState	gameState;
+    Point		safeZoneLocation;
 
-	ColorSensor colorSensor;
-	IRSensor	IRsensor;
-	Camera		camera;
+    ColorSensor colorSensor;
+    IRSensor	IRsensor;
+    Camera		camera;
 };
 
 #endif

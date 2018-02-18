@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "point.h"
 #include "node.h"
+#include "logger.h"
 
 #include <vector>
 #include <unordered_map>
@@ -479,6 +480,7 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 /////////////////////////////
 
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
+    Logger::log("starting laserScanLoop");
     //vector<int> distances(360); //placeholder
     //lidar.init();
     while (true) {
