@@ -51,10 +51,8 @@ private:
 	Point		safeZoneLocation;
 
 	ColorSensor colorSensor;
-	IRSensor		IRsensor;
+	IRSensor	IRsensor;
 	Camera		camera;
-
-	const double PI = 3.14159265358979;
 };
 
 #endif

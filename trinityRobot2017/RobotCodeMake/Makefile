@@ -6,7 +6,7 @@ OBJDIR = obj
 CXXFLAGS = -std=c++17 -g -Wall -pedantic -Wfatal-errors
 LDLIBS = -lpthread -lpigpiod_if2 -lrt
 
-SRCFILES = $(shell find . -maxdepth 2 -name "*.cpp" | cut -c 3-)
+SRCFILES = $(shell find . -maxdepth 1 -name "*.cpp" | cut -c 3-)
 OBJECTS = $(addprefix $(OBJDIR)/, $(patsubst %.cpp, %.o, $(SRCFILES)))
 
 all : $(TARGET)

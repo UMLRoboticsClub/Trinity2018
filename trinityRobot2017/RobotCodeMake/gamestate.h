@@ -5,7 +5,7 @@
 
 using namespace std;
 //right now we don't have baby as a target type wut
-//we need baby to be atarget type
+//we need baby to be a target type
 struct GameState {
 
     GameState(
@@ -69,10 +69,11 @@ struct GameState {
         if (levelOfCompetition != 3 || babySaved) {
             targets.push_back(FLAME);
             targets.push_back(CANDLE);
-            if(!inRoom)
+            if(!inRoom){
                 targets.push_back(DOOR);
-            else
+            } else {
                 targets.push_back(EXPLORED_DOOR);
+            }
             return targets;
         }
 
@@ -81,19 +82,18 @@ struct GameState {
             //we have the baby we just need to shove it out the window
             targets.push_back(SAFE_ZONE);
             return targets;
-        }
-        //we have not found the baby
-        else {
-            if (!secondArena)
+        } else { //we have not found the baby
+            if (!secondArena){
                 targets.push_back(HALLWAY);
-            else {
+            } else {
                 targets.push_back(RED_SIDE_CRADLE);
                 targets.push_back(BLUE_SIDE_CRADLE);
                 targets.push_back(GREEN_SIDE_CRADLE);
-                if(!inRoom)
+                if(!inRoom){
                     targets.push_back(DOOR);
-                else
+                } else {
                     targets.push_back(EXPLORED_DOOR);
+                }
             }
         }
         return targets;

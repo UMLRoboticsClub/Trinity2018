@@ -5,12 +5,11 @@
 #include "occupancygrid.h"
 #include "point.h"
 
-using namespace std;
-
 OccupancyGrid::OccupancyGrid(int gridSizeCells, double res):
     width(gridSizeCells), height(gridSizeCells), resolution(res)
 {
 
+    //I really don't like the idea of using floating point multiplication to determine array sizes -Jackson
     // initalize them NavVals
     gridVals = vector<vector<NavVal>>( int(width * resolution), vector<NavVal>(int(height * resolution), NavVal()) );
 

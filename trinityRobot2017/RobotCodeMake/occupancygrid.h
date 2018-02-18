@@ -10,13 +10,12 @@
 #include "point.h"
 #include <vector>
 
-using namespace std;
+using std::vector;
 
 class OccupancyGrid {
     public:
         OccupancyGrid(int gridSize, double res);
         OccupancyGrid(const OccupancyGrid& orig);
-        // constructor initialize to width and height
 
         int update(float realX, float realY, int val);
         int getValue(int x, int y);

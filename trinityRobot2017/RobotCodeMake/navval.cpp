@@ -30,11 +30,12 @@ int NavVal::updateValue(float newCellType) {
 }
 
 int NavVal::getCellType() {
-    if (cellType >= 0 && cellType <= 1) {
+    /*if (cellType >= 0 && cellType <= 1) {
         // (basically a clearThreshhold or greater probability will return a WALL and CLEAR otherwise)
         return cellType >= CLEAR_THRESHOLD;
     } else {
         // must be a special value or unknown
         return cellType;
-    }
+    }*/
+    return 1;
 }

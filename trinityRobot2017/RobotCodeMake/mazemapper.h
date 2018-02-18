@@ -6,7 +6,7 @@
 
 #include "gamestate.h"
 #include "occupancygrid.h"
-#include "laserscanner.h"
+#include "lidar.h"
 #include "point.h"
 
 using namespace std;
@@ -32,10 +32,10 @@ class MazeMapper {
         MazeMapper();
 
         //vector<Point> is sequence of waypoints
-        vector<Point> findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation); //only function called by the robot
-        robotOps determineRobotOp(int type, GameState& state);
+        vector<Point> findNextTarget(GameState &state, robotOps &nextRobotOp, Point& targetLocation); //only function called by the robot
+        robotOps determineRobotOp(int type, GameState &state);
         vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex);
-        Point closestClearPoint(Point target);
+        Point closestClearPoint(const Point &target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(const vector<Point> &moves);
@@ -46,7 +46,7 @@ class MazeMapper {
         void laserScanLoop();
         void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
         Point computeDistanceField(); //takes gamestate or type of target, called in find
-        vector<Point> findOpenNeighbors(Point currentPos);
+        vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);
     private:
         //map of type of targetPoints to vector of all point of that type
@@ -54,5 +54,5 @@ class MazeMapper {
         OccupancyGrid occGrid;
         map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
-        LaserScanner lidar;
+        Lidar lidar;
 };

@@ -40,7 +40,7 @@ double MazeMapper::computePathLength(const vector<Point> &deltas) {
 }
 
 //vector<Point> is sequence of waypoints
-vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
+vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
     for(unsigned int i = 0; i < distanceField.size(); ++i){
         for(unsigned int j = 0; j < distanceField[i].size(); j ++){
             distanceField[i][j] = -1;
@@ -195,7 +195,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
 }
 
 //doesn't need a full distancefield, because the solid around it is square
-Point MazeMapper::closestClearPoint(Point target){
+Point MazeMapper::closestClearPoint(const Point &target){
     for(int i = 0 ;; ++i){
         if(occGrid.getValue(target + Point(0, i))  == CLEAR)
             return target + Point(0, i);
@@ -428,10 +428,9 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     }
 
     //make sure we don't double count the last move which isn't part of the above loop
-    //////if(optMoves.empty() || moves.back() != optMoves.back()){
-    //////    optMoves.push_back(moves.back());
-    //////}
-    //put this back in a sec
+    if(optMoves.empty() || moves.back() != optMoves.back()){
+        optMoves.push_back(moves.back());
+    }
 
     return optMoves;
 }
@@ -480,9 +479,18 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 /////////////////////////////
 
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
-
+    //vector<int> distances(360); //placeholder
+    //lidar.init();
     while (true) {
-        lidar.getScan();
+        //placeholder stuff
+        //lidar.scan();
+        //lidar.processFrame();
+
+        //if(!lidar.newFrame()){
+        //    //sleep a few ms
+        //    continue;
+        //}
+        //lidar.getValues(distances); 
 
         /*
          * IMPORTANT:
@@ -521,10 +529,10 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
     return Point(-1, -1);
 }
 
-vector<Point> MazeMapper::findOpenNeighbors(Point currentPos) {
-    std::vector<Point> openNeighbors;
-    for (int x_offset = -1; x_offset < 2; x_offset++) {
-        for (int y_offset = -1; y_offset < 2; y_offset++) {
+vector<Point> MazeMapper::findOpenNeighbors(const Point &currentPos) {
+    vector<Point> openNeighbors;
+    for (int x_offset = -1; x_offset < 2; ++x_offset) {
+        for (int y_offset = -1; y_offset < 2; ++y_offset) {
             if (!isDiag(x_offset, y_offset) && 
                     occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) <= CLEAR_THRESHOLD &&
                     occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) >= 0) {
