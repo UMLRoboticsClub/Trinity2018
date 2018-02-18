@@ -258,21 +258,18 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     Node* childNode;							// one of four child nodes every iteration
     Node* traverseNode;							// traverse node used to generate path when algorithm finishes
 
-    Point point;								// usefull point object
+    Point point;								// useful point object
     Point newNodePoint;							// point object every iteration
-
-    unordered_map<Point, Node*>::iterator mapIterator; // iterator for any unordered_map
-
 
     // directions possible to grow openlist, dg must be 1 as long as their are only 4 directions (up, down, left, right)
     vector<Point> directions = { Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1) };
     int dg = 1;
     // newX and newY are the child locations each iteration, heuristic is the new h value for every child
     // and blockValue is the whether the current location is clear or blocked
-    int newX = 0, newY = 0, heuristic = 0, blockValue = 0;
+    int newX = 0, newY = 0, heuristic = 0;
 
     // start where the robot is
-    Point startPos = Point(int(robotPos.x), int(robotPos.y));
+    Point startPos(robotPos.x, robotPos.y);
 
     // start algorithm with start location in the open list
     point = Point(startPos.x, startPos.y);
@@ -284,16 +281,19 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     // If the target is never found somehow, then this while loop will keep the program from running indefinitely
     while (!openNodes.empty()) {
 
-        // take node with smallest f ( we use point to find this node, and point will then be key to this node
-        mapIterator = openNodes.begin();
-        point = mapIterator->first; // node at beginning is our starting lowest f value point
-        while (mapIterator != openNodes.end()) {
-            // if this node f is smaller than smallest found -> replace
-            if (mapIterator->second->getF() < openNodes[point]->getF()) {
-                point = mapIterator->first;
+        {
+            // take node with smallest f ( we use point to find this node, and point will then be key to this node
+            auto iter = openNodes.begin();
+            point = iter->first; // node at beginning is our starting lowest f value point
+            while (iter != openNodes.end()) {
+                // if this node f is smaller than smallest found -> replace
+                if (iter->second->getF() < openNodes[point]->getF()) {
+                    point = iter->first;
+                }
+                ++iter;
             }
-            mapIterator++;
         }
+
         // remove this node from open map and save as parentNode
         parentNode = openNodes[point];
         openNodes.erase(point);
@@ -311,13 +311,14 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             newNodePoint = Point(newX, newY);
 
             //if out of bounds, skip this child (with continue statement)
-            if (newX < 0 || newX >= occGrid.width || newY < 0 || newY >= occGrid.height) continue;
+            if (newX < 0 || newX >= occGrid.width || newY < 0 || newY >= occGrid.height){
+                continue;
+            }
 
             // if newX and newY are not clear
             // CLEAR, DOOR, EXPLORED_DOOR, HALLWAY - clear, else -> wall
-            blockValue = occGrid.getValue(newX, newY);
+            int blockValue = occGrid.getValue(newX, newY);
             // skip if NOT these values
-            //this can be clearer
             if (!(
                         blockValue == CLEAR || 
                         blockValue == DOOR || 
@@ -326,24 +327,27 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 continue;
             }
 
-            // if newX and newY are already in the open nodes map
-            if ((auto iter = openNodes.find(newNodePoint)) != openNodes.end()) {
-
-                // if new posible g < nodeAlreadyInList.g -> re-parent nodeAlreadyInList so that it's parent is current parentNode
-                if (parentNode->getG() + dg < iter->second->getG()) {
-                    iter->second->setParent(parentNode, dg); // set new parent
+            {
+                auto iter = openNodes.find(newNodePoint);
+                // if newX and newY are already in the open nodes map
+                if (iter != openNodes.end()) {
+                    // if new posible g < nodeAlreadyInList.g -> re-parent 
+                    //nodeAlreadyInList so that it's parent is current parentNode
+                    if (parentNode->getG() + dg < iter->second->getG()) {
+                        iter->second->setParent(parentNode, dg); // set new parent
+                    }
+                    continue;
                 }
-                continue;
             }
 
             // if newX and newY are already in the closed nodes map -> skip
-            mapIterator = closedNodes.find(newNodePoint);
-            if (mapIterator != closedNodes.end()) {
+            if (closedNodes.find(newNodePoint) != closedNodes.end()) {
                 continue;
             }
 
-            // creat child, set parent and add to open map
-            // heuristic = approximate heuristic using Manhattan Distance ( as opposed to Euclidean Distance or Diagonal Distance)
+            // create child, set parent and add to open map
+            // heuristic = approximate heuristic using Manhattan Distance 
+            // (as opposed to Euclidean Distance or Diagonal Distance)
             childNode = new Node(newX, newY, heuristic);
             childNode->setParent(parentNode, dg);
             openNodes[newNodePoint] = childNode;
@@ -359,16 +363,17 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                     traverseNode = traverseNode->getParent();
                 }
 
-                //reverse vector (this is faster than inserting the points at the front, which would cause a shift every time
+                //reverse vector (this is faster than inserting the points at the 
+                //front, which would cause a shift every time
                 reverse(path.begin(), path.end());
 
                 // garbage collection -- clear out the open and closed nodes so we get no memory leaks (bad)
-                for (auto it = openNodes.begin(); it != openNodes.end(); ++it) {
-                    delete it->second;
+                for(auto &p : openNodes){
+                    delete p.second;
                 }
                 openNodes.clear();
-                for (auto it = closedNodes.begin(); it != closedNodes.end(); ++it) {
-                    delete it->second;
+                for(auto &p : closedNodes){
+                    delete p.second;
                 }
                 closedNodes.clear();
 
@@ -382,46 +387,51 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     return path;
 }
 
-vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
+vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     //this function currently can end up with targetLocations occuring twice in a single array.
     //options - ignore that and let the drve people just encounter something twice in a row
     //clear them out at the end
     //specifically ignore them as we're adding.  I choose this one.
     //diagonalize to create shortest possible path
-    //grab the starting point, with line to second wayPoint.  Increment end point of that line along the path until hitting a wall, then back one and make that point the second waypoint
+    //grab the starting point, with line to second wayPoint.  Increment end point of that line 
+    //along the path until hitting a wall, then back one and make that point the second waypoint
     //then repeat from that point.  This is not a perfect optimization.  But it's good enough for now
+
     vector<Point> optMoves;
     Point startPoint = robotPos;
     Point endPoint = moves[0];
-    unsigned int movesIndex = 0;
+
     //for each possible improvement
-    while(movesIndex < moves.size() - 1){
-        Point nextMove = moves[movesIndex+1];
+    for(unsigned i = 0; i < moves.size() - 1; ++i){
+        Point nextMove = moves[i + 1];
         //fix this to be more robust
         Point direction = (nextMove - endPoint);
         direction.x /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
         direction.y /= (endPoint.x - nextMove.x + endPoint.y - nextMove.y);
-        while(endPoint != nextMove){//if we reach the next point we have a straight digaonal path to it.
-            if(pathIsBlocked(startPoint, endPoint)){//this path is not okay
-                endPoint = endPoint - direction;//go back a step, we overshot
+
+        while(endPoint != nextMove){ //if we reach the next point we have a straight digaonal path to it.
+            if(pathIsBlocked(startPoint, endPoint)){ //this path is not okay
+                endPoint = endPoint - direction; //go back a step, we overshot
                 break;
-            } else{
+            } else {
                 endPoint = endPoint - direction;
             }
         }
-        //avoid including a waypoint multiple times.  Trust me it could happen otherwise.
-        if(optMoves.size() == 0 || endPoint != optMoves[optMoves.size()-1])
+        //avoid including a waypoint multiple times. Trust me it could happen otherwise.
+        if(optMoves.empty() || endPoint != optMoves.back()){
             optMoves.push_back(endPoint);
+        }
 
         //done with this path, move on
         startPoint = endPoint;
         endPoint = nextMove;
-        movesIndex++;
     }
+
     //make sure we don't double count the last move which isn't part of the above loop
-    if(optMoves.size() == 0 || moves[moves.size()-1] != optMoves[optMoves.size()-1]){
-        optMoves.push_back(moves[moves.size()-1]);
-    }
+    //////if(optMoves.empty() || moves.back() != optMoves.back()){
+    //////    optMoves.push_back(moves.back());
+    //////}
+    //put this back in a sec
 
     return optMoves;
 }

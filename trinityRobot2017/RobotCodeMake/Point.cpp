@@ -1,4 +1,5 @@
 #include "Point.h"
+/*
 using namespace std;
 
 Point::Point() {}
@@ -14,3 +15,4 @@ Point Point::operator+(Point other) {return Point(x + other.x, y + other.y);}
 bool Point::operator==(Point other) const {return x == other.x && y == other.y;}
 
 bool Point::operator!=(Point other){return x != other.x || y != other.y;}
+*/

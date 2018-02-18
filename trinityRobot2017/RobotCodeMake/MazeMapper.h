@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <map>
-#include<cmath>
+#include <cmath>
 
 #include "GameState.h"
 #include "OccupancyGrid.h"
@@ -38,7 +38,7 @@ class MazeMapper {
         Point closestClearPoint(Point target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
-        vector<Point> optimizePath(vector<Point>);
+        vector<Point> optimizePath(const vector<Point> &moves);
         void convertToDeltas(vector<Point> &moves);
         bool pathIsBlocked(Point start, Point end);
         bool isDiag(int x_offset, int y_offset);

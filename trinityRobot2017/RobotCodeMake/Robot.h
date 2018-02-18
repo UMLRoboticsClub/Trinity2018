@@ -2,7 +2,6 @@
 #define ROBOT_H
 
 #include "Point.h"
-#include "DoublePoint.h"
 #include "MazeMapper.h"
 #include "GameState.h"
 #include "Constants.h"

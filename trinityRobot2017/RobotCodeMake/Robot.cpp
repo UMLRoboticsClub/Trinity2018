@@ -170,7 +170,10 @@ void Robot::hallwaySweep(void) {
 
 void Robot::rotateTowards(Point target) {
 	// convert target to doublepoint for precision, and pass it with robot's position to get angle between them
-	double angleBetweenLocations = DoublePoint::computeAngle(robotPos, DoublePoint(target.x, target.y));
+    //////
+    // heads up, this line computes the angle between int and double points, remove this if it's ok
+    /////
+	double angleBetweenLocations = computeAngle(robotPos, DoublePoint(target.x, target.y));
 	// get angle that we need to rotate in order to face target
 	double rotationAngle = angleBetweenLocations - robotAngle;
 	// pass to drive
