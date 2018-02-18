@@ -2,13 +2,13 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-const float static CLEAR_THRESHOLD = 0.25;
+static const float CLEAR_THRESHOLD = 0.25;
 
 const double RESOLUTION = 1;
 
-constexpr int ARENALENGTH_CM = 244;
-constexpr int CELLSIZE_CM = 1;
-constexpr int ROBOT_DIAMETER_CM = 31;
+constexpr static const int ARENALENGTH_CM = 244;
+constexpr static const int CELLSIZE_CM = 1;
+constexpr static const int ROBOT_DIAMETER_CM = 31;
 //big enough to hold entire maze no matter where we start
 const int GRID_SIZE_CM  = 5 * ARENALENGTH_CM;
 const int GRID_SIZE_CELLS = GRID_SIZE_CM / RESOLUTION;
@@ -17,16 +17,16 @@ enum cellType {
     UNKNOWN = -1,
     CLEAR,
     WALL,
-    DOOR,
-    EXPLORED_DOOR,
-    HALLWAY,
     FLAME,
     CANDLE,
     EXTINGUISHED,
+    SAFE_ZONE,
     RED_SIDE_CRADLE,
     BLUE_SIDE_CRADLE,
     GREEN_SIDE_CRADLE,
-    SAFE_ZONE,
+    DOOR,
+    EXPLORED_DOOR,
+    HALLWAY,
     START_ZONE
 };
 

@@ -14,23 +14,24 @@ using namespace std;
 
 //constructors
 MazeMapper::MazeMapper() : occGrid(GRID_SIZE_CELLS, RESOLUTION), targetPoints(), lidar(){
-  distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
-  for(unsigned int i = 0; i < distanceField.size(); i ++){
-    distanceField[i] = vector<int>(GRID_SIZE_CELLS);
-    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
-      distanceField[i][j] = -1;
-  }
+    distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
+    for(unsigned int i = 0; i < distanceField.size(); ++i){
+        distanceField[i] = vector<int>(GRID_SIZE_CELLS);
+        for(unsigned int j = 0; j < distanceField[i].size(); ++j){
+            distanceField[i][j] = -1;
+        }
+    }
 }
 
 ///////////////////////////
 
 //Precondition:  deltas is a vector of delta positions, not absolute positions
 //PostCondition: returns the total path length of the path represented by deltas
-double MazeMapper::computePathLength(vector<Point> deltas) {
+double MazeMapper::computePathLength(const vector<Point> &deltas) {
     // sum up euclidean distances between delta points and return
     double sum;
     // iterate to size()-1 because the last point doesn't have another point to get distance between
-    for (unsigned int i = 0; i < deltas.size(); i++) {
+    for (unsigned int i = 0; i < deltas.size(); ++i) {
         //compute magnitude of each delta
         sum += sqrt(pow(deltas[i].x, 2) + pow(deltas[i].y, 2));
     }
@@ -40,80 +41,84 @@ double MazeMapper::computePathLength(vector<Point> deltas) {
 
 //vector<Point> is sequence of waypoints
 vector<Point> MazeMapper::findNextTarget(GameState state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
-  for(unsigned int i = 0; i < distanceField.size(); i ++)
-    for(unsigned int j = 0; j < distanceField[i].size(); j ++)
-      distanceField[i][j] = -1;
-	//===TEST===============================================
-	//nextRobotOp = CRADLE;
-	//vector<Point> testPath = { Point(2,5) };
-	//return testPath;
-	//====================================================
+    for(unsigned int i = 0; i < distanceField.size(); ++i){
+        for(unsigned int j = 0; j < distanceField[i].size(); j ++){
+            distanceField[i][j] = -1;
+        }
+    }
+    //===TEST===============================================
+    //nextRobotOp = CRADLE;
+    //vector<Point> testPath = { Point(2,5) };
+    //return testPath;
+    //====================================================
 
-	//check if we have already found an important point where we need to go
-	vector<int> primaryTargets = state.getTargetType();
-	for (int type : primaryTargets) {
-		// if we have a destination in mind
-		if (targetPoints[type].size() > 0) {
-			//update robotOps
-			nextRobotOp = determineRobotOp(type, state);
+    //check if we have already found an important point where we need to go
+    vector<int> primaryTargets = state.getTargetType();
+    for (const int type : primaryTargets) {
+        // if we have a destination in mind
+        if (targetPoints[type].size() > 0) {
+            //update robotOps
+            nextRobotOp = determineRobotOp(type, state);
 
-			//compute the actual path
-			int targetIndex;
-			std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
-			if(type == DOOR)
-				targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
-			if(type == FLAME)
-				targetPoints[EXTINGUISHED].push_back(targetPoints[type][targetIndex]);
-      targetLocation = targetPoints[type][targetIndex];
-			targetPoints[type].erase(targetPoints[type].begin() + targetIndex);
-			return path;
-			//this whole block could be in a separate function.  And so it shall be
-			// these are for finding the shortest path to the closest known target
-			/*
-			vector<Point> path;
-			vector<Point> shortestPath;
-			int pathLength = 0;
-			int shortestPathLength = 0;
-			bool firstPass = true;
-			// iterate over all our points associated with this type
-			// first point is closest path until another is shorter
-			for (int i = 0; i < targetPoints[type].size(); i++) {
-				// AStar path
-				path = AStar(targetPoints[type][i]);
-				// 'diagonalized' path (optimnal)
-				path = optimizePath(path);
-				// return-ready vector of deltas
-				path = convertToDeltas(path);
-				// length of these deltas (we want the shortest length)
-				pathLength = computePathLength(path);
-				if (firstPass) {
-					// on the first pass, closest path is the first path found (obviously)
-					shortestPath = path;
-					shortestPathLength = pathLength;
-					firstPass = false;
-				}
-				else {
-					// compare shortest path to current path and update accordingly
-					if (pathLength < shortestPathLength) {
-						shortestPath = path;
-						shortestPathLength = pathLength;
-					}
-					// could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
-				}
-			}
-			// we now have the closest path available to us, so we return that
-			return shortestPath; // yea boi
-			*/
-		}
-	}
+            //compute the actual path
+            int targetIndex;
+            std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
+            if(type == DOOR)
+                targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
+            if(type == FLAME)
+                targetPoints[EXTINGUISHED].push_back(targetPoints[type][targetIndex]);
+            targetLocation = targetPoints[type][targetIndex];
+            targetPoints[type].erase(targetPoints[type].begin() + targetIndex);
+            return path;
+            //this whole block could be in a separate function.  And so it shall be
+            // these are for finding the shortest path to the closest known target
+            /*
+               vector<Point> path;
+               vector<Point> shortestPath;
+               int pathLength = 0;
+               int shortestPathLength = 0;
+               bool firstPass = true;
+            // iterate over all our points associated with this type
+            // first point is closest path until another is shorter
+            for (int i = 0; i < targetPoints[type].size(); ++i) {
+            // AStar path
+            path = AStar(targetPoints[type][i]);
+            // 'diagonalized' path (optimnal)
+            path = optimizePath(path);
+            // return-ready vector of deltas
+            path = convertToDeltas(path);
+            // length of these deltas (we want the shortest length)
+            pathLength = computePathLength(path);
+            if (firstPass) {
+            // on the first pass, closest path is the first path found (obviously)
+            shortestPath = path;
+            shortestPathLength = pathLength;
+            firstPass = false;
+            }
+            else {
+            // compare shortest path to current path and update accordingly
+            if (pathLength < shortestPathLength) {
+            shortestPath = path;
+            shortestPathLength = pathLength;
+            }
+            // could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
+            }
+            }
+            // we now have the closest path available to us, so we return that
+            return shortestPath; // yea boi
+            */
+        }
+    }
 
-	//no important points already found, go to distance field and find an unknown
-	Point target = computeDistanceField();
-	//list of solely UDLR directional movements
-	vector<Point> moves = createTargetPath(target);
-	//optimizes with direct diagonalized motion
-	moves = optimizePath(moves);
-	return convertToDeltas(moves);
+    //no important points already found, go to distance field and find an unknown
+    Point target = computeDistanceField();
+    //list of solely UDLR directional movements
+    vector<Point> moves = createTargetPath(target);
+    //optimizes with direct diagonalized motion
+    moves = optimizePath(moves);
+
+    convertToDeltas(moves);
+    return moves;
 }
 
 MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
@@ -146,15 +151,19 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
     // these are for finding the shortest path to the closest known target
     vector<Point> path;
     vector<Point> shortestPath;
-    int pathLength = 0;
     int shortestPathLength = 0;
     bool firstPass = true;
     // iterate over all our points associated with this type
     // first point is closest path until another is shorter
-    for (unsigned int i = 0; i < locations.size(); i++) {
+    for (unsigned int i = 0; i < locations.size(); ++i) {
 
         //find the actual point we need to go to
-        if(targetType == FLAME || targetType == CANDLE || targetType == BLUE_SIDE_CRADLE || targetType == RED_SIDE_CRADLE || targetType == GREEN_SIDE_CRADLE || targetType == SAFE_ZONE){
+        if(targetType == FLAME 
+                || targetType == CANDLE
+                || targetType == BLUE_SIDE_CRADLE
+                || targetType == RED_SIDE_CRADLE
+                || targetType == GREEN_SIDE_CRADLE
+                || targetType == SAFE_ZONE){
             locations[i] = closestClearPoint(locations[i]);
         }
 
@@ -163,16 +172,15 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
         // 'diagonalized' path (optimnal)
         path = optimizePath(path);
         // return-ready vector of deltas
-        path = convertToDeltas(path);
+        convertToDeltas(path);
         // length of these deltas (we want the shortest length)
-        pathLength = computePathLength(path);
+        int pathLength = computePathLength(path);
         if (firstPass) {
             // on the first pass, closest path is the first path found (obviously)
             shortestPath = path;
             shortestPathLength = pathLength;
             firstPass = false;
-        }
-        else {
+        } else {
             // compare shortest path to current path and update accordingly
             if (pathLength < shortestPathLength) {
                 shortestPath = path;
@@ -188,7 +196,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
 
 //doesn't need a full distancefield, because the solid around it is square
 Point MazeMapper::closestClearPoint(Point target){
-    for(int i = 0;;i++){
+    for(int i = 0 ;; ++i){
         if(occGrid.getValue(target + Point(0, i))  == CLEAR)
             return target + Point(0, i);
         if(occGrid.getValue(target + Point(0, -i))  == CLEAR)
@@ -263,10 +271,8 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     // and blockValue is the whether the current location is clear or blocked
     int newX = 0, newY = 0, heuristic = 0, blockValue = 0;
 
-
     // start where the robot is
     Point startPos = Point(int(robotPos.x), int(robotPos.y));
-
 
     // start algorithm with start location in the open list
     point = Point(startPos.x, startPos.y);
@@ -276,7 +282,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     openNodes[point]->setParent(NULL, 0);
 
     // If the target is never found somehow, then this while loop will keep the program from running indefinitely
-    while (openNodes.size() > 0) {
+    while (!openNodes.empty()) {
 
         // take node with smallest f ( we use point to find this node, and point will then be key to this node
         mapIterator = openNodes.begin();
@@ -294,9 +300,8 @@ vector<Point> MazeMapper::AStar(const Point &target) {
         // put current parent node on closed map
         closedNodes[point] = parentNode;
 
-
         // generate children of current node unless they fail to meet requirements (as seen below)
-        for (unsigned int i = 0; i < directions.size(); i++) {
+        for (unsigned int i = 0; i < directions.size(); ++i) {
 
             // calculate child node values before making the actual object
             //(so we can test these values to make sure they are good)
@@ -306,28 +311,29 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             newNodePoint = Point(newX, newY);
 
             //if out of bounds, skip this child (with continue statement)
-            if (newX < 0 || newX >= occGrid.getWidth() || newY < 0 || newY >= occGrid.getHeight()) continue;
+            if (newX < 0 || newX >= occGrid.width || newY < 0 || newY >= occGrid.height) continue;
 
             // if newX and newY are not clear
             // CLEAR, DOOR, EXPLORED_DOOR, HALLWAY - clear, else -> wall
             blockValue = occGrid.getValue(newX, newY);
             // skip if NOT these values
-            if (!(blockValue == CLEAR || blockValue == DOOR || blockValue == EXPLORED_DOOR || blockValue == HALLWAY)) continue;
-
+            //this can be clearer
+            if (!(
+                        blockValue == CLEAR || 
+                        blockValue == DOOR || 
+                        blockValue == EXPLORED_DOOR ||
+                        blockValue == HALLWAY)){
+                continue;
+            }
 
             // if newX and newY are already in the open nodes map
-            mapIterator = openNodes.find(newNodePoint);
-            if (mapIterator != openNodes.end()) {
+            if ((auto iter = openNodes.find(newNodePoint)) != openNodes.end()) {
 
                 // if new posible g < nodeAlreadyInList.g -> re-parent nodeAlreadyInList so that it's parent is current parentNode
-                if (parentNode->getG() + dg < mapIterator->second->getG()) {
-                    mapIterator->second->setParent(parentNode, dg); // set new parent
-                    continue;
+                if (parentNode->getG() + dg < iter->second->getG()) {
+                    iter->second->setParent(parentNode, dg); // set new parent
                 }
-                // else don't add new node
-                else {
-                    continue;
-                }
+                continue;
             }
 
             // if newX and newY are already in the closed nodes map -> skip
@@ -357,12 +363,12 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 reverse(path.begin(), path.end());
 
                 // garbage collection -- clear out the open and closed nodes so we get no memory leaks (bad)
-                for (mapIterator = openNodes.begin(); mapIterator != openNodes.end(); ++mapIterator) {
-                    delete mapIterator->second;
+                for (auto it = openNodes.begin(); it != openNodes.end(); ++it) {
+                    delete it->second;
                 }
                 openNodes.clear();
-                for (mapIterator = closedNodes.begin(); mapIterator != closedNodes.end(); ++mapIterator) {
-                    delete mapIterator->second;
+                for (auto it = closedNodes.begin(); it != closedNodes.end(); ++it) {
+                    delete it->second;
                 }
                 closedNodes.clear();
 
@@ -399,8 +405,7 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
             if(pathIsBlocked(startPoint, endPoint)){//this path is not okay
                 endPoint = endPoint - direction;//go back a step, we overshot
                 break;
-            }
-            else{
+            } else{
                 endPoint = endPoint - direction;
             }
         }
@@ -414,8 +419,9 @@ vector<Point> MazeMapper::optimizePath(vector<Point> moves) {
         movesIndex++;
     }
     //make sure we don't double count the last move which isn't part of the above loop
-    if(optMoves.size() == 0 || moves[moves.size()-1] != optMoves[optMoves.size()-1])
+    if(optMoves.size() == 0 || moves[moves.size()-1] != optMoves[optMoves.size()-1]){
         optMoves.push_back(moves[moves.size()-1]);
+    }
 
     return optMoves;
 }
@@ -425,40 +431,40 @@ bool MazeMapper::pathIsBlocked(Point start, Point end){
     //if we hit a wall, the path is blocked
     //if we make it to the end point, the path is CLEAR
     float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2));
-    Point2<double> direction;
-    direction.x = (end.x-start.x)/magnitude;
-    direction.y = (end.y-start.y)/magnitude;
+    Point2<double> direction(
+            (end.x - start.x)/magnitude,
+            (end.y - start.y)/magnitude);
     Point2<double> offset2(-direction.y, direction.x);
     Point2<double> offset3(direction.y, -direction.x);
     Point2<int> currentCell;
     Point2<double> currentCell2, currentCell3;//currentCell is base line, 2 and 3 add thickness to line
-    for (int i = 0; i < magnitude; i ++){
+    for (int i = 0; i < magnitude; ++i){
         //iterate along the path
         currentCell.x = static_cast<int>(start.x + direction.x * i);
         currentCell.y = static_cast<int>(start.y + direction.y * i);
         currentCell2 = currentCell + offset2;
         currentCell3 = currentCell + offset3;
-        for(int j = -1; j <= 1; j++){
-            for(int k = -1; k <= 1; k++){
-                if(occGrid.getValue(currentCell.x + j, currentCell.y + k) == WALL
-                        || occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL
-                        || occGrid.getValue(currentCell3.x + j, currentCell.y + k) == WALL)
+        for(int j = -1; j <= 1; ++j){
+            for(int k = -1; k <= 1; ++k){
+                if(
+                        occGrid.getValue(currentCell.x + j,  currentCell.y + k) == WALL ||
+                        occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL ||
+                        occGrid.getValue(currentCell3.x + j, currentCell.y + k) == WALL){
                     return true;
+                }
             }
         }
     }
     return false;
 }
 
-vector<Point> MazeMapper::convertToDeltas(vector<Point> moves) {
+void MazeMapper::convertToDeltas(vector<Point> &moves) {
     //moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
     //literally just returns a vector of moves[i] - moves[i-1]
-    for(int i = moves.size()-1; i > 0; i --){
+    for(int i = moves.size() - 1; i > 0; --i){
         moves[i] = moves[i] - moves[i-1];
     }
     moves[0] = moves[0] - robotPos;
-
-    return moves;
 }
 
 /////////////////////////////
@@ -491,12 +497,14 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
     boundary.push_back(robotPos);
     vector<Point> neighbors;
     Point currentPoint;
+
     while (!boundary.empty()) {
-        Point currentPoint = boundary.front();
+        currentPoint = boundary.front();
         neighbors = findOpenNeighbors(currentPoint);
         for (Point neighbor : neighbors) {
-            if (occGrid.getValue(neighbor) == -1)
+            if (occGrid.getValue(neighbor) == -1){
                 return neighbor;
+            }
             boundary.push_back(neighbor);
         }
     }
@@ -504,11 +512,12 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
 }
 
 vector<Point> MazeMapper::findOpenNeighbors(Point currentPos) {
-    std::vector< Point > openNeighbors;
+    std::vector<Point> openNeighbors;
     for (int x_offset = -1; x_offset < 2; x_offset++) {
         for (int y_offset = -1; y_offset < 2; y_offset++) {
-            if (!isDiag(x_offset, y_offset) && \
-                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) <= CLEAR_THRESHOLD &&  occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) >= 0) {
+            if (!isDiag(x_offset, y_offset) && 
+                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) <= CLEAR_THRESHOLD &&
+                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) >= 0) {
                 openNeighbors.push_back(Point(currentPos.x + x_offset, currentPos.y + y_offset));
             }
         }

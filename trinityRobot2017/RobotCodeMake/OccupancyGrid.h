@@ -1,13 +1,11 @@
 /*
- * File:   occupancyGrid.h
  * Author: Mong Mary Touch
  *
- * Created on November 7, 2017, 6:02 PM
  */
-
 
 #ifndef OCCUPANCYGRID_H
 #define	OCCUPANCYGRID_H
+
 #include "NavVal.h"
 #include "Point.h"
 #include <vector>
@@ -15,25 +13,22 @@
 using namespace std;
 
 class OccupancyGrid {
-public:
-    OccupancyGrid(int gridSize, double res);
-	OccupancyGrid(const OccupancyGrid& orig);
-    // constructor initialize to width and height
+    public:
+        OccupancyGrid(int gridSize, double res);
+        OccupancyGrid(const OccupancyGrid& orig);
+        // constructor initialize to width and height
 
-    int update(float realX, float realY, int val);
-	int getHeight();
-	int getWidth();
-    int getValue(int x, int y);
-    int getValue(Point point);   // return array
+        int update(float realX, float realY, int val);
+        int getValue(int x, int y);
+        int getValue(Point point);   // return array
 
-	int getTotalWidth(void);
-	int getTotalHeight(void);
+        int getTotalWidth();
+        int getTotalHeight();
 
-private:
-    vector<vector<NavVal>> gridVals;
-    int width;
-    int height;
-    double resolution;
+        int width, height;
+    private:
+        vector<vector<NavVal>> gridVals;
+        double resolution;
 };
 
-#endif	/* OCCUPANCYGRID_H */
+#endif

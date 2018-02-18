@@ -39,7 +39,7 @@ class MazeMapper {
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(vector<Point>);
-        vector<Point> convertToDeltas(vector<Point>);
+        void convertToDeltas(vector<Point> &moves);
         bool pathIsBlocked(Point start, Point end);
         bool isDiag(int x_offset, int y_offset);
 
@@ -47,10 +47,9 @@ class MazeMapper {
         void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
         Point computeDistanceField(); //takes gamestate or type of target, called in find
         vector<Point> findOpenNeighbors(Point currentPos);
-        double computePathLength(vector<Point> deltas);
+        double computePathLength(const vector<Point> &deltas);
     private:
         //map of type of targetPoints to vector of all point of that type
-
 
         OccupancyGrid occGrid;
         map<int, vector<Point>> targetPoints;
