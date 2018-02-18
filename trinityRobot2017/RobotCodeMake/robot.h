@@ -1,15 +1,15 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include "Point.h"
-#include "MazeMapper.h"
-#include "GameState.h"
-#include "Constants.h"
-#include "Drive.h"
-#include "ColorSensor.h"
-#include "IRSensor.h"
-#include "Camera.h"
-#include "GPIO.h"
+#include "point.h"
+#include "mazemapper.h"
+#include "gamestate.h"
+#include "constants.h"
+#include "drive.h"
+#include "colorsensor.h"
+#include "irsensor.h"
+#include "camera.h"
+#include "gpio.h"
 
 #include <iostream>
 #include <thread>

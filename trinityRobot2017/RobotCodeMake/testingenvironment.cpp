@@ -1,4 +1,4 @@
-#include "TestingEnvironment.h"
+#include "testingenvironment.h"
 
 //testing functions for gamestate
 //set various flags and make sure gamestate returns the proper priority by state

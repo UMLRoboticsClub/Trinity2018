@@ -2,8 +2,8 @@
  * Author: Mong Mary Touch     & SAM
  */
 
-#include "OccupancyGrid.h"
-#include "Point.h"
+#include "occupancygrid.h"
+#include "point.h"
 
 using namespace std;
 

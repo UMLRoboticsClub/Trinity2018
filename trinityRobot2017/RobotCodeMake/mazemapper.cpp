@@ -1,8 +1,8 @@
-#include "MazeMapper.h"
+#include "mazemapper.h"
 #include "globals.h"
-#include "Constants.h"
-#include "Point.h"
-#include "Node.h"
+#include "constants.h"
+#include "point.h"
+#include "node.h"
 
 #include <vector>
 #include <unordered_map>

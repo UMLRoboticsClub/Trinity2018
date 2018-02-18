@@ -4,10 +4,10 @@
 #include <map>
 #include <cmath>
 
-#include "GameState.h"
-#include "OccupancyGrid.h"
-#include "LaserScanner.h"
-#include "Point.h"
+#include "gamestate.h"
+#include "occupancygrid.h"
+#include "laserscanner.h"
+#include "point.h"
 
 using namespace std;
 

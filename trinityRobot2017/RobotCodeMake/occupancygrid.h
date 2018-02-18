@@ -6,8 +6,8 @@
 #ifndef OCCUPANCYGRID_H
 #define	OCCUPANCYGRID_H
 
-#include "NavVal.h"
-#include "Point.h"
+#include "navval.h"
+#include "point.h"
 #include <vector>
 
 using namespace std;

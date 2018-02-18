@@ -1,6 +1,6 @@
-#include "MazeMapper.h"
-#include "OccupancyGrid.h"
-#include "GameState.h"
+#include "mazemapper.h"
+#include "occupancygrid.h"
+#include "gamestate.h"
 
 class TestingEnvironment{
   //this class will simulate real data and test all of  our functions to see if they work as intended

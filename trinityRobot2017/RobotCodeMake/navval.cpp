@@ -1,5 +1,5 @@
-#include "NavVal.h"
-#include "Constants.h"
+#include "navval.h"
+#include "constants.h"
 
 NavVal::NavVal() : cellType(-1), timesScanned(0) {
 

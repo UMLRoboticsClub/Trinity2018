@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "node.h"
 #include <cstddef> // for NULL
 
 Node::Node(int x, int y, int h) {

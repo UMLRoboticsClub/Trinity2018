@@ -1,4 +1,4 @@
-#include "GPIO.h"
+#include "gpio.h"
 
 #include <iostream>
 #include <pigpiod_if2.h>
