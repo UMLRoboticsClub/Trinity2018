@@ -11,8 +11,6 @@
 #include <algorithm>
 #include <functional>
 
-using namespace std;
-
 //constructors
 MazeMapper::MazeMapper() : occGrid(GRID_SIZE_CELLS, RESOLUTION), targetPoints(), lidar(){
     distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
@@ -288,7 +286,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             point = iter->first; // node at beginning is our starting lowest f value point
             while (iter != openNodes.end()) {
                 // if this node f is smaller than smallest found -> replace
-                if (iter->second->getF() < openNodes[point]->getF()) {
+                if (iter->second->f < openNodes[point]->f) {
                     point = iter->first;
                 }
                 ++iter;
@@ -306,8 +304,8 @@ vector<Point> MazeMapper::AStar(const Point &target) {
 
             // calculate child node values before making the actual object
             //(so we can test these values to make sure they are good)
-            newX = parentNode->getX() + directions[i].x;
-            newY = parentNode->getY() + directions[i].y;
+            newX = parentNode->x + directions[i].x;
+            newY = parentNode->x + directions[i].y;
             heuristic = abs(target.x - newX) + abs(target.y - newY);
             newNodePoint = Point(newX, newY);
 
@@ -334,7 +332,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 if (iter != openNodes.end()) {
                     // if new posible g < nodeAlreadyInList.g -> re-parent 
                     //nodeAlreadyInList so that it's parent is current parentNode
-                    if (parentNode->getG() + dg < iter->second->getG()) {
+                    if (parentNode->g + dg < iter->second->x) {
                         iter->second->setParent(parentNode, dg); // set new parent
                     }
                     continue;
@@ -360,8 +358,8 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 traverseNode = childNode;
                 while (traverseNode != NULL) {
                     // create Point for path form node x and y
-                    path.push_back(Point(traverseNode->getX(), traverseNode->getY()));
-                    traverseNode = traverseNode->getParent();
+                    path.push_back(Point(traverseNode->x, traverseNode->y));
+                    traverseNode = traverseNode->parent;
                 }
 
                 //reverse vector (this is faster than inserting the points at the 
@@ -436,18 +434,19 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     return optMoves;
 }
 
-bool MazeMapper::pathIsBlocked(Point start, Point end){
+bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
     //creates fatter version of line (three cells wide) and iterates along that path until reaching target destination or colliding with a WALL
     //if we hit a wall, the path is blocked
     //if we make it to the end point, the path is CLEAR
+
     float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2));
-    Point2<double> direction(
-            (end.x - start.x)/magnitude,
-            (end.y - start.y)/magnitude);
-    Point2<double> offset2(-direction.y, direction.x);
-    Point2<double> offset3(direction.y, -direction.x);
-    Point2<int> currentCell;
-    Point2<double> currentCell2, currentCell3;//currentCell is base line, 2 and 3 add thickness to line
+    DoublePoint direction((end - start)/magnitude);
+    DoublePoint offset2(-direction.y, direction.x);
+    DoublePoint offset3(direction.y, -direction.x);
+
+    Point currentCell;
+    DoublePoint currentCell2, currentCell3;//currentCell is base line, 2 and 3 add thickness to line
+
     for (int i = 0; i < magnitude; ++i){
         //iterate along the path
         currentCell.x = static_cast<int>(start.x + direction.x * i);
@@ -516,11 +515,9 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
     vector<Point> boundary;
     boundary.push_back(robotPos);
     vector<Point> neighbors;
-    Point currentPoint;
 
     while (!boundary.empty()) {
-        currentPoint = boundary.front();
-        neighbors = findOpenNeighbors(currentPoint);
+        neighbors = findOpenNeighbors(boundary.front());
         for (Point neighbor : neighbors) {
             if (occGrid.getValue(neighbor) == -1){
                 return neighbor;

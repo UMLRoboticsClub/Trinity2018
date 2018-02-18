@@ -75,9 +75,21 @@ struct Point2 {
             return temp;
         }
 
+    template <typename U>
+        Point2 operator+(const U &p) const {
+            Point2 temp(x + p, y + p);
+            return temp;
+        }
+
     template <typename T>
         Point2 operator-(const Point2<T> &p) const {
             Point2 temp(x - p.x, y - p.y);
+            return temp;
+        }
+
+    template <typename U>
+        Point2 operator-(const U &p) const {
+            Point2 temp(x - p, y - p);
             return temp;
         }
 
@@ -87,9 +99,21 @@ struct Point2 {
             return temp;
         }
 
+    template <typename U>
+        Point2 operator*(const U &p) const {
+            Point2 temp(x * p, y * p);
+            return temp;
+        }
+
     template <typename T>
         Point2 operator/(const Point2<T> &p) const {
             Point2 temp(x / p.x, y / p.y);
+            return temp;
+        }
+
+    template <typename U>
+        Point2 operator/(const U &p) const {
+            Point2 temp(x / p, y / p);
             return temp;
         }
 };

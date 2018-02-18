@@ -9,7 +9,8 @@
 #include "lidar.h"
 #include "point.h"
 
-using namespace std;
+using std::vector;
+using std::map;
 
 class MazeMapper {
     public:
@@ -40,7 +41,7 @@ class MazeMapper {
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(const vector<Point> &moves);
         void convertToDeltas(vector<Point> &moves);
-        bool pathIsBlocked(Point start, Point end);
+        bool pathIsBlocked(const Point &start, const Point &end);
         bool isDiag(int x_offset, int y_offset);
 
         void laserScanLoop();

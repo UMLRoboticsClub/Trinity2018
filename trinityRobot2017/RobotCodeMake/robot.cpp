@@ -20,6 +20,7 @@ Robot::Robot():
     robotPos(GRID_SIZE_CM/2, GRID_SIZE_CM/2), robotAngle(0), mazeMapper(), drive(), gameState(),
     safeZoneLocation(), colorSensor(), IRsensor(), camera()
 {
+    //catch signals to exit safely aka stop the motors when the program is killed
     signal(SIGINT , Robot::signalHandler);
     signal(SIGABRT, Robot::signalHandler);
     signal(SIGFPE , Robot::signalHandler);
