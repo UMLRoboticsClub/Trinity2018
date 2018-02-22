@@ -1,5 +1,5 @@
 
-#include "IRSensor.h"
+#include "irsensor.h"
 
 using namespace std;
 IRSensor::IRSensor() {}
