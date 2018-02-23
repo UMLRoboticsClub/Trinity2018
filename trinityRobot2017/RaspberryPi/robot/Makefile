@@ -3,7 +3,7 @@ TARGET=robot
 CXX=g++
 
 CXXFLAGS=-std=c++17 -Wall -pedantic -Wfatal-errors
-LDLIBS=-lwiringPi
+LDLIBS=
 
 objects=main.o lidar.o xv11lidar/xv11lidar.o
 
