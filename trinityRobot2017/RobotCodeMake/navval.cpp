@@ -30,10 +30,10 @@ int NavVal::updateValue(float newCellType) {
 
 int NavVal::getCellType() const {
     ///fix this and remove it
-    if(this == nullptr){
-        Logger::log("calling a function of a null NavVal! this should never happen", Logger::HIGH);
-        return 1;
-    }
+    //if(this == nullptr){
+    //    Logger::log("calling a function of a null NavVal! this should never happen", Logger::HIGH);
+    //    return 1;
+    //}
 
     if (cellType >= 0 && cellType <= 1) {
     //if (1) {
