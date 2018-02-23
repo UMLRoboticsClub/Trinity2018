@@ -465,10 +465,11 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
 void MazeMapper::convertToDeltas(vector<Point> &moves) {
     //moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
     //literally just returns a vector of moves[i] - moves[i-1]
+    vector<Point> oldMoves(moves);
     for(int i = moves.size() - 1; i > 0; --i){
-        moves[i] = moves[i] - moves[i-1];
+        moves[i] = oldMoves[i] - oldMoves[i-1];
     }
-    moves[0] = moves[0] - robotPos;
+    moves[0] = oldMoves[0] - robotPos;
 }
 
 /////////////////////////////
@@ -510,26 +511,34 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
     vector<Point> boundary;
     boundary.push_back(robotPos);
     vector<Point> neighbors;
-
+    distanceField[robotPos.x][robotPos.y] = 0;
+    Point currentCell;
+    int currentDistance;
     while (!boundary.empty()) {
-        neighbors = findOpenNeighbors(boundary.front());
+        currentCell = boundary.front();
+        neighbors = findOpenNeighbors(currentCell);
+        currentDistance = distanceField[currentCell.x][currentCell.y];
         for (Point neighbor : neighbors) {
-            if (occGrid.getValue(neighbor) == -1){
+          if(distanceField[neighbor.x][neighbor.y] == -1){//neighbor not already index by function
+             if (occGrid.getValue(neighbor) == -1){
+                distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
                 return neighbor;
             }
             boundary.push_back(neighbor);
+          }
         }
+        boundary.erase(boundary.begin());
     }
     return Point(-1, -1);
 }
+
 
 vector<Point> MazeMapper::findOpenNeighbors(const Point &currentPos) {
     vector<Point> openNeighbors;
     for (int x_offset = -1; x_offset < 2; ++x_offset) {
         for (int y_offset = -1; y_offset < 2; ++y_offset) {
-            if (!isDiag(x_offset, y_offset) && 
-                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) <= CLEAR_THRESHOLD &&
-                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) >= 0) {
+            if (!isDiag(x_offset, y_offset) &&
+                    occGrid.getValue(currentPos.x + x_offset, currentPos.y + y_offset) <= CLEAR_THRESHOLD) {
                 openNeighbors.push_back(Point(currentPos.x + x_offset, currentPos.y + y_offset));
             }
         }
