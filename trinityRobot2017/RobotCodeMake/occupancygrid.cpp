@@ -16,6 +16,10 @@ OccupancyGrid::OccupancyGrid(const OccupancyGrid& orig):
     size(orig.size),
     gridVals(orig.gridVals){}
 
+void OccupancyGrid::init(){
+    gridVals = std::vector<std::vector<NavVal>>(size, vector<NavVal>(size));
+}
+
 int OccupancyGrid::update(float realX, float realY, int val) {
     return gridVals[realX * RESOLUTION][realY * RESOLUTION].updateValue(val);
 }

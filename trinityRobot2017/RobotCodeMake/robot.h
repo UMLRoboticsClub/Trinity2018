@@ -4,6 +4,7 @@
 #include "point.h"
 #include "mazemapper.h"
 #include "gamestate.h"
+#include "globals.h"
 #include "constants.h"
 #include "drive.h"
 #include "colorsensor.h"

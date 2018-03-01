@@ -1,15 +1,16 @@
 #include "mazemapper.h"
+#include "logger.h"
 #include "globals.h"
 #include "constants.h"
 #include "point.h"
 #include "node.h"
-#include "logger.h"
 
 #include <vector>
 #include <unordered_map>
 #include <cmath>
 #include <algorithm>
 #include <functional>
+#include <iomanip>
 
 //constructors
 MazeMapper::MazeMapper(): occGrid(), targetPoints(), lidar(){
@@ -435,28 +436,24 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
     //if we make it to the end point, the path is CLEAR
 
     float magnitude = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2));
-    DoublePoint direction((end - start)/magnitude);
+    DoublePoint direction((DoublePoint(end) - DoublePoint(start))/magnitude);
     DoublePoint offset2(-direction.y, direction.x);
     DoublePoint offset3(direction.y, -direction.x);
 
     Point currentCell;
     DoublePoint currentCell2, currentCell3;//currentCell is base line, 2 and 3 add thickness to line
 
-    for (int i = 0; i < magnitude; ++i){
+    for (int i = 0; i < magnitude + 1; ++i){
         //iterate along the path
-        currentCell.x = static_cast<int>(start.x + direction.x * i);
-        currentCell.y = static_cast<int>(start.y + direction.y * i);
+        currentCell.x = static_cast<int>(start.x + static_cast<int>(direction.x * i));
+        currentCell.y = static_cast<int>(start.y + static_cast<int>(direction.y * i));
         currentCell2 = currentCell + offset2;
         currentCell3 = currentCell + offset3;
-        for(int j = -1; j <= 1; ++j){
-            for(int k = -1; k <= 1; ++k){
-                if(
-                        occGrid.getValue(currentCell.x + j,  currentCell.y + k) == WALL ||
-                        occGrid.getValue(currentCell2.x + j, currentCell.y + k) == WALL ||
-                        occGrid.getValue(currentCell3.x + j, currentCell.y + k) == WALL){
-                    return true;
-                }
-            }
+        if(
+            occGrid.getValue(currentCell.x,  currentCell.y) == WALL ||
+            occGrid.getValue(currentCell2.x, currentCell2.y) == WALL ||
+            occGrid.getValue(currentCell3.x, currentCell3.y) == WALL){
+        return true;
         }
     }
     return false;
@@ -524,6 +521,8 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
                 distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
                 return neighbor;
             }
+
+            distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
             boundary.push_back(neighbor);
           }
         }
@@ -553,65 +552,121 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 //TESTING FUNCTIONS
 
 
-bool testFindNextTarget(){
+bool MazeMapper::testFindNextTarget(){
 
 } 
-bool testDetermineRobotOp(){
+bool MazeMapper::testDetermineRobotOp(){
 
 }
-bool testSpecialTargetPath(){
+bool MazeMapper::testSpecialTargetPath(){
 
 }
-bool testClosestClearPoint(){
+bool MazeMapper::testCreateTargetPath(){
 
 }
-bool testCreateTargetPath(){
+bool MazeMapper::testAStar(){
 
 }
-bool testAStar(){
+bool MazeMapper::testOptimizePath(){
 
 }
-bool testOptimizePath(){
+bool MazeMapper::testConvertToDeltas(){
 
 }
-bool testConvertToDeltas(){
+bool MazeMapper::testPathIsBlocked(){
+    
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.init();
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j ++){
+            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
+                occGrid.update(i, j, 1);
+            else
+                occGrid.update(i, j, 0);
+        }
+    }
+
+    
+    Logger::log("occupancy Grid: ");
+    for(int i = 0; i <= 11; i ++){
+        for(int j = 0; j <= 11; j ++){
+            if(i == robotPos.x && j == robotPos.y)
+                std::cout << std::setw(2) << 8;
+            else
+                std::cout << std::setw(2) << occGrid.getValue(i, j);
+        }
+        std::cout << endl;
+    }
+
+    pathIsBlocked(Point(5, 5), Point(4, 4));
+    Logger::log("Clear Paths:");
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j++){
+            Point end(i, j);
+            if(pathIsBlocked(robotPos, end))
+                std::cout << std::setw(2) << 1;
+            else
+                std::cout << std::setw(2) << 0;
+        }
+        std::cout << std::endl;
+    }
 
 }
-bool testPathIsBlocked(){
 
+bool MazeMapper::testIsDiag(){
+    Logger::log("MazeMapper test: isDiag");
+    if(isDiag(1, 0) || isDiag(0, 1) || isDiag(-1, 0) || isDiag(0, -1))
+        Logger::log("/tFailed: false positive", Logger::HIGH);
+    if(!isDiag(1, 1) || !isDiag(1, -1) || !isDiag(-1, 1) || !isDiag(-1, -1))
+        Logger::log("/tFailed: false negative", Logger::HIGH);
 }
-bool testIsDiag(){
+bool MazeMapper::testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
+    
+}
 
-}
-bool testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
-
-}
-bool testComputeDistanceField(){
+bool MazeMapper::testComputeDistanceField(){
     //can run on small subsection of a map to see well enough.
     //this should probs be one of those "look and see if it's right" kinda gigs
     Logger::log("MazeMapper test: computeDistanceField");
     //dang, need direct access to occupancyGrid again, don't I.
-    occGrid = occupancyGrid();
+    occGrid.init();
+    robotPos.x = 5;
+    robotPos.y = 5;
     occGrid.update(5, 5, 8);//8 for robot position
     for(int i = 0; i <= 10; i ++){
         for(int j = 0; j <= 10; j ++){
-            if(i == 4 && j > 2 || i == 7 && j > 3 || i == 5 && j == 10)
+            if(i == 4 && j > 2 || i == 7 && j > 3 || (i == 5 || i == 6) && j == 10)
                 occGrid.update(i, j, 1);
             else
                 occGrid.update(i, j, 0);
         }
     }
     Point target = computeDistanceField();
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j ++){
-           std::cout << std::setw(2) << distanceField[i][j];
+    Logger::log("distanceField: ");
+    for(int i = 0; i <= 11; i ++){
+        for(int j = 0; j <= 11; j ++){
+            if(i == target.x && j == target.y)
+                std::cout << std::setw(2) << '*';
+            else
+                std::cout << std::setw(2) << distanceField[i][j];
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+    Logger::log("occupancy Grid: ");
+    for(int i = 0; i <= 11; i ++){
+        for(int j = 0; j <= 11; j ++){
+           std::cout << std::setw(2) << occGrid.getValue(i, j);
         }
         std::cout << endl;
     }
+
 }
 
 
-boolMazeMapper::testComputePathLength(){
+bool MazeMapper::testComputePathLength(){
     Logger::log("MazeMapper test:  computePathLength");
     vector<Point> deltas;
     deltas.push_back(Point(3, 4));
@@ -626,4 +681,4 @@ boolMazeMapper::testComputePathLength(){
     }
     Logger::log("\tFailed", Logger::HIGH);
     return false;
-i
+}

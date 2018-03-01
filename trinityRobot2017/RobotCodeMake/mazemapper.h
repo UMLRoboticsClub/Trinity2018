@@ -60,7 +60,7 @@ class MazeMapper {
         bool testPathIsBlocked();
         bool testIsDiag();
         bool testUpdateOccupancyGrid();//this one'll be demon in and of itself.  probably compartmentalize for less hell
-        bool testComputeDistaceField();
+        bool testComputeDistanceField();
         bool testComputePathLength();
     private:
         //map of type of targetPoints to vector of all point of that type
@@ -69,3 +69,4 @@ class MazeMapper {
         map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
         Lidar lidar;
+};

@@ -6,6 +6,9 @@ int main() {
 	//Robot sam;
 	//sam.start();
     MazeMapper mapper;
+    mapper.testPathIsBlocked();
+    mapper.testIsDiag();
     mapper.testComputePathLength();
-	return 0;
+    mapper.testComputeDistanceField();
+    return 0;
 }

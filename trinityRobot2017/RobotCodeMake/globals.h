@@ -1,5 +1,4 @@
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#pragma once
 
 #include "point.h"
 
@@ -7,4 +6,3 @@
 extern DoublePoint robotPos;
 extern double robotAngle;
 
-#endif
