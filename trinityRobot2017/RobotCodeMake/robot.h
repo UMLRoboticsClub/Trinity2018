@@ -44,8 +44,6 @@ private:
 
     GPIO gpio; //needs to be initialized before all sensors
     thread laserScanInputThread;
-    DoublePoint	robotPos;
-    double		robotAngle;
 
     MazeMapper mazeMapper;
     Drive		drive;

@@ -549,3 +549,81 @@ vector<Point> MazeMapper::findOpenNeighbors(const Point &currentPos) {
 bool MazeMapper::isDiag(int x_offset, int y_offset) {
     return ((x_offset + y_offset + 2) % 2 == 0);
 }
+
+//TESTING FUNCTIONS
+
+
+bool testFindNextTarget(){
+
+} 
+bool testDetermineRobotOp(){
+
+}
+bool testSpecialTargetPath(){
+
+}
+bool testClosestClearPoint(){
+
+}
+bool testCreateTargetPath(){
+
+}
+bool testAStar(){
+
+}
+bool testOptimizePath(){
+
+}
+bool testConvertToDeltas(){
+
+}
+bool testPathIsBlocked(){
+
+}
+bool testIsDiag(){
+
+}
+bool testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
+
+}
+bool testComputeDistanceField(){
+    //can run on small subsection of a map to see well enough.
+    //this should probs be one of those "look and see if it's right" kinda gigs
+    Logger::log("MazeMapper test: computeDistanceField");
+    //dang, need direct access to occupancyGrid again, don't I.
+    occGrid = occupancyGrid();
+    occGrid.update(5, 5, 8);//8 for robot position
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j ++){
+            if(i == 4 && j > 2 || i == 7 && j > 3 || i == 5 && j == 10)
+                occGrid.update(i, j, 1);
+            else
+                occGrid.update(i, j, 0);
+        }
+    }
+    Point target = computeDistanceField();
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j ++){
+           std::cout << std::setw(2) << distanceField[i][j];
+        }
+        std::cout << endl;
+    }
+}
+
+
+boolMazeMapper::testComputePathLength(){
+    Logger::log("MazeMapper test:  computePathLength");
+    vector<Point> deltas;
+    deltas.push_back(Point(3, 4));
+    deltas.push_back(Point(2, 3));
+    deltas.push_back(Point(-3, 4));
+    deltas.push_back(Point(0, -10));
+    deltas.push_back(Point(3, -5));
+    float length = computePathLength(deltas);
+    if(abs(length - 29.4365) < .01){
+        Logger::log("\tPassed");
+        return true;
+    }
+    Logger::log("\tFailed", Logger::HIGH);
+    return false;
+i
