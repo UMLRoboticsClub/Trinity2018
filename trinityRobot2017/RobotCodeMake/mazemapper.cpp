@@ -218,8 +218,14 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
             dist -= ARENA_LENGTH_CM;
             locations[i] += Point(dist*direction.x, dist*direction.y);
 
-            //we need to get the target location out of here.  pass by ref again?
-            targetLocation = locations[i];
+        //find the actual point we need to go to
+        if(targetType == FLAME
+                || targetType == CANDLE
+                || targetType == BLUE_SIDE_CRADLE
+                || targetType == RED_SIDE_CRADLE
+                || targetType == GREEN_SIDE_CRADLE
+                || targetType == SAFE_ZONE){
+            locations[i] = closestClearPoint(locations[i]);
         }
 
 
@@ -393,7 +399,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 auto iter = openNodes.find(newNodePoint);
                 // if newX and newY are already in the open nodes map
                 if (iter != openNodes.end()) {
-                    // if new posible g < nodeAlreadyInList.g -> re-parent 
+                    // if new posible g < nodeAlreadyInList.g -> re-parent
                     //nodeAlreadyInList so that it's parent is current parentNode
                     if (parentNode->g + dg < iter->second->x) {
                         iter->second->setParent(parentNode, dg); // set new parent
@@ -408,7 +414,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             }
 
             // create child, set parent and add to open map
-            // heuristic = approximate heuristic using Manhattan Distance 
+            // heuristic = approximate heuristic using Manhattan Distance
             // (as opposed to Euclidean Distance or Diagonal Distance)
             childNode = new Node(newX, newY, heuristic);
             childNode->setParent(parentNode, dg);
@@ -426,7 +432,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                     traverseNode = traverseNode->parent;
                 }
 
-                //reverse vector (this is faster than inserting the points at the 
+                //reverse vector (this is faster than inserting the points at the
                 //front, which would cause a shift every time
                 reverse(path.begin(), path.end());
 
@@ -458,7 +464,7 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     //clear them out at the end
     //specifically ignore them as we're adding.  I choose this one.
     //diagonalize to create shortest possible path
-    //grab the starting point, with line to second wayPoint.  Increment end point of that line 
+    //grab the starting point, with line to second wayPoint.  Increment end point of that line
     //along the path until hitting a wall, then back one and make that point the second waypoint
     //then repeat from that point.  This is not a perfect optimization.  But it's good enough for now
 
@@ -556,7 +562,7 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
         //    //sleep a few ms
         //    continue;
         //}
-        //lidar.getValues(distances); 
+        //lidar.getValues(distances);
 
         /*
          * IMPORTANT:
@@ -571,7 +577,36 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 }
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+    LaserScan scan = lidar.getLaserScan();
+	DoorFinder doorFinder;
 
+	// we can change element.getAngle() and element.getDist() but we're using these for now
+	for(auto element : scan){ //for each element in the scan
+		// given the angle and distance...
+		//everything between robotPos and newPos is clear
+		for(int i = 0; i < element.getDist() - 1; i++){
+			float xDist = i * cos(element.getAngle() + robotAngle);
+			float YDist = i * sin(element.getAngle() + robotAngle);
+			occGrid.update(robotPos.x + xDist, robotPos.y + yDist, CLEAR);
+		}
+
+		float xDist = element.getDist() * cos(element.getAngle() + robotAngle);
+		float yDist = element.getDist() * sin(element.getAngle() + robotAngle);
+
+		occGrid.update(robotPos.x + xDist, robotPos.y + yDist, WALL);
+	}
+
+	// call find doors & hallways, which will update important values
+	doorFinder.findDoorsAndHallways(scan, targetPoints, occGrid);
+
+	// call find flame, which will update important values
+
+	// now that we have all important values for this scan, we can update the occ grid
+	for(auto element : targetPoints){ //element.first is the key, element.second is the value
+		for(int i = 0; i < element.second.size(); i++){
+			occGrid.update(element.second[i].x, element.second[i].y, element.first);
+		}
+	}
 }
 
 /////////////////////////////
