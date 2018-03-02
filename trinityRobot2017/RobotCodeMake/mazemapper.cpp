@@ -232,6 +232,7 @@ vector<Point> MazeMapper::createTargetPath(Point target) {//distance field alrea
             }
         }
     }
+    std::reverse(moves.begin(), moves.end());
     return moves;
 }
 
@@ -409,7 +410,7 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
                 endPoint -= direction; //go back a step, we overshot
                 break;
             } else {
-                endPoint -= direction;
+                endPoint += direction;
             }
         }
         //avoid including a waypoint multiple times. Trust me it could happen otherwise.
@@ -552,29 +553,109 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 //TESTING FUNCTIONS
 
 
-bool MazeMapper::testFindNextTarget(){
+bool MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
 
-} 
+}
+
 bool MazeMapper::testDetermineRobotOp(){
 
 }
+
 bool MazeMapper::testSpecialTargetPath(){
 
 }
-bool MazeMapper::testCreateTargetPath(){
 
+bool MazeMapper::testCreateTargetPath(){
+    //hoo boy.
+    Logger::log("MazeMapper test: createTargetPath");
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.init();
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j ++){
+            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
+                occGrid.update(i, j, 1);
+            else
+                occGrid.update(i, j, 0);
+        }
+    }
+    Point target = computeDistanceField();
+    vector<Point> path = createTargetPath(target);
+
+    for(int i = 0; i < path.size(); i ++){
+        occGrid.update(path[i].x, path[i].y, i+1);
+    }
+
+    for(int i = 0; i <= 11; i ++){
+        for(int j = 0; j <= 11; j ++){
+            if(i == robotPos.x && j == robotPos.y)
+                std::cout << std::setw(2) << 8;
+            else
+                std::cout << std::setw(2) << occGrid.getValue(i, j);
+        }
+        std::cout << endl;
+    }
 }
+
 bool MazeMapper::testAStar(){
 
 }
+
 bool MazeMapper::testOptimizePath(){
+    //gonna want a more in depth test of this one, but seems correct on this simple test
+    //another visual one, takes in actual waypoints not deltas 
+    Logger::log("MazeMapper test: optimizePath");
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.init();
+    for(int i = 0; i <= 10; i ++){
+        for(int j = 0; j <= 10; j ++){
+            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
+                occGrid.update(i, j, 1);
+            else
+                occGrid.update(i, j, 0);
+        }
+    }
+    vector<Point> path;
+    path.push_back(Point(6, 1));
+    path.push_back(Point(1, 1));
+    path.push_back(Point(1, 4));
+    vector<Point> opt = optimizePath(path);
+    //best way to display a path in my mind is just to put ints in for coordinates in path
+    for(int i = 0; i < opt.size(); i ++){
+        occGrid.update(opt[i].x, opt[i].y, i);
+    }
+
+    for(int i = 0; i <= 11; i ++){
+        for(int j = 0; j <= 11; j ++){
+            if(i == robotPos.x && j == robotPos.y)
+                std::cout << std::setw(2) << 8;
+            else
+                std::cout << std::setw(2) << occGrid.getValue(i, j);
+        }
+        std::cout << endl;
+    }
 
 }
+
 bool MazeMapper::testConvertToDeltas(){
+    Logger::log("MazeMapper test: convertToDeltas");
+    MazeMapper mapper;
+    std::vector<Point> moves;
+    moves.push_back(Point(2, 3));
+    moves.push_back(Point(4, 5));
+    moves.push_back(Point(1, 4));
+    mapper.convertToDeltas(moves);
 
+    if(moves[0] == Point(2, 3) && moves[1] == Point(2, 2) && moves[2] == Point(-3, -1)){
+        Logger::log("/tPassed");
+    }
+    else
+        Logger::log("/tFailed", Logger::HIGH);
 }
+
 bool MazeMapper::testPathIsBlocked(){
-    
+    Logger::log("MazeMapper test: pathIsBlocked");
     robotPos.x = 5;
     robotPos.y = 5;
     occGrid.init();
@@ -599,7 +680,6 @@ bool MazeMapper::testPathIsBlocked(){
         std::cout << endl;
     }
 
-    pathIsBlocked(Point(5, 5), Point(4, 4));
     Logger::log("Clear Paths:");
     for(int i = 0; i <= 10; i ++){
         for(int j = 0; j <= 10; j++){
@@ -621,6 +701,7 @@ bool MazeMapper::testIsDiag(){
     if(!isDiag(1, 1) || !isDiag(1, -1) || !isDiag(-1, 1) || !isDiag(-1, -1))
         Logger::log("/tFailed: false negative", Logger::HIGH);
 }
+
 bool MazeMapper::testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
     
 }
