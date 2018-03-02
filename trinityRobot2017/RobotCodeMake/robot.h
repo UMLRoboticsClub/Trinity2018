@@ -4,6 +4,7 @@
 #include "point.h"
 #include "mazemapper.h"
 #include "gamestate.h"
+#include "globals.h"
 #include "constants.h"
 #include "drive.h"
 #include "colorsensor.h"
@@ -44,8 +45,6 @@ private:
 
     GPIO gpio; //needs to be initialized before all sensors
     thread laserScanInputThread;
-    DoublePoint	robotPos;
-    double		robotAngle;
 
     MazeMapper mazeMapper;
     Drive		drive;

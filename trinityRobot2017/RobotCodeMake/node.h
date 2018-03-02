@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H	
+
+#pragma once
 
 struct Node {
     // I chose to keep node initialization and parent setting as seperate functions 
@@ -15,4 +15,3 @@ struct Node {
     Node* parent;
 };
 
-#endif

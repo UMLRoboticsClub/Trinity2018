@@ -1,6 +1,6 @@
 // constants for NavVal
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+
+#pragma once
 
 static const float CLEAR_THRESHOLD = 0.25;
 static const int RESOLUTION = 1;
@@ -31,4 +31,3 @@ enum cellType {
     START_ZONE
 };
 
-#endif
