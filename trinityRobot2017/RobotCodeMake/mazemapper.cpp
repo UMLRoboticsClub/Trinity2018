@@ -551,34 +551,47 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 }
 
 //TESTING FUNCTIONS
-
+//honestly at this point I should just make up a whole freaking mini occGrid for the robot to work with.  Bleagh again.
 
 bool MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
-
+    occGrid.initFakeWorld();
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
+        }
+    }
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
+            if(i == robotPos.x && j == robotPos.y)
+                std::cout << std::setw(2) << 8;
+            else
+                std::cout << std::setw(2) << occGrid.getValue(i, j);
+        }
+        std::cout << endl;
+    }
 }
 
 bool MazeMapper::testDetermineRobotOp(){
-
+    //this one's just a bunch of if statements, bleagh
+    //gonna leave this one be for now, it'd just be a repeat of the actual function which isn't even legit yet
 }
 
 bool MazeMapper::testSpecialTargetPath(){
-
+    //this pulls out Astar, dunno much aboot that.  
+    //do findNextTarget first
 }
 
 bool MazeMapper::testCreateTargetPath(){
     //hoo boy.
     Logger::log("MazeMapper test: createTargetPath");
-    robotPos.x = 5;
-    robotPos.y = 5;
-    occGrid.init();
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j ++){
-            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
-                occGrid.update(i, j, 1);
-            else
-                occGrid.update(i, j, 0);
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
         }
     }
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.initFakeWorld();
     Point target = computeDistanceField();
     vector<Point> path = createTargetPath(target);
 
@@ -586,8 +599,8 @@ bool MazeMapper::testCreateTargetPath(){
         occGrid.update(path[i].x, path[i].y, i+1);
     }
 
-    for(int i = 0; i <= 11; i ++){
-        for(int j = 0; j <= 11; j ++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
             if(i == robotPos.x && j == robotPos.y)
                 std::cout << std::setw(2) << 8;
             else
@@ -605,29 +618,23 @@ bool MazeMapper::testOptimizePath(){
     //gonna want a more in depth test of this one, but seems correct on this simple test
     //another visual one, takes in actual waypoints not deltas 
     Logger::log("MazeMapper test: optimizePath");
-    robotPos.x = 5;
-    robotPos.y = 5;
-    occGrid.init();
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j ++){
-            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
-                occGrid.update(i, j, 1);
-            else
-                occGrid.update(i, j, 0);
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
         }
     }
-    vector<Point> path;
-    path.push_back(Point(6, 1));
-    path.push_back(Point(1, 1));
-    path.push_back(Point(1, 4));
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.initFakeWorld();
+    vector<Point> path = createTargetPath(computeDistanceField());
     vector<Point> opt = optimizePath(path);
     //best way to display a path in my mind is just to put ints in for coordinates in path
     for(int i = 0; i < opt.size(); i ++){
         occGrid.update(opt[i].x, opt[i].y, i);
     }
 
-    for(int i = 0; i <= 11; i ++){
-        for(int j = 0; j <= 11; j ++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
             if(i == robotPos.x && j == robotPos.y)
                 std::cout << std::setw(2) << 8;
             else
@@ -640,6 +647,11 @@ bool MazeMapper::testOptimizePath(){
 
 bool MazeMapper::testConvertToDeltas(){
     Logger::log("MazeMapper test: convertToDeltas");
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
+        }
+    }
     MazeMapper mapper;
     std::vector<Point> moves;
     moves.push_back(Point(2, 3));
@@ -656,22 +668,17 @@ bool MazeMapper::testConvertToDeltas(){
 
 bool MazeMapper::testPathIsBlocked(){
     Logger::log("MazeMapper test: pathIsBlocked");
-    robotPos.x = 5;
-    robotPos.y = 5;
-    occGrid.init();
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j ++){
-            if(i == 2 && j > 2 || i == 8 && j > 3 || (i > 2 && i < 8) && j == 10)
-                occGrid.update(i, j, 1);
-            else
-                occGrid.update(i, j, 0);
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
         }
     }
-
-    
+    occGrid.initFakeWorld();
+    robotPos.x = 12;
+    robotPos.y = 12;
     Logger::log("occupancy Grid: ");
-    for(int i = 0; i <= 11; i ++){
-        for(int j = 0; j <= 11; j ++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
             if(i == robotPos.x && j == robotPos.y)
                 std::cout << std::setw(2) << 8;
             else
@@ -679,10 +686,9 @@ bool MazeMapper::testPathIsBlocked(){
         }
         std::cout << endl;
     }
-
     Logger::log("Clear Paths:");
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j++){
             Point end(i, j);
             if(pathIsBlocked(robotPos, end))
                 std::cout << std::setw(2) << 1;
@@ -691,11 +697,15 @@ bool MazeMapper::testPathIsBlocked(){
         }
         std::cout << std::endl;
     }
-
 }
 
 bool MazeMapper::testIsDiag(){
     Logger::log("MazeMapper test: isDiag");
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
+        }
+    }
     if(isDiag(1, 0) || isDiag(0, 1) || isDiag(-1, 0) || isDiag(0, -1))
         Logger::log("/tFailed: false positive", Logger::HIGH);
     if(!isDiag(1, 1) || !isDiag(1, -1) || !isDiag(-1, 1) || !isDiag(-1, -1))
@@ -711,22 +721,18 @@ bool MazeMapper::testComputeDistanceField(){
     //this should probs be one of those "look and see if it's right" kinda gigs
     Logger::log("MazeMapper test: computeDistanceField");
     //dang, need direct access to occupancyGrid again, don't I.
-    occGrid.init();
-    robotPos.x = 5;
-    robotPos.y = 5;
-    occGrid.update(5, 5, 8);//8 for robot position
-    for(int i = 0; i <= 10; i ++){
-        for(int j = 0; j <= 10; j ++){
-            if(i == 4 && j > 2 || i == 7 && j > 3 || (i == 5 || i == 6) && j == 10)
-                occGrid.update(i, j, 1);
-            else
-                occGrid.update(i, j, 0);
+    for(int i = 0; i < distanceField.size(); i ++){
+        for(int j = 0; j < distanceField[0].size(); j ++){
+            distanceField[i][j] = -1;
         }
     }
+    robotPos.x = 5;
+    robotPos.y = 5;
+    occGrid.initFakeWorld();
     Point target = computeDistanceField();
     Logger::log("distanceField: ");
-    for(int i = 0; i <= 11; i ++){
-        for(int j = 0; j <= 11; j ++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
             if(i == target.x && j == target.y)
                 std::cout << std::setw(2) << '*';
             else
@@ -737,15 +743,14 @@ bool MazeMapper::testComputeDistanceField(){
 
     std::cout << std::endl;
     Logger::log("occupancy Grid: ");
-    for(int i = 0; i <= 11; i ++){
-        for(int j = 0; j <= 11; j ++){
+    for(int i = 0; i <= 25; i ++){
+        for(int j = 0; j <= 25; j ++){
            std::cout << std::setw(2) << occGrid.getValue(i, j);
         }
         std::cout << endl;
     }
 
 }
-
 
 bool MazeMapper::testComputePathLength(){
     Logger::log("MazeMapper test:  computePathLength");

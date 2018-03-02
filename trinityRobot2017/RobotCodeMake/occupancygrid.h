@@ -15,6 +15,7 @@ class OccupancyGrid {
         OccupancyGrid(const OccupancyGrid& orig);
         
         void init();
+        void initFakeWorld();
         int update(float realX, float realY, int val);
         int getValue(int x, int y) const;
         int getValue(const Point &point) const; // return array
