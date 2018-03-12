@@ -4,7 +4,7 @@ OBJDIR = obj
 
 #add -O2 for final build
 CXXFLAGS = -std=c++17 -g -Wall -pedantic -Wfatal-errors
-LDLIBS = -lpthread -lpigpiod_if2 -lrt
+LDLIBS = -lpthread -lpigpiod_if2 -lrt -lwiringPi
 
 SRCFILES = $(shell find . -maxdepth 1 -name "*.cpp" | cut -c 3-)
 OBJECTS = $(addprefix $(OBJDIR)/, $(patsubst %.cpp, %.o, $(SRCFILES)))
