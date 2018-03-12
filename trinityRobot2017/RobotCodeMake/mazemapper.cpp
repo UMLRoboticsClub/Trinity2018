@@ -473,7 +473,7 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
     //moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
     //literally just returns a vector of moves[i] - moves[i-1]
     vector<Point> oldMoves(moves);
-    for(int i = moves.size() - 1; i > 0; --i){
+    for(unsigned int i = moves.size() - 1; i > 0; --i){
         moves[i] = oldMoves[i] - oldMoves[i-1];
     }
     moves[0] = oldMoves[0] - robotPos;
@@ -562,10 +562,10 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 //TESTING FUNCTIONS
 //honestly at this point I should just make up a whole freaking mini occGrid for the robot to work with.  Bleagh again.
 
-bool MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
+void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
     occGrid.initFakeWorld();
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -578,23 +578,39 @@ bool MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases a
         }
         std::cout << endl;
     }
+    GameState state;
+    robotOps op;
+    Point targetLoc;
+    std::vector<Point> moves;
+    moves = findNextTarget(state, op, targetLoc);
+    
+    std::cout << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << op << std::endl;
+
+
+
+
+    //print out targetLoc, op.
+    //display moves in grid
+    
+    //display results from this call, then repeat with all sorts of different gamestatesi
+
 }
 
-bool MazeMapper::testDetermineRobotOp(){
+void MazeMapper::testDetermineRobotOp(){
     //this one's just a bunch of if statements, bleagh
     //gonna leave this one be for now, it'd just be a repeat of the actual function which isn't even legit yet
 }
 
-bool MazeMapper::testSpecialTargetPath(){
+void MazeMapper::testSpecialTargetPath(){
     //this pulls out Astar, dunno much aboot that.  
     //do findNextTarget first
 }
 
-bool MazeMapper::testCreateTargetPath(){
+void MazeMapper::testCreateTargetPath(){
     //hoo boy.
     Logger::log("MazeMapper test: createTargetPath");
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -604,7 +620,7 @@ bool MazeMapper::testCreateTargetPath(){
     Point target = computeDistanceField();
     vector<Point> path = createTargetPath(target);
 
-    for(int i = 0; i < path.size(); i ++){
+    for(unsigned int i = 0; i < path.size(); i ++){
         occGrid.update(path[i].x, path[i].y, i+1);
     }
 
@@ -619,16 +635,16 @@ bool MazeMapper::testCreateTargetPath(){
     }
 }
 
-bool MazeMapper::testAStar(){
+void MazeMapper::testAStar(){
 
 }
 
-bool MazeMapper::testOptimizePath(){
+void MazeMapper::testOptimizePath(){
     //gonna want a more in depth test of this one, but seems correct on this simple test
     //another visual one, takes in actual waypoints not deltas 
     Logger::log("MazeMapper test: optimizePath");
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -638,7 +654,7 @@ bool MazeMapper::testOptimizePath(){
     vector<Point> path = createTargetPath(computeDistanceField());
     vector<Point> opt = optimizePath(path);
     //best way to display a path in my mind is just to put ints in for coordinates in path
-    for(int i = 0; i < opt.size(); i ++){
+    for(unsigned int i = 0; i < opt.size(); i ++){
         occGrid.update(opt[i].x, opt[i].y, i+1);
     }
 
@@ -654,10 +670,10 @@ bool MazeMapper::testOptimizePath(){
 
 }
 
-bool MazeMapper::testConvertToDeltas(){
+void MazeMapper::testConvertToDeltas(){
     Logger::log("MazeMapper test: convertToDeltas");
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -675,10 +691,10 @@ bool MazeMapper::testConvertToDeltas(){
         Logger::log("/tFailed", Logger::HIGH);
 }
 
-bool MazeMapper::testPathIsBlocked(){
+void MazeMapper::testPathIsBlocked(){
     Logger::log("MazeMapper test: pathIsBlocked");
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -708,10 +724,10 @@ bool MazeMapper::testPathIsBlocked(){
     }
 }
 
-bool MazeMapper::testIsDiag(){
+void MazeMapper::testIsDiag(){
     Logger::log("MazeMapper test: isDiag");
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -721,17 +737,17 @@ bool MazeMapper::testIsDiag(){
         Logger::log("/tFailed: false negative", Logger::HIGH);
 }
 
-bool MazeMapper::testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
+void MazeMapper::testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
     
 }
 
-bool MazeMapper::testComputeDistanceField(){
+void MazeMapper::testComputeDistanceField(){
     //can run on small subsection of a map to see well enough.
     //this should probs be one of those "look and see if it's right" kinda gigs
     Logger::log("MazeMapper test: computeDistanceField");
     //dang, need direct access to occupancyGrid again, don't I.
-    for(int i = 0; i < distanceField.size(); i ++){
-        for(int j = 0; j < distanceField[0].size(); j ++){
+    for(unsigned int i = 0; i < distanceField.size(); i ++){
+        for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
@@ -761,7 +777,7 @@ bool MazeMapper::testComputeDistanceField(){
 
 }
 
-bool MazeMapper::testComputePathLength(){
+void MazeMapper::testComputePathLength(){
     Logger::log("MazeMapper test:  computePathLength");
     vector<Point> deltas;
     deltas.push_back(Point(3, 4));
@@ -772,8 +788,8 @@ bool MazeMapper::testComputePathLength(){
     float length = computePathLength(deltas);
     if(abs(length - 29.4365) < .01){
         Logger::log("\tPassed");
-        return true;
+        //return true;
     }
     Logger::log("\tFailed", Logger::HIGH);
-    return false;
+    //return false;
 }
