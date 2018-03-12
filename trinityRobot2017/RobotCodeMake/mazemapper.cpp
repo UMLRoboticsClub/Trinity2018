@@ -403,8 +403,8 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
         Point nextMove(moves[i + 1]);
         //fix this to be more robust
         Point direction(nextMove - endPoint);
-        direction /= endPoint.x - nextMove.x + endPoint.y - nextMove.y;
-
+        direction /= abs(endPoint.x - nextMove.x + endPoint.y - nextMove.y);
+        endPoint += direction;
         while(endPoint != nextMove){ //if we reach the next point we have a straight digaonal path to it.
             if(pathIsBlocked(startPoint, endPoint)){ //this path is not okay
                 endPoint -= direction; //go back a step, we overshot
@@ -413,14 +413,23 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
                 endPoint += direction;
             }
         }
+        //if we reach the net point, we actually want to continue without pushing the waypoint.
+        //how do we do that?  we want to advance the endPoint but not the oldPoint.
+        //also gets rid of this big check thing
+        //coo
+        if(endPoint != nextMove){
+            optMoves.push_back(endPoint);
+            startPoint = endPoint;
+        }
+        endPoint = nextMove;
         //avoid including a waypoint multiple times. Trust me it could happen otherwise.
-        if(optMoves.empty() || endPoint != optMoves.back()){
+        /*if(optMoves.empty() || endPoint != optMoves.back()){
             optMoves.push_back(endPoint);
         }
-
+        
         //done with this path, move on
         startPoint = endPoint;
-        endPoint = nextMove;
+        endPoint = nextMove;*/
     }
 
     //make sure we don't double count the last move which isn't part of the above loop
@@ -451,9 +460,9 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         currentCell2 = currentCell + offset2;
         currentCell3 = currentCell + offset3;
         if(
-            occGrid.getValue(currentCell.x,  currentCell.y) == WALL ||
-            occGrid.getValue(currentCell2.x, currentCell2.y) == WALL ||
-            occGrid.getValue(currentCell3.x, currentCell3.y) == WALL){
+            occGrid.getValue(currentCell.x,  currentCell.y) == WALL){// ||
+            //occGrid.getValue(currentCell2.x, currentCell2.y) == WALL ||
+            //occGrid.getValue(currentCell3.x, currentCell3.y) == WALL){
         return true;
         }
     }
@@ -630,7 +639,7 @@ bool MazeMapper::testOptimizePath(){
     vector<Point> opt = optimizePath(path);
     //best way to display a path in my mind is just to put ints in for coordinates in path
     for(int i = 0; i < opt.size(); i ++){
-        occGrid.update(opt[i].x, opt[i].y, i);
+        occGrid.update(opt[i].x, opt[i].y, i+1);
     }
 
     for(int i = 0; i <= 25; i ++){
