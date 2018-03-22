@@ -31,5 +31,5 @@ we need more pins. Won't work with PWM
 
 #define colorSensorPin 16
 #define irSensorPin 17
-#define imuSDAPin 18
-#define imuSCLPin 19
+#define imuSDAPin 18 //BCM 2!
+#define imuSCLPin 19 //BCM 3!
