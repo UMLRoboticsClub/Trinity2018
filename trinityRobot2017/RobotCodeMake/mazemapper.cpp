@@ -62,12 +62,12 @@ vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp
 
             //compute the actual path
             int targetIndex;
-            std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
+            std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex, targetLocation); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
             if(type == DOOR)
                 targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
             if(type == FLAME)
                 targetPoints[EXTINGUISHED].push_back(targetPoints[type][targetIndex]);
-            targetLocation = targetPoints[type][targetIndex];
+            //targetLocation = targetPoints[type][targetIndex];//move this to inside specialTargetPath function
             targetPoints[type].erase(targetPoints[type].begin() + targetIndex);
             return path;
             //this whole block could be in a separate function.  And so it shall be
@@ -116,7 +116,11 @@ vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp
     vector<Point> moves = createTargetPath(target);
     //optimizes with direct diagonalized motion
     moves = optimizePath(moves);
-
+    //reduce last move by robotRadius, or to zero.
+    Point lastMove = moves[moves.size()-1];
+    double mag = sqrt(pow(lastMove.x, 2) + pow(lastMove.y, 2));
+    double mult = mag - ROBOT_DIAMETER_CM/2 < 0 ? 0 : mag - ROBOT_DIAMETER_CM/2;
+    moves[moves.size()-1] *= mult;
     convertToDeltas(moves);
     return moves;
 }
@@ -147,7 +151,7 @@ MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
     }
 }
 
-vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locations, int& targetIndex){
+vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locations, int& targetIndex, Point& targetLocation){
     // these are for finding the shortest path to the closest known target
     vector<Point> path;
     vector<Point> shortestPath;
@@ -164,8 +168,59 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
                 || targetType == RED_SIDE_CRADLE
                 || targetType == GREEN_SIDE_CRADLE
                 || targetType == SAFE_ZONE){
-            locations[i] = closestClearPoint(locations[i]);
+            locations[i] = closestClearPoint(locations[i]);        
         }
+
+        else if(targetType == HALLWAY){
+            //we need to find the actual end of the hallway.  Look in all directions from the target, find furthest.  Should work.  Ish.  That's not really how that works.  
+            //instead find shortest direction, then check both directions perpindicular to that.  
+            //guees that needs to be a distance Field?  but no.  we need more circular to properly detect it.  do a circle thing.  width of hallway.  
+            //iterate through angles, only searching as far as half the width of the hallway.  There we go.
+            double directionAngle;
+            double shortestDistance = HALLWAY_WIDTH_CM/2;
+            for(double k = 0; k < 2*M_PI; k += M_PI/32){
+                for(int j = 0; j < shortestDistance; j ++){
+                    if(occGrid.getValue(locations[i] + Point(j * cos(k), j * sin(k))) == WALL){
+                        shortestDistance = j;
+                        directionAngle = k;
+                    }
+                }
+            }
+            //now we have our direction, coolio.
+            DoublePoint direction(cos(directionAngle), sin(directionAngle));
+            DoublePoint perp1(-direction.y, direction.x);
+            DoublePoint perp2(direction.y, -direction.x);
+            
+            int distance1 = 0;
+            int distance2 = 0;
+
+            DoublePoint looking = robotPos;
+            while(occGrid.getValue(Point(looking)) == CLEAR){
+                looking += perp1;
+                distance1++;
+            }
+            looking = robotPos;
+            while(occGrid.getValue(Point(looking)) == CLEAR){
+                looking += perp2;
+                distance2++;
+            }
+    
+            double dist;
+            if(distance1 > distance2){
+                dist = distance1;
+                direction = perp1;
+            }
+            else{
+
+            }
+            //we know which direction and distance the far wall is.
+            dist -= ARENA_LENGTH_CM;
+            locations[i] += Point(dist*direction.x, dist*direction.y);
+            
+            //we need to get the target location out of here.  pass by ref again?
+            targetLocation = locations[i];
+        }
+
 
         // AStar path
         path = AStar(locations[i]);
@@ -186,6 +241,8 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
                 shortestPath = path;
                 shortestPathLength = pathLength;
                 targetIndex = i;
+                if(targetType != HALLWAY)
+                    targetLocation = locations[i];
             }
             // could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
         }

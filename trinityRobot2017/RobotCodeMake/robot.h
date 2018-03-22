@@ -31,8 +31,8 @@ public:
 	void tossBaby(Point targetPoint);
 	void blowCandle(Point targetPoint);
 	void spinAndScan();
-	void hallwaySweep();
-	void hallwaySimple();
+	void hallwaySweep(Point& targetLoc);
+	void hallwaySimple(Point& targetLoc);
 	void goToSideFromFront();
 	void leaveRoom();
 
