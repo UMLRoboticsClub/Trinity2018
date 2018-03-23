@@ -50,18 +50,18 @@ class MazeMapper {
         vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);
     //TESTING FUNCTIONS FOR MAZEMAPPER
-        bool testFindNextTarget();
-        bool testDetermineRobotOp();
-        bool testSpecialTargetPath();
-        bool testCreateTargetPath();
-        bool testAStar();
-        bool testOptimizePath();
-        bool testConvertToDeltas();
-        bool testPathIsBlocked();
-        bool testIsDiag();
-        bool testUpdateOccupancyGrid();//this one'll be demon in and of itself.  probably compartmentalize for less hell
-        bool testComputeDistanceField();
-        bool testComputePathLength();
+        void testFindNextTarget();
+        void testDetermineRobotOp();
+        void testSpecialTargetPath();
+        void testCreateTargetPath();
+        void testAStar();
+        void testOptimizePath();
+        void testConvertToDeltas();
+        void testPathIsBlocked();
+        void testIsDiag();
+        void testUpdateOccupancyGrid();//this one'll be demon in and of itself.  probably compartmentalize for less hell
+        void testComputeDistanceField();
+        void testComputePathLength();
     private:
         //map of type of targetPoints to vector of all point of that type
 
