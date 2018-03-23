@@ -61,8 +61,9 @@ vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp
             nextRobotOp = determineRobotOp(type, state);
 
             //compute the actual path
-            int targetIndex;
+            int targetIndex = 0;
             std::vector<Point> path = specialTargetPath(type, targetPoints[type], targetIndex, targetLocation); //in here is when we actually determine the target, so this would be the place, or to have it return something and make this grosser
+            //getting testing to work
             if(type == DOOR)
                 targetPoints[EXPLORED_DOOR].push_back(targetPoints[type][targetIndex]);
             if(type == FLAME)
@@ -162,6 +163,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
     for (unsigned int i = 0; i < locations.size(); ++i) {
 
         //find the actual point we need to go to
+        // (so we don't slam into the object)
         if(targetType == FLAME 
                 || targetType == CANDLE
                 || targetType == BLUE_SIDE_CRADLE
@@ -224,8 +226,11 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
 
         // AStar path
         path = AStar(locations[i]);
+
         // 'diagonalized' path (optimnal)
         path = optimizePath(path);
+
+
         // return-ready vector of deltas
         convertToDeltas(path);
         // length of these deltas (we want the shortest length)
@@ -235,6 +240,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
             shortestPath = path;
             shortestPathLength = pathLength;
             firstPass = false;
+            targetIndex = 0;
         } else {
             // compare shortest path to current path and update accordingly
             if (pathLength < shortestPathLength) {
@@ -306,6 +312,7 @@ namespace std {
 }
 
 vector<Point> MazeMapper::AStar(const Point &target) {
+
     //implement A* pathfinding algorithm for known points in the known space
 
     vector<Point> path;							// path to return
@@ -335,20 +342,20 @@ vector<Point> MazeMapper::AStar(const Point &target) {
     // If the target is never found somehow, then this while loop will keep the program from running indefinitely
     while (!openNodes.empty()) {
 
-        { // take node with smallest f ( we use point to find this node, and point will then be key to this node
-            auto iter = openNodes.begin();
-            point = iter->first; // node at beginning is our starting lowest f value point
-            while (iter != openNodes.end()) {
-                // if this node f is smaller than smallest found -> replace
-                if (iter->second->f < openNodes[point]->f) {
-                    point = iter->first;
-                }
-                ++iter;
+        // take node with smallest f ( we use point to find this node, and point will then be key to this node
+        auto iter = openNodes.begin();
+        point = iter->first; // node at beginning is our starting lowest f value point
+        while (iter != openNodes.end()) {
+            // if this node f is smaller than smallest found -> replace
+            if (iter->second->f < openNodes[point]->f) {
+                point = iter->first;
             }
+            ++iter;
         }
 
         // remove this node from open map and save as parentNode
         parentNode = openNodes[point];
+        
         openNodes.erase(point);
         // put current parent node on closed map
         closedNodes[point] = parentNode;
@@ -358,8 +365,10 @@ vector<Point> MazeMapper::AStar(const Point &target) {
 
             // calculate child node values before making the actual object
             //(so we can test these values to make sure they are good)
+            
             newX = parentNode->x + directions[i].x;
-            newY = parentNode->x + directions[i].y;
+            newY = parentNode->y + directions[i].y;
+            
             heuristic = abs(target.x - newX) + abs(target.y - newY);
             newNodePoint = Point(newX, newY);
 
@@ -405,6 +414,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             childNode->setParent(parentNode, dg);
             openNodes[newNodePoint] = childNode;
 
+            
             // target acquired
             if (newX == target.x && newY == target.y) {
 
@@ -432,10 +442,18 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 closedNodes.clear();
 
                 //return
+
+                std::cout << "astar path:" << std::endl;
+                for(unsigned int r = 0; r < path.size();r++){
+                    std::cout << "(" << path[r].x << "," << path[r].y << ")" << std::endl;
+                }
+
                 return path;
             }
         }
     }
+
+    std::cout << "never found target" << std::endl;
 
     // if target is never found, return an empty path :(
     return path;
@@ -461,7 +479,7 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
         //fix this to be more robust
         Point direction(nextMove - endPoint);
         direction /= abs(endPoint.x - nextMove.x + endPoint.y - nextMove.y);
-        endPoint += direction;
+        
         while(endPoint != nextMove){ //if we reach the next point we have a straight digaonal path to it.
             if(pathIsBlocked(startPoint, endPoint)){ //this path is not okay
                 endPoint -= direction; //go back a step, we overshot
@@ -480,13 +498,6 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
         }
         endPoint = nextMove;
         //avoid including a waypoint multiple times. Trust me it could happen otherwise.
-        /*if(optMoves.empty() || endPoint != optMoves.back()){
-            optMoves.push_back(endPoint);
-        }
-        
-        //done with this path, move on
-        startPoint = endPoint;
-        endPoint = nextMove;*/
     }
 
     //make sure we don't double count the last move which isn't part of the above loop
@@ -620,7 +631,8 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 //honestly at this point I should just make up a whole freaking mini occGrid for the robot to work with.  Bleagh again.
 
 void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
-    occGrid.initFakeWorld();
+    occGrid.initFakeWorld(25);
+    
     for(unsigned int i = 0; i < distanceField.size(); i ++){
         for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
@@ -661,6 +673,48 @@ void MazeMapper::testDetermineRobotOp(){
 void MazeMapper::testSpecialTargetPath(){
     //this pulls out Astar, dunno much aboot that.  
     //do findNextTarget first
+    
+    Logger::log("MazeMapper test: testing specialTargetPath() via findNextTarget()");
+
+
+    // dummy data
+    occGrid.initFakeWorld(25);
+    
+    //insert into targetPoint
+    targetPoints[CANDLE].push_back(Point(3,20));
+    std::cout << targetPoints[CANDLE][0].x << std::endl;
+
+    GameState state(2,0,false,false,false,false,false);
+    MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
+    Point targetLocation;
+    vector<Point> path;
+
+    path = findNextTarget(state, nextRobotOperation, targetLocation);
+    // findNextTarget should return the closest clear point next to the closest Candle (candle at location <3,20>, so should return <3,21>)
+   
+    // draw path
+    for(int i = 0; i < path.size(); i++){
+        std::cout << "delta: " << i << " at location (" << path[i].x << "," << path[i].y << ")" << std::endl;
+        occGrid.update(path[i].x, path[i].y, i+2);
+    }
+
+    for(int j = 0; j < 25; j++){
+        for(int i = 0; i < 25; i++){
+            if(i == robotPos.x && j == robotPos.y){
+                std::cout << std::setw(2) << "R";
+            }else{
+                std::cout << std::setw(2) << occGrid.getValue(i,j);
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    if(targetLocation == Point(3,21)){
+        std::cout << "targetLocation is correct: (" << targetLocation.x << "," << targetLocation.y << ")" << std::endl;
+    }else{
+        std::cout << "targetLocation is incorrect: it is (" << targetLocation.x << "," << targetLocation.y << "), when it should be (3,21)" << std::endl;
+    }
+
 }
 
 void MazeMapper::testCreateTargetPath(){
@@ -673,7 +727,7 @@ void MazeMapper::testCreateTargetPath(){
     }
     robotPos.x = 5;
     robotPos.y = 5;
-    occGrid.initFakeWorld();
+    occGrid.initFakeWorld(25);
     Point target = computeDistanceField();
     vector<Point> path = createTargetPath(target);
 
@@ -707,7 +761,7 @@ void MazeMapper::testOptimizePath(){
     }
     robotPos.x = 5;
     robotPos.y = 5;
-    occGrid.initFakeWorld();
+    occGrid.initFakeWorld(25);
     vector<Point> path = createTargetPath(computeDistanceField());
     vector<Point> opt = optimizePath(path);
     //best way to display a path in my mind is just to put ints in for coordinates in path
@@ -755,7 +809,7 @@ void MazeMapper::testPathIsBlocked(){
             distanceField[i][j] = -1;
         }
     }
-    occGrid.initFakeWorld();
+    occGrid.initFakeWorld(25);
     robotPos.x = 12;
     robotPos.y = 12;
     Logger::log("occupancy Grid: ");
@@ -810,7 +864,7 @@ void MazeMapper::testComputeDistanceField(){
     }
     robotPos.x = 5;
     robotPos.y = 5;
-    occGrid.initFakeWorld();
+    occGrid.initFakeWorld(25);
     Point target = computeDistanceField();
     Logger::log("distanceField: ");
     for(int i = 0; i <= 25; i ++){

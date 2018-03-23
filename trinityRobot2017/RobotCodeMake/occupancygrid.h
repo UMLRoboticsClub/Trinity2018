@@ -15,12 +15,12 @@ class OccupancyGrid {
         OccupancyGrid(const OccupancyGrid& orig);
         
         void init();
-        void initFakeWorld();
+        void initFakeWorld(int fakeSize);
         int update(float realX, float realY, int val);
         int getValue(int x, int y) const;
         int getValue(const Point &point) const; // return array
 
-        const int size;
+        int size;
     private:
         vector<vector<NavVal>> gridVals;
 };

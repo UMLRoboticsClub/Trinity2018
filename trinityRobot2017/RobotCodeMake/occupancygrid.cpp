@@ -20,16 +20,17 @@ void OccupancyGrid::init(){
     gridVals = std::vector<std::vector<NavVal>>(size, vector<NavVal>(size));
 }
 
-void OccupancyGrid::initFakeWorld(){
+void OccupancyGrid::initFakeWorld(int fakeSize){
+    this->size = fakeSize;
     init();
     //let's make a pretty little universe.
     //start robot off more or less in the top corner
     robotPos.x = 4;
     robotPos.y = 3;
     //I AM THE GOD OF THIS NEW WORLD
-    for(int i = 0; i < 25; i ++){
-        for(int j = 0; j < 25; j ++){
-            if(i == 24 || j == 24)//surrounding walls so robot can't escape
+    for(int i = 0; i < fakeSize; i ++){
+        for(int j = 0; j < fakeSize; j ++){
+            if(i == fakeSize-1 || j == fakeSize-1)//surrounding walls so robot can't escape
                 update(i, j, 1);
             else if(i == 6 && j < 8)
                 update(i, j, 1);
