@@ -77,7 +77,9 @@ void Camera::Camera(std::string targetFile) {
 	akaze = AKAZE::create();
 }
 void Camera::poll() {
-       stream1.read(img2o);	       
+      
+       stream1.read(img2o);
+       double width = static_cast<double>(img2o);
        threshold(img2o, img2, BLACK, WHITE, 0);	    
        akaze->detectAndCompute(img2o, noArray(), kpts2, desc2, false);
        BFMatcher matcher(NORM_HAMMING);
@@ -95,7 +97,7 @@ void Camera::poll() {
 		llsq(kpts2, a, b);
 		rotation = a;
 		illsq(kpts2, a, b,a, b);
-		offset = b;
+		offset = (b - width) / (width / 2.0);
 		return true;
        }
        return false;
