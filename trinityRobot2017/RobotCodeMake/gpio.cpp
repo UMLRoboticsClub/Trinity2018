@@ -1,11 +1,11 @@
 #include "gpio.h"
+#include "logger.h"
 
-#include <iostream>
 #include <pigpiod_if2.h>
 
 GPIO::GPIO(){
     if((pi = pigpio_start(0, 0)) < 0){
-        std::cerr << "Error: Unable to connect to pigpiod" << std::endl;  
+        Logger::log("Error: Unable to connect to pigpiod");
         exit(1);
     }
 }
