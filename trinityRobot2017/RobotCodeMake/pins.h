@@ -1,8 +1,8 @@
 #pragma once
 
 /*
-Status led:   2 (could be changed)
-Power button: 3 (could be changed)
+Status led:   16 (could be changed)
+Power button: 12 (not used atm) (could be changed)
 Lidar serial: 15
 
 I have some 8 and 16 IO expanders if 
