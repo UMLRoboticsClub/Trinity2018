@@ -6,6 +6,8 @@ int main() {
 	//Robot sam;
 	//sam.start();
     MazeMapper mapper;
+
+    mapper.testSpecialTargetPath();
     mapper.testFindNextTarget();
     mapper.testCreateTargetPath();
     mapper.testOptimizePath();

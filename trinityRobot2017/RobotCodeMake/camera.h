@@ -15,7 +15,7 @@ using namespace std;
 
 class Camera {
 public:
-	Camera(std::string targetFile)
+	Camera(std::string targetFile);
 	double getOffsetX();
 	double getRotation();
 	bool poll();
