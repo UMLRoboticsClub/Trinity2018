@@ -443,11 +443,6 @@ vector<Point> MazeMapper::AStar(const Point &target) {
 
                 //return
 
-                std::cout << "astar path:" << std::endl;
-                for(unsigned int r = 0; r < path.size();r++){
-                    std::cout << "(" << path[r].x << "," << path[r].y << ")" << std::endl;
-                }
-
                 return path;
             }
         }
@@ -473,13 +468,16 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     Point startPoint(robotPos);
     Point endPoint(moves[0]);
 
+
+
     //for each possible improvement
     for(unsigned i = 0; i < moves.size() - 1; ++i){
         Point nextMove(moves[i + 1]);
+        
         //fix this to be more robust
         Point direction(nextMove - endPoint);
         direction /= abs(endPoint.x - nextMove.x + endPoint.y - nextMove.y);
-        
+
         while(endPoint != nextMove){ //if we reach the next point we have a straight digaonal path to it.
             if(pathIsBlocked(startPoint, endPoint)){ //this path is not okay
                 endPoint -= direction; //go back a step, we overshot
@@ -497,7 +495,7 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
             startPoint = endPoint;
         }
         endPoint = nextMove;
-        //avoid including a waypoint multiple times. Trust me it could happen otherwise.
+        //avoid including a waypoint multiple times. Trust me it could happen otherwise
     }
 
     //make sure we don't double count the last move which isn't part of the above loop
@@ -693,10 +691,6 @@ void MazeMapper::testSpecialTargetPath(){
     // findNextTarget should return the closest clear point next to the closest Candle (candle at location <3,20>, so should return <3,21>)
    
     // draw path
-    for(int i = 0; i < path.size(); i++){
-        std::cout << "delta: " << i << " at location (" << path[i].x << "," << path[i].y << ")" << std::endl;
-        occGrid.update(path[i].x, path[i].y, i+2);
-    }
 
     for(int j = 0; j < 25; j++){
         for(int i = 0; i < 25; i++){
