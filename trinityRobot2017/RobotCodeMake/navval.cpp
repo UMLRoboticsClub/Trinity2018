@@ -17,6 +17,7 @@ int NavVal::updateValue(float newCellType) {
             cellType = newCellType;
         }
     } else if (newCellType >= 2){
+        //do we really wnat to do this?  I guess we do want to replace candles with flames, so yeah.  Yeah we do wnat to do that
         // This value must be a special case already, only change this value if the new cellType is
         // not a unknown, clear or wall
         cellType = newCellType;

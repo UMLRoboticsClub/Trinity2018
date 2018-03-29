@@ -35,7 +35,7 @@ class MazeMapper {
         //vector<Point> is sequence of waypoints
         vector<Point> findNextTarget(GameState &state, robotOps &nextRobotOp, Point& targetLocation); //only function called by the robot
         robotOps determineRobotOp(int type, GameState &state);
-        vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex);
+        vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex, Point& targetLocation);
         Point closestClearPoint(const Point &target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);

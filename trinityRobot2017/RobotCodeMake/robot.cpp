@@ -107,11 +107,11 @@ void Robot::robotLoop() {
                 break;
             case MazeMapper::OP_HALLWAY:
                 Logger::log("hallwaySweep");
-                hallwaySweep();
+                hallwaySweep(targetLocation);
                 break;
             case MazeMapper::OP_HALLWAY_SIMPLE:
                 Logger::log("hallwaySimple");
-                hallwaySimple();
+                hallwaySimple(targetLocation);
                 break;
             case MazeMapper::OP_STOP:
                 Logger::log("success!");
@@ -124,8 +124,8 @@ void Robot::robotLoop() {
     Logger::log("exiting");
 }
 
-void Robot::hallwaySimple(){
-
+void Robot::hallwaySimple(Point& targetLoc){
+    gameState.secondArena = false;
 }
 
 void Robot::leaveRoom(){
@@ -186,14 +186,26 @@ void Robot::spinAndScan() {
     gameState.inRoom = true;
 }
 
-void Robot::hallwaySweep() {
+void Robot::hallwaySweep(Point& targetLocation) {
     /*
        (potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
        Then turn the robot so camera is facing back where we came from(so it'¿½ll detect the safezone target)
        then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
        that we find the correct window.
-       */
+    */
 
+    rotateTowards(targetLocation);
+    //now we need to move "left" and "right" which is done via robotAngle
+
+    //so we need to find which direction the hallway is in  this happens in MazeMapper!  targetLoc
+    //then we need to move down it until we are no longer in the hallway.  can we see the end of it?  
+    //if we can see the far end of the arena we can just subtract for distance to move
+    //move that far, and we also have direction which tells us which way to face
+    //then strafe sideways set distance and check camera
+    //when camera tells us we saw the thing, record location as safeZonelocation.
+
+    gameState.secondArena = true;
+    gameState.safeZoneFound = true;//hopefully
 }
 
 void Robot::rotateTowards(Point target) {
