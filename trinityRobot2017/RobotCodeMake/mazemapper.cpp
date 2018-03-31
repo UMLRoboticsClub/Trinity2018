@@ -577,36 +577,62 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 }
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
-    LaserScan scan = lidar.getLaserScan();
-	DoorFinder doorFinder;
+    vector<int> clean = average(testScan, 45);
 
-	// we can change element.getAngle() and element.getDist() but we're using these for now
-	for(auto element : scan){ //for each element in the scan
-		// given the angle and distance...
-		//everything between robotPos and newPos is clear
-		for(int i = 0; i < element.getDist() - 1; i++){
-			float xDist = i * cos(element.getAngle() + robotAngle);
-			float YDist = i * sin(element.getAngle() + robotAngle);
-			occGrid.update(robotPos.x + xDist, robotPos.y + yDist, CLEAR);
-		}
+    //for(int i = 0; i < clean.size(); i++)
+    //    cout << clean[i] << ", ";
+    //cout << endl;
 
-		float xDist = element.getDist() * cos(element.getAngle() + robotAngle);
-		float yDist = element.getDist() * sin(element.getAngle() + robotAngle);
+    double newAngleSize = 360 / 45;
 
-		occGrid.update(robotPos.x + xDist, robotPos.y + yDist, WALL);
-	}
+    //robotPos.x = occGrid.size / 2;
+    //robotPos.y = occGrid.size / 2;
+    //robotAngle = 0;
+
+    //cout << robotPos.x << " " << robotPos.y << endl;
+
+    for(int i = 0; i < clean.size(); i++){ //for each element in the scan
+        int one = i - 1;
+        int two = i;
+        if(i == 0){
+            one = clean.size() - 1;
+            two = i;
+        }
+        int startAngle = one * newAngleSize;
+        int endAngle = two * newAngleSize;
+        int angle = startAngle;
+        float x1 = clean[one] / 10.0 * cos((startAngle + robotAngle) * M_PI / 180);
+        float y1 = clean[one] / 10.0 * sin((startAngle + robotAngle) * M_PI / 180);
+        float x2 = clean[two] / 10.0 * cos((endAngle + robotAngle) * M_PI / 180);
+        float y2 = clean[two] / 10.0 * sin((endAngle + robotAngle) * M_PI / 180);
+
+        float dx = (x2 - x1) / newAngleSize;
+        float dy = (y2 - y1) / newAngleSize;
+
+        for(int j = 0; j < newAngleSize; j++){
+            int len = sqrt(pow(x1,2) + pow(y1, 2));
+            for(int k = 0; k < len; k++){
+                occGrid.update(robotPos.x + (x1 / len)*k, robotPos.y + (y1 / len)*k, CLEAR);
+            }
+            if(abs(clean[two] - clean[one]) <= 150){
+                occGrid.update((int)(robotPos.x + x1), (int)(robotPos.y + y1), WALL);
+            }
+            x1 += dx;
+            y1 += dy;
+        }
+    }
 
 	// call find doors & hallways, which will update important values
-	doorFinder.findDoorsAndHallways(scan, targetPoints, occGrid);
+	//doorFinder.findDoorsAndHallways(scan, targetPoints, occGrid);
 
 	// call find flame, which will update important values
 
 	// now that we have all important values for this scan, we can update the occ grid
-	for(auto element : targetPoints){ //element.first is the key, element.second is the value
+	/*for(auto element : targetPoints){ //element.first is the key, element.second is the value
 		for(int i = 0; i < element.second.size(); i++){
 			occGrid.update(element.second[i].x, element.second[i].y, element.first);
 		}
-	}
+	}*/
 }
 
 /////////////////////////////
