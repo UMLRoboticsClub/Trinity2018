@@ -64,7 +64,7 @@ void Robot::robotLoop() {
     Point targetLocation;
 
     // our path variable
-    vector<Point> nextPath;
+    std::vector<Point> nextPath;
     //bool done = false;
 
     while (!done) {
@@ -185,7 +185,7 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
     // SNATCH_BABY()
 }
 
-void Robot::robotDrive(vector<Point> instructions) {
+void Robot::robotDrive(std::vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
         drive.drive(instructions[i].x, instructions[i].y);
@@ -235,7 +235,7 @@ void Robot::spinAndScan() {
 void Robot::hallwaySweep(Point targetPoint) {
     /*
        (potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
-       Then turn the robot so camera is facing back where we came from(so it'¿½ll detect the safezone target)
+       Then turn the robot so camera is facing back where we came from(so it'Â¿Â½ll detect the safezone target)
        then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
        that we find the correct window.
     */

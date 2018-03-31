@@ -41,6 +41,7 @@ double MazeMapper::computePathLength(const vector<Point> &deltas) {
 
 //vector<Point> is sequence of waypoints
 vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
+    nextRobotOp = OP_NOTHING;
     for(unsigned int i = 0; i < distanceField.size(); ++i){
         for(unsigned int j = 0; j < distanceField[i].size(); j ++){
             distanceField[i][j] = -1;
@@ -160,8 +161,10 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
     vector<Point> shortestPath;
     int shortestPathLength = 0;
     bool firstPass = true;
+    Point currentTargetLoc;
     // iterate over all our points associated with this type
     // first point is closest path until another is shorter
+
     for (unsigned int i = 0; i < locations.size(); ++i) {
         if(targetType != HALLWAY){
             //find the actual point we need to go to
@@ -198,12 +201,13 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
             int distance1 = 0;
             int distance2 = 0;
 
-            DoublePoint looking = getRobotPos();
+            DoublePoint looking = locations[i];
             while(occGrid.getValue(Point(looking)) == CLEAR){
                 looking += perp1;
                 ++distance1;
             }
-            looking = getRobotPos();
+
+            looking = locations[i];
             while(occGrid.getValue(Point(looking)) == CLEAR){
                 looking += perp2;
                 ++distance2;
@@ -214,12 +218,17 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
                 dist = distance1;
                 direction = perp1;
             }
+            else{
+                // matt why you put this else here?
+            }
+            targetLocation = locations[i];
+            
             //we know which direction and distance the far wall is.
-            dist -= ARENA_LENGTH_CM;
+            dist -= ARENA_LENGTH_CM;//now we have the point for which the 
+            dist += ROBOT_DIAMETER_CM/2 + 2;//puts robot actually centered in the hallway
             locations[i] += Point(dist*direction.x, dist*direction.y);
 
             //we need to get the target location out of here.  pass by ref again?
-            targetLocation = locations[i];
         }
 
 
@@ -239,14 +248,14 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
             shortestPathLength = pathLength;
             firstPass = false;
             targetIndex = 0;
+            targetLocation = currentTargetLoc;
         } else {
             // compare shortest path to current path and update accordingly
             if (pathLength < shortestPathLength) {
                 shortestPath = path;
                 shortestPathLength = pathLength;
                 targetIndex = i;
-                if(targetType != HALLWAY)
-                    targetLocation = locations[i];
+                targetLocation = currentTargetLoc;
             }
             // could be 'else if' if you really wanted to be 'efficient' but I don't care. *dabs*
         }
@@ -532,6 +541,7 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
 }
 
 void MazeMapper::convertToDeltas(vector<Point> &moves) {
+    return;//no more converting to deltas, quick fix for now.
     //moves is originally in form of absolute locations to move to, this fuction converts those to delta locations.
     //literally just returns a vector of moves[i] - moves[i-1]
     vector<Point> oldMoves(moves);
@@ -627,12 +637,15 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
     occGrid.initFakeWorld(25);
 
+    Logger::log("Testing MazeMapper findNextTarget");
+
     for(unsigned int i = 0; i < distanceField.size(); i ++){
         for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
         }
     }
-    for(int i = 0; i <= 25; i ++){
+
+   /* for(int i = 0; i <= 25; i ++){
         for(int j = 0; j <= 25; j ++){
             if(i == getRobotPos().x && j == getRobotPos().y)
                 std::cout << std::setw(2) << 8;
@@ -640,15 +653,56 @@ void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases a
                 std::cout << std::setw(2) << occGrid.getValue(i, j);
         }
         std::cout << endl;
-    }
+    }*/
+
+
     GameState state;
     robotOps op;
     Point targetLoc;
     std::vector<Point> moves;
+    
+    targetPoints[FLAME].push_back(Point(23, 2));
+    targetPoints[SAFE_ZONE].push_back(Point(19, 23));
+    targetPoints[RED_SIDE_CRADLE].push_back(Point(4, 6));
+    targetPoints[DOOR].push_back(Point(7, 1));
+    targetPoints[DOOR].push_back(Point(12, 10));
+
+    vector<string> opList;
+    opList.push_back("OP_NOTHING");
+    opList.push_back("OP_CRADLE_SIDE");
+    opList.push_back("OP_CRADLE_FRONT");
+    opList.push_back("OP_SAFE_ZONE");
+    opList.push_back("OP_EXTINGUISH");
+    opList.push_back("OP_SCANROOM");
+    opList.push_back("OP_EXIT_ROOM");
+    opList.push_back("OP_HALLWAY");
+    opList.push_back("OP_HALLWAY_SIMPLE");
+    opList.push_back("OP_STOP");
+   
+    //now just try a bunch of gamestate settings and see what goes down.
+
+    state.levelOfCompetition = 1; //should always go to candles, ignoring baby.
     moves = findNextTarget(state, op, targetLoc);
+    std::cout << state << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << opList[op] << std::endl << std::endl;
+
+    state.levelOfCompetition = 3; //not in second arena, so it should go to the unknown.  Would go to hallway but DNE
+    moves = findNextTarget(state, op, targetLoc);
+    std::cout << state << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << opList[op] << std::endl << std::endl;
+    
+    state.secondArena = true; //should go to the cradle side
+    moves = findNextTarget(state, op, targetLoc);
+    std::cout << state << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << opList[op] << std::endl << std::endl;
+
+    state.babyObtained = true; //should go to the safe zone
+    moves = findNextTarget(state, op, targetLoc);
+    std::cout << state << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << opList[op] << std::endl << std::endl;
 
     std::cout << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << op << std::endl;
 
+    state.inRoom = true;
+    moves = findNextTarget(state, op, targetLoc);
+    std::cout << state << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << opList[op] << std::endl << std::endl;
+    
     //print out targetLoc, op.
     //display moves in grid
 
@@ -673,19 +727,16 @@ void MazeMapper::testSpecialTargetPath(){
 
     //insert into targetPoint
     targetPoints[CANDLE].push_back(Point(3,20));
+    //targetPoints[
     std::cout << targetPoints[CANDLE][0].x << std::endl;
 
     GameState state(2,0,false,false,false,false,false);
     MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
     Point targetLocation;
     vector<Point> path;
-
-    path = findNextTarget(state, nextRobotOperation, targetLocation);
-    // findNextTarget should return the closest clear point next to the closest Candle (candle at location <3,20>, so should return <3,21>)
-
     // draw path
 
-    for(int j = 0; j < 25; j++){
+    /*for(int j = 0; j < 25; j++){
         for(int i = 0; i < 25; i++){
             if(i == getRobotPos().x && j == getRobotPos().y){
                 std::cout << std::setw(2) << "R";
@@ -695,12 +746,26 @@ void MazeMapper::testSpecialTargetPath(){
         }
         std::cout << std::endl;
     }
+*/  //really just need cases for every possible target type.  Can do.
+    int targetIndex;
+    Point targetLoc;
 
-    if(targetLocation == Point(3,21)){
-        std::cout << "targetLocation is correct: (" << targetLocation.x << "," << targetLocation.y << ")" << std::endl;
-    } else {
-        std::cout << "targetLocation is incorrect: it is (" << targetLocation.x << "," << targetLocation.y << "), when it should be (3,21)" << std::endl;
-    }
+    targetPoints[FLAME].push_back(Point(23, 2));
+    targetPoints[SAFE_ZONE].push_back(Point(19, 23));
+    targetPoints[RED_SIDE_CRADLE].push_back(Point(4, 6));
+    targetPoints[DOOR].push_back(Point(7, 1));
+    targetPoints[DOOR].push_back(Point(12, 10));
+  
+
+    path = specialTargetPath(CANDLE, targetPoints[CANDLE], targetIndex, targetLoc);
+    std::cout << "Candle at (3, 20), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
+    path = specialTargetPath(FLAME, targetPoints[FLAME], targetIndex, targetLoc);
+    std::cout << "Flame at (23, 2), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
+    path = specialTargetPath(RED_SIDE_CRADLE, targetPoints[RED_SIDE_CRADLE], targetIndex, targetLoc);
+    std::cout << "red side cradle at (4, 6), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
+    path = specialTargetPath(DOOR, targetPoints[DOOR], targetIndex, targetLoc);
+    std::cout << "door at (7, 1), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
+
 }
 
 void MazeMapper::testCreateTargetPath(){
@@ -883,6 +948,7 @@ void MazeMapper::testComputePathLength(){
     if(abs(length - 29.4365) < .01){
         Logger::log("\tPassed");
         //return true;
+        return;
     }
     Logger::log("\tFailed", Logger::HIGH);
     //return false;
