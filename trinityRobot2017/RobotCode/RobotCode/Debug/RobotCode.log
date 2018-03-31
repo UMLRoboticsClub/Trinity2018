@@ -1,8 +1,0 @@
-﻿  main.cpp
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(19): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(20): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(21): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(28): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(34): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-g:\robotics club\umlroboticsclub\trinityrobot2017\robotcode\robotcode\gamestate.h(36): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-  RobotCode.vcxproj -> G:\Robotics Club\UMLRoboticsClub\trinityRobot2017\RobotCode\Debug\RobotCode.exe
