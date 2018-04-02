@@ -577,19 +577,10 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 }
 
 void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+    DoorFinder d; //pass this the occGrid somehow !! -- TODO
     vector<int> clean = average(testScan, 45);
 
-    //for(int i = 0; i < clean.size(); i++)
-    //    cout << clean[i] << ", ";
-    //cout << endl;
-
     double newAngleSize = 360 / 45;
-
-    //robotPos.x = occGrid.size / 2;
-    //robotPos.y = occGrid.size / 2;
-    //robotAngle = 0;
-
-    //cout << robotPos.x << " " << robotPos.y << endl;
 
     for(int i = 0; i < clean.size(); i++){ //for each element in the scan
         int one = i - 1;
@@ -598,6 +589,7 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
             one = clean.size() - 1;
             two = i;
         }
+        //draw a line between start and end points, this is a wall
         int startAngle = one * newAngleSize;
         int endAngle = two * newAngleSize;
         int angle = startAngle;
@@ -611,10 +603,10 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
 
         for(int j = 0; j < newAngleSize; j++){
             int len = sqrt(pow(x1,2) + pow(y1, 2));
-            for(int k = 0; k < len; k++){
+            for(int k = 0; k < len; k++){ //Everything between us and the wall is clear
                 occGrid.update(robotPos.x + (x1 / len)*k, robotPos.y + (y1 / len)*k, CLEAR);
             }
-            if(abs(clean[two] - clean[one]) <= 150){
+            if(abs(clean[two] - clean[one]) <= 150){ //If there is no sharp difference in distance, draw a wall
                 occGrid.update((int)(robotPos.x + x1), (int)(robotPos.y + y1), WALL);
             }
             x1 += dx;
@@ -623,16 +615,17 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
     }
 
 	// call find doors & hallways, which will update important values
-	//doorFinder.findDoorsAndHallways(scan, targetPoints, occGrid);
+	d.findDoorsAndHallways(scan, targetPoints);
 
-	// call find flame, which will update important values
+	// call find flame, which will update important values -- TODO
 
 	// now that we have all important values for this scan, we can update the occ grid
-	/*for(auto element : targetPoints){ //element.first is the key, element.second is the value
+    // i think this is how you do this for a map lol
+	for(auto element : targetPoints){ //element.first is the key, element.second is the value
 		for(int i = 0; i < element.second.size(); i++){
 			occGrid.update(element.second[i].x, element.second[i].y, element.first);
 		}
-	}*/
+	}
 }
 
 /////////////////////////////

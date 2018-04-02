@@ -32,8 +32,6 @@ class DoorFinder
     public:
         /** Default constructor */
         DoorFinder();
-        void test();
-        void updateOccupancyGrid();
         vector<int> average(deque<int> scan, int numSections);
         void findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>>& targetPoints);
     private:
@@ -87,14 +85,17 @@ class DoorFinder
         287, 288, 289, 288, 286, 53, 53, 53, 2, 311, 309, 307, 310, 312, 315, 318, 322, 325, 328, 332, 336, 339, 344, 348, 352, 358, 362, 33, 372, 379, 385, 391, 397, 404, 411, 2, 2, 2, 437, 420, 2, 2, 2, 2, 418, 412, 408, 404, 399, 397, 391, 33, 383, 380, 377, 374, 372, 369, 367, 364, 362, 360, 358, 356, 355, 354, 352, 352, 350, 349, 348, 347, 346, 34, 34, 34, 34, 346, 347, 346, 347, 347, 347, 348, 349, 350, 351, 351, 352, 354, 356, 356, 358, 360, 362, 364, 365, 369, 371, 374, 376, 380, 385, 394, 53, 53, 53, 53, 396, 2, 2, 409, 2, 393, 390, 387, 380, 373, 374, 367, 365, 359, 355, 348, 340, 53, 53, 53, 346, 2, 333, 330, 328, 326, 324, 322, 321, 319, 318, 317, 315, 315, 314, 313, 323, 53, 53, 53, 655, 2, 648, 644, 640, 638, 636, 633, 631, 629, 626, 625, 624, 623,
         622, 621, 621, 620, 619, 620, 619, 621, 622, 622, 624, 625, 626, 627, 631, 631, 634, 637, 639, 641, 645, 647, 652, 656, 659, 665, 34, 34, 34, 34, 34,};
        */  //fake room 2
+        
         void updateAngleSize();
-        std::vector<DoublePoint> averagePoints(std::vector<DoublePoint> points);
         int findDistance(vector<int> averaged, int peak, bool isHallway);
         vector<int> getSubsection(deque<int> scan, int start, int end);
         bool isPeakHallway(vector<int> subsection);
         vector<int> findPeaks(vector<int> averaged, int start, int nd, bool checkEndpoints);
         vector<int> sortPeaks(deque<int> scan, vector<int> averaged, vector<int> peaks, bool isHallway);
-        vector<DoublePoint> pointsFromPeaks(vector<int> averaged, vector<int> peaks, int rotation, bool isHallway);
-        bool isSamePoint(DoublePoint p1, DoublePoint p2, float dist);
+        int getAngle(int peak, int rotation);
+        DoublePoint getPoint(int angle, float distance);
+        bool isSameAngle(float a1, float a2, float tolerance);
+        std::vector<cluster> averageEstimations(std::vector<DH> dh);
+        cluster shiftCluster(cluster c);
 };
 
