@@ -1,35 +1,34 @@
 #pragma once
 
 /*
-Status led:   16 (could be changed)
-Power button: 12 (not used atm) (could be changed)
-Lidar serial: 15
-
-I have some 8 and 16 IO expanders if 
-we need more pins. Won't work with PWM
--Jackson
+Status led:   16
+Power button: 
 */
 
-#define motor1APin 1
-#define motor1BPin 2
-#define motor2APin 3
-#define motor2BPin 4
-#define motor3APin 5
-#define motor3BPin 6
+#define motor1APin 0
+#define motor1BPin 5
+#define motor2APin 6
+#define motor2BPin 13
+#define motor3APin 19
+#define motor3BPin 26
 
-#define solenoidPin 7
-#define lidarMotorPin 8
+#define solenoidPin 9999 //TBD
+#define lidarMotorPin 9999
 
-#define servo1APin 9
-#define servo1BPin 10
-#define servo2APin 11
-#define servo2BPin 12
+#define servo1Pin 20
+#define servo2Pin 21
 
-#define redLedPin 13
-#define greenLedPin 14
-#define blueLedPin 15
+#define redLedPin 23
+#define greenLedPin 24
+#define blueLedPin 25 //I think this is wrong
 
-#define colorSensorPin 16
-#define irSensorPin 17
-#define imuSDAPin 18 //BCM 2!
-#define imuSCLPin 19 //BCM 3!
+#define irSensorPin 9999
+#define imuSDAPin 2
+#define imuSCLPin 3
+
+#define oflowSS 10
+#define oflowMISO 12
+#define oflowMOSI 11
+#define oflowSCK 13
+#define oflowMOUSECAMRESET 22
+#define oflowMOUSECAMCS 8

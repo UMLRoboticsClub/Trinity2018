@@ -147,6 +147,7 @@ struct Point2 {
             Point2 temp(x / p, y / p);
             return temp;
         }
+    //make things to do magnitude, direction, etc
 };
 
 typedef Point2<int> Point;

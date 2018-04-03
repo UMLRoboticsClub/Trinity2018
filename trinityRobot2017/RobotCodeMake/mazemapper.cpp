@@ -162,19 +162,19 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
     // iterate over all our points associated with this type
     // first point is closest path until another is shorter
     for (unsigned int i = 0; i < locations.size(); ++i) {
-
-        //find the actual point we need to go to
-        // (so we don't slam into the object)
-        if(targetType == FLAME 
-                || targetType == CANDLE
-                || targetType == LEFT_SIDE_CRADLE
-                || targetType == RIGHT_SIDE_CRADLE
-                || targetType == FRONT_SIDE_CRADLE
-                || targetType == SAFE_ZONE){
-            locations[i] = closestClearPoint(locations[i]);        
-        }
-
-        else if(targetType == HALLWAY){
+        if(targetType != HALLWAY){
+            //find the actual point we need to go to
+            // (so we don't slam into the object)
+            switch(targetType){
+                case FLAME:
+                case CANDLE:
+                case LEFT_SIDE_CRADLE:
+                case RIGHT_SIDE_CRADLE:
+                case FRONT_SIDE_CRADLE:
+                case SAFE_ZONE:
+                    locations[i] = closestClearPoint(locations[i]);        
+            }
+        } else {
             //we need to find the actual end of the hallway.  Look in all directions from the target, find furthest.  Should work.  Ish.  That's not really how that works.  
             //instead find shortest direction, then check both directions perpindicular to that.  
             //guees that needs to be a distance Field?  but no.  we need more circular to properly detect it.  do a circle thing.  width of hallway.  
@@ -193,33 +193,30 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
             DoublePoint direction(cos(directionAngle), sin(directionAngle));
             DoublePoint perp1(-direction.y, direction.x);
             DoublePoint perp2(direction.y, -direction.x);
-            
+
             int distance1 = 0;
             int distance2 = 0;
 
             DoublePoint looking = robotPos;
             while(occGrid.getValue(Point(looking)) == CLEAR){
                 looking += perp1;
-                distance1++;
+                ++distance1;
             }
             looking = robotPos;
             while(occGrid.getValue(Point(looking)) == CLEAR){
                 looking += perp2;
-                distance2++;
+                ++distance2;
             }
-    
+
             double dist = 0;
             if(distance1 > distance2){
                 dist = distance1;
                 direction = perp1;
             }
-            else{
-
-            }
             //we know which direction and distance the far wall is.
             dist -= ARENA_LENGTH_CM;
             locations[i] += Point(dist*direction.x, dist*direction.y);
-            
+
             //we need to get the target location out of here.  pass by ref again?
             targetLocation = locations[i];
         }
@@ -230,7 +227,6 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
 
         // 'diagonalized' path (optimnal)
         path = optimizePath(path);
-
 
         // return-ready vector of deltas
         convertToDeltas(path);
@@ -263,16 +259,16 @@ Point MazeMapper::closestClearPoint(const Point &target){
     for(int i = 0 ;; ++i){
         if(occGrid.getValue(target + Point(0, i))  == CLEAR)
             return target + Point(0, i);
-        if(occGrid.getValue(target + Point(0, -i))  == CLEAR)
+        if(occGrid.getValue(target + Point(0, -i)) == CLEAR)
             return target + Point(0, -i);
         if(occGrid.getValue(target + Point(i, 0))  == CLEAR)
             return target + Point(i, 0);
-        if(occGrid.getValue(target + Point(-i, 0))  == CLEAR)
+        if(occGrid.getValue(target + Point(-i, 0)) == CLEAR)
             return target + Point(-i, 0);
     }
 }
 
-vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
+vector<Point> MazeMapper::createTargetPath(Point &target) {//distance field already created
     //start at target which has a specific val in distancie field, locate neighbor with distVal 1 less, repeat.
     //when the direction changes, push the current point into the moves list.
     vector<Point> moves;
@@ -356,7 +352,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
 
         // remove this node from open map and save as parentNode
         parentNode = openNodes[point];
-        
+
         openNodes.erase(point);
         // put current parent node on closed map
         closedNodes[point] = parentNode;
@@ -366,28 +362,30 @@ vector<Point> MazeMapper::AStar(const Point &target) {
 
             // calculate child node values before making the actual object
             //(so we can test these values to make sure they are good)
-            
+
             newX = parentNode->x + directions[i].x;
             newY = parentNode->y + directions[i].y;
-            
+
             heuristic = abs(target.x - newX) + abs(target.y - newY);
             newNodePoint = Point(newX, newY);
 
             //if out of bounds, skip this child (with continue statement)
             if (newX < 0 || newX >= occGrid.size || newY < 0 || newY >= occGrid.size){
-               continue;
+                continue;
             }
 
             // if newX and newY are not clear
             // CLEAR, DOOR, EXPLORED_DOOR, HALLWAY - clear, else -> wall
-            int blockValue = occGrid.getValue(newX, newY);
+
             // skip if NOT these values
-            if (!(
-                        blockValue == CLEAR || 
-                        blockValue == DOOR || 
-                        blockValue == EXPLORED_DOOR ||
-                        blockValue == HALLWAY)){
-                continue;
+            switch(occGrid.getValue(newX, newY)){
+                case CLEAR:
+                case DOOR:
+                case EXPLORED_DOOR:
+                case HALLWAY:
+                    break;
+                default:
+                    continue;
             }
 
             {
@@ -415,7 +413,7 @@ vector<Point> MazeMapper::AStar(const Point &target) {
             childNode->setParent(parentNode, dg);
             openNodes[newNodePoint] = childNode;
 
-            
+
             // target acquired
             if (newX == target.x && newY == target.y) {
 
@@ -442,8 +440,6 @@ vector<Point> MazeMapper::AStar(const Point &target) {
                 }
                 closedNodes.clear();
 
-                //return
-
                 return path;
             }
         }
@@ -469,12 +465,10 @@ vector<Point> MazeMapper::optimizePath(const vector<Point> &moves) {
     Point startPoint(robotPos);
     Point endPoint(moves[0]);
 
-
-
     //for each possible improvement
     for(unsigned i = 0; i < moves.size() - 1; ++i){
         Point nextMove(moves[i + 1]);
-        
+
         //fix this to be more robust
         Point direction(nextMove - endPoint);
         direction /= abs(endPoint.x - nextMove.x + endPoint.y - nextMove.y);
@@ -527,10 +521,10 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         currentCell2 = currentCell + offset2;
         currentCell3 = currentCell + offset3;
         if(
-            occGrid.getValue(currentCell.x,  currentCell.y) == WALL){// ||
+                occGrid.getValue(currentCell.x,  currentCell.y) == WALL){// ||
             //occGrid.getValue(currentCell2.x, currentCell2.y) == WALL ||
             //occGrid.getValue(currentCell3.x, currentCell3.y) == WALL){
-        return true;
+            return true;
         }
     }
     return false;
@@ -593,15 +587,15 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
         neighbors = findOpenNeighbors(currentCell);
         currentDistance = distanceField[currentCell.x][currentCell.y];
         for (Point neighbor : neighbors) {
-          if(distanceField[neighbor.x][neighbor.y] == -1){//neighbor not already index by function
-             if (occGrid.getValue(neighbor) == -1){
-                distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
-                return neighbor;
-            }
+            if(distanceField[neighbor.x][neighbor.y] == -1){//neighbor not already index by function
+                if (occGrid.getValue(neighbor) == -1){
+                    distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
+                    return neighbor;
+                }
 
-            distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
-            boundary.push_back(neighbor);
-          }
+                distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
+                boundary.push_back(neighbor);
+            }
         }
         boundary.erase(boundary.begin());
     }
@@ -631,7 +625,7 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
 
 void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
     occGrid.initFakeWorld(25);
-    
+
     for(unsigned int i = 0; i < distanceField.size(); i ++){
         for(unsigned int j = 0; j < distanceField[0].size(); j ++){
             distanceField[i][j] = -1;
@@ -651,15 +645,12 @@ void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases a
     Point targetLoc;
     std::vector<Point> moves;
     moves = findNextTarget(state, op, targetLoc);
-    
+
     std::cout << "targetLoc: " << targetLoc.x << " " << targetLoc.y << " " << "robotOperation: " << op << std::endl;
-
-
-
 
     //print out targetLoc, op.
     //display moves in grid
-    
+
     //display results from this call, then repeat with all sorts of different gamestatesi
 
 }
@@ -672,13 +663,13 @@ void MazeMapper::testDetermineRobotOp(){
 void MazeMapper::testSpecialTargetPath(){
     //this pulls out Astar, dunno much aboot that.  
     //do findNextTarget first
-    
+
     Logger::log("MazeMapper test: testing specialTargetPath() via findNextTarget()");
 
 
     // dummy data
     occGrid.initFakeWorld(25);
-    
+
     //insert into targetPoint
     targetPoints[CANDLE].push_back(Point(3,20));
     std::cout << targetPoints[CANDLE][0].x << std::endl;
@@ -690,14 +681,14 @@ void MazeMapper::testSpecialTargetPath(){
 
     path = findNextTarget(state, nextRobotOperation, targetLocation);
     // findNextTarget should return the closest clear point next to the closest Candle (candle at location <3,20>, so should return <3,21>)
-   
+
     // draw path
 
     for(int j = 0; j < 25; j++){
         for(int i = 0; i < 25; i++){
             if(i == robotPos.x && j == robotPos.y){
                 std::cout << std::setw(2) << "R";
-            }else{
+            } else {
                 std::cout << std::setw(2) << occGrid.getValue(i,j);
             }
         }
@@ -706,10 +697,9 @@ void MazeMapper::testSpecialTargetPath(){
 
     if(targetLocation == Point(3,21)){
         std::cout << "targetLocation is correct: (" << targetLocation.x << "," << targetLocation.y << ")" << std::endl;
-    }else{
+    } else {
         std::cout << "targetLocation is incorrect: it is (" << targetLocation.x << "," << targetLocation.y << "), when it should be (3,21)" << std::endl;
     }
-
 }
 
 void MazeMapper::testCreateTargetPath(){
@@ -844,7 +834,7 @@ void MazeMapper::testIsDiag(){
 }
 
 void MazeMapper::testUpdateOccupancyGrid(){//this one'll be demon in and of itself.  probably compartmentalize for less hell
-    
+
 }
 
 void MazeMapper::testComputeDistanceField(){
@@ -876,7 +866,7 @@ void MazeMapper::testComputeDistanceField(){
     Logger::log("occupancy Grid: ");
     for(int i = 0; i <= 25; i ++){
         for(int j = 0; j <= 25; j ++){
-           std::cout << std::setw(2) << occGrid.getValue(i, j);
+            std::cout << std::setw(2) << occGrid.getValue(i, j);
         }
         std::cout << endl;
     }
