@@ -1,5 +1,9 @@
 #include "opticalflow.h"
-#include<iostream>
+
+#include "pins.h"
+#include <pigpiod_if2.h>
+#include <iostream>
+
 using std::cout;
 using std::endl;
 
@@ -14,19 +18,21 @@ void opticalFlow::init(){
         cout << (handle == PI_SPI_OPEN_FAILED) << endl;
         exit(1);
     }
-    gpio_write(0, PIN_MOUSECAM_CS, 1);
+    gpio_write(0, oflowMOUSECAM_CS, 1);
     reset();
     writeReg(ADNS3080_CONFIGURATION_BITS, 0x19);
 }
+
 void opticalFlow::reset(){
-    gpio_write(0, PIN_MOUSECAM_RESET, 1);
+    gpio_write(0, oflowMOUSECAM_RESET, 1);
     time_sleep(.001);
-    gpio_write(0, PIN_MOUSECAM_RESET, 0);
+    gpio_write(0, oflowMOUSECAM_RESET, 0);
     time_sleep(.035);
 }
+
 DoublePoint opticalFlow::readMotion(){
     MD md;
-    gpio_write(0, PIN_MOUSECAM_CS, 0);
+    gpio_write(0, oflowMOUSECAM_CS, 0);
     transferBits(ADNS3080_MOTION_BURST);
     time_sleep(0.000075);
     md.motion = transferBits(0xff);
@@ -36,8 +42,8 @@ DoublePoint opticalFlow::readMotion(){
     md.shutter = transferBits(0xff) << 8;
     md.shutter |= transferBits(0xff);
     md.max_pix = transferBits(0xff);
-    gpio_write(0, PIN_MOUSECAM_CS, 1);
-    
+    gpio_write(0, oflowMOUSECAM_CS, 1);
+
     DoublePoint data(md.dx, md.dy);
     if(data.x > 127)
         data.x -= 256;
@@ -45,19 +51,21 @@ DoublePoint opticalFlow::readMotion(){
         data.y -=256;
     return data;
 }
+
 void opticalFlow::writeReg(int reg, int val){
-    gpio_write(0, PIN_MOUSECAM_CS, 0);
+    gpio_write(0, oflowMOUSECAM_CS, 0);
     transferBits(reg | 0x80);
     transferBits(val);
-    gpio_write(0, PIN_MOUSECAM_CS, 1);
+    gpio_write(0, oflowMOUSECAM_CS, 1);
     time_sleep(.00005);
 }
+
 int opticalFlow::readReg(int reg){
-    gpio_write(0, PIN_MOUSECAM_CS, 0);
+    gpio_write(0, oflowMOUSECAM_CS, 0);
     transferBits(reg);
     time_sleep(.000075);
     int ret = transferBits(0xff);
-    gpio_write(1, PIN_MOUSECAM_CS, 1);
+    gpio_write(1, oflowMOUSECAM_CS, 1);
     time_sleep(000001);
     return ret;
 }

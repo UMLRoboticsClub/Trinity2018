@@ -16,7 +16,7 @@ class Lidar {
         void scan();
 
     private:
-        const char* serialDevice = "/dev/ttyAMA0";
+        const char* serialDevice = "/dev/ttyUSB0";
         const int serialBaudRate = 115200;
         //constexpr static const int laserFramesPerRead = 90; //each frame has 4 degrees
         constexpr static const int laserFramesPerRead = 1; //each frame has 4 degrees

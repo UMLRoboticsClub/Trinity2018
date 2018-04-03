@@ -1,6 +1,6 @@
 #pragma once
-class IRSensor
-{
+
+class IRSensor {
 public:
 	IRSensor();
 	~IRSensor();

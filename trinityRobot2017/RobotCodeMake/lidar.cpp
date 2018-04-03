@@ -45,4 +45,3 @@ void Lidar::scan(){
         handleBadInput();
     }
 }
-

@@ -1,15 +1,7 @@
-#include <pigpiod_if2.h>
 #include "point.h"
-#define PIN_SS        10
-#define PIN_MISO      12
-#define PIN_MOSI      11
-#define PIN_SCK       13
 
-#define PIN_MOUSECAM_RESET     17
-#define PIN_MOUSECAM_CS        8
-
-#define ADNS3080_PIXELS_X                 30
-#define ADNS3080_PIXELS_Y                 30
+#define ADNS3080_PIXELS_X              30
+#define ADNS3080_PIXELS_Y              30
 
 #define ADNS3080_PRODUCT_ID            0x00
 #define ADNS3080_REVISION_ID           0x01
@@ -45,16 +37,15 @@
 
 #define ADNS3080_PRODUCT_ID_VAL        0x17
 
-struct MD
-{
- char motion;
- char dx, dy;
- char squal;
- int  shutter;
- char max_pix;
+struct MD {
+    char motion;
+    char dx, dy;
+    char squal;
+    int  shutter;
+    char max_pix;
 };
 
-class opticalFlow{
+class opticalFlow {
     public:
         void init();
         void reset();
