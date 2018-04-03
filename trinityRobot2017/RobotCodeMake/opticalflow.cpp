@@ -40,9 +40,9 @@ DoublePoint opticalFlow::readMotion(){
     
     DoublePoint data(md.dx, md.dy);
     if(data.x > 127)
-        data.x = 256-data.x;
+        data.x -= 256;
     if(data.y > 127)
-        data.y = 256-data.y;
+        data.y -=256;
     return data;
 }
 void opticalFlow::writeReg(int reg, int val){
