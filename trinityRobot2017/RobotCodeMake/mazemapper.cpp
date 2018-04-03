@@ -29,7 +29,7 @@ MazeMapper::MazeMapper(): occGrid(), targetPoints(), lidar(){
 //PostCondition: returns the total path length of the path represented by deltas
 double MazeMapper::computePathLength(const vector<Point> &deltas) {
     // sum up euclidean distances between delta points and return
-    double sum;
+    double sum = 0;
     // iterate to size()-1 because the last point doesn't have another point to get distance between
     for (unsigned int i = 0; i < deltas.size(); ++i) {
         //compute magnitude of each delta
@@ -142,11 +142,12 @@ MazeMapper::robotOps MazeMapper::determineRobotOp(int type, GameState& state){
             return OP_EXIT_ROOM;
         case SAFE_ZONE:
             return OP_SAFE_ZONE;
-        case GREEN_SIDE_CRADLE:
+        case FRONT_SIDE_CRADLE:
             return OP_CRADLE_FRONT;
-        case RED_SIDE_CRADLE:
-        case BLUE_SIDE_CRADLE:
-            return OP_CRADLE_SIDE;
+        case LEFT_SIDE_CRADLE:
+            return OP_CRADLE_LEFT;
+        case RIGHT_SIDE_CRADLE:
+            return OP_CRADLE_RIGHT;
         default:
             return OP_NOTHING;
     }
@@ -166,9 +167,9 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
         // (so we don't slam into the object)
         if(targetType == FLAME 
                 || targetType == CANDLE
-                || targetType == BLUE_SIDE_CRADLE
-                || targetType == RED_SIDE_CRADLE
-                || targetType == GREEN_SIDE_CRADLE
+                || targetType == LEFT_SIDE_CRADLE
+                || targetType == RIGHT_SIDE_CRADLE
+                || targetType == FRONT_SIDE_CRADLE
                 || targetType == SAFE_ZONE){
             locations[i] = closestClearPoint(locations[i]);        
         }
@@ -178,7 +179,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
             //instead find shortest direction, then check both directions perpindicular to that.  
             //guees that needs to be a distance Field?  but no.  we need more circular to properly detect it.  do a circle thing.  width of hallway.  
             //iterate through angles, only searching as far as half the width of the hallway.  There we go.
-            double directionAngle;
+            double directionAngle = 0;
             double shortestDistance = HALLWAY_WIDTH_CM/2;
             for(double k = 0; k < 2*M_PI; k += M_PI/32){
                 for(int j = 0; j < shortestDistance; j ++){
@@ -207,7 +208,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point>& locat
                 distance2++;
             }
     
-            double dist;
+            double dist = 0;
             if(distance1 > distance2){
                 dist = distance1;
                 direction = perp1;

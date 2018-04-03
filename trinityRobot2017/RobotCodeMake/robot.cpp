@@ -5,6 +5,9 @@
 #include <iostream>
 #include <csignal>
 #include <cstring>
+#include <math.h>
+
+#define PI 3.14159265
 
 bool Robot::done = false;
 
@@ -80,10 +83,15 @@ void Robot::robotLoop() {
             case MazeMapper::OP_NOTHING:
                 // This is here for formality
                 break;
+            case MazeMapper::OP_CRADLE_LEFT:
+                Logger::log("goToFrontFromLeft");
+                goToFronFromLeft(targetLocation);
+                break;
+            case MazeMapper::OP_CRADLE_RIGHT:
+                Logger::log("goToFrontFromRight"):
+                goToFrontFromRight(targetLocation);
+                break;
             case MazeMapper::OP_CRADLE_FRONT:
-                Logger::log("goToSideFromFront");
-                goToSideFromFront();
-            case MazeMapper::OP_CRADLE_SIDE:
                 Logger::log("getBaby");
                 getBaby(targetLocation);
                 break;
@@ -124,7 +132,7 @@ void Robot::robotLoop() {
     Logger::log("exiting");
 }
 
-void Robot::hallwaySimple(Point& targetLoc){
+void Robot::hallwaySimple(Point targetPoint){
     gameState.secondArena = false;
 }
 
@@ -133,7 +141,10 @@ void Robot::leaveRoom(){
     gameState.inRoom = false;
 }
 
-void Robot::goToSideFromFront(){
+void Robot::goToFrontFromLeft(Point targetPoint){
+
+}
+void Robot::goToFrontFromRight(Point targetPoint){
 
 }
 
@@ -186,7 +197,7 @@ void Robot::spinAndScan() {
     gameState.inRoom = true;
 }
 
-void Robot::hallwaySweep(Point& targetLocation) {
+void Robot::hallwaySweep(Point targetPoint) {
     /*
        (potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
        Then turn the robot so camera is facing back where we came from(so it'¿½ll detect the safezone target)
@@ -194,7 +205,7 @@ void Robot::hallwaySweep(Point& targetLocation) {
        that we find the correct window.
     */
 
-    rotateTowards(targetLocation);
+    rotateTowards(targetPoint);
     //now we need to move "left" and "right" which is done via robotAngle
 
     //so we need to find which direction the hallway is in  this happens in MazeMapper!  targetLoc
@@ -203,19 +214,47 @@ void Robot::hallwaySweep(Point& targetLocation) {
     //move that far, and we also have direction which tells us which way to face
     //then strafe sideways set distance and check camera
     //when camera tells us we saw the thing, record location as safeZonelocation.
+    
+    // get angles in directions we will patrol
+    double leftAngle = robotAngle + (PI/2);
+    double rightAngle = robotAngle - (PI/2);
+    
+    double patrolLength = ((ARENA_LENGTH_CM / 2) + ROBOT_DIAMETER_CM);
 
+    // calculate what patrol points are
+    int leftX = robotPos.x + patrolLength * cos(leftAngle);
+    int leftY = robotPos.y + patrolLength * sin(leftAngle);
+    
+    int rightX = robotPox.x + patrolLength * son(rightAngle);
+    int rightY = robotPos.y + patrolLength * sin(rightAngle);
+
+    // first patrol
+    drive.drive(leftX, leftY);
+    //double check position? (maybe we need a funciton like checkPosition() )?? 
+    
+    // vision.scan()
+
+    // second patrol
+    drive.drive(rightX, rightY);
+    // double check position
+
+    // vision.second_scan()
+
+    // update booleans
     gameState.secondArena = true;
-    gameState.safeZoneFound = true;//hopefully
+    gameState.safeZoneFound = true;
 }
 
-void Robot::rotateTowards(Point target) {
+void Robot::rotateTowards(Point targetPoint) {
     // convert target to doublepoint for precision, and pass it with robot's position to get angle between them
     //////
     // heads up, this line computes the angle between int and double points, remove this if it's ok
     /////
-    double angleBetweenLocations = computeAngle(robotPos, DoublePoint(target.x, target.y));
+    double angleBetweenLocations = computeAngle(robotPos, DoublePoint(targetPoint.x, targetPoint.y));
     // get angle that we need to rotate in order to face target
     double rotationAngle = angleBetweenLocations - robotAngle;
-    // pass to drive
+    // pass to drivei
     drive.rotate(rotationAngle);
+    // update robot's angle
+    robotAngle += rotationAngle;
 }
