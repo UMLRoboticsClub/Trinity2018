@@ -22,7 +22,7 @@ void Robot::signalHandler(int signum){
 
 Robot::Robot():
     mazeMapper(), drive(), gameState(),
-    safeZoneLocation(), colorSensor(), camera()
+    safeZoneLocation(), colorSensor()//, camera()
 {
     //catch signals to exit safely aka stop the motors when the program is killed
     signal(SIGINT , Robot::signalHandler);
@@ -85,10 +85,10 @@ void Robot::robotLoop() {
                 break;
             case MazeMapper::OP_CRADLE_LEFT:
                 Logger::log("goToFrontFromLeft");
-                goToFronFromLeft(targetLocation);
+                goToFrontFromLeft(targetLocation);
                 break;
             case MazeMapper::OP_CRADLE_RIGHT:
-                Logger::log("goToFrontFromRight"):
+                Logger::log("goToFrontFromRight");
                 goToFrontFromRight(targetLocation);
                 break;
             case MazeMapper::OP_CRADLE_FRONT:
@@ -225,7 +225,7 @@ void Robot::hallwaySweep(Point targetPoint) {
     int leftX = robotPos.x + patrolLength * cos(leftAngle);
     int leftY = robotPos.y + patrolLength * sin(leftAngle);
     
-    int rightX = robotPox.x + patrolLength * son(rightAngle);
+    int rightX = robotPos.x + patrolLength * cos(rightAngle);
     int rightY = robotPos.y + patrolLength * sin(rightAngle);
 
     // first patrol

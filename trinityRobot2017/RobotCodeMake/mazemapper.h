@@ -38,7 +38,7 @@ class MazeMapper {
         robotOps determineRobotOp(int type, GameState &state);
         vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex, Point& targetLocation);
         Point closestClearPoint(const Point &target);
-        vector<Point> createTargetPath(Point &target);//updates distanceField
+        vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
         vector<Point> optimizePath(const vector<Point> &moves);
         void convertToDeltas(vector<Point> &moves);
