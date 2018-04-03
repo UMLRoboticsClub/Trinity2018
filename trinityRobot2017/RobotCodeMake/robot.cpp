@@ -22,7 +22,7 @@ void Robot::signalHandler(int signum){
 
 Robot::Robot():
     mazeMapper(), drive(), gameState(),
-    safeZoneLocation(), colorSensor(), IRsensor(), camera()
+    safeZoneLocation(), colorSensor(), camera()
 {
     //catch signals to exit safely aka stop the motors when the program is killed
     signal(SIGINT , Robot::signalHandler);
