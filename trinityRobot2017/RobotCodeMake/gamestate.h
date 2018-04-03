@@ -87,9 +87,9 @@ struct GameState {
             if (!secondArena){
                 targets.push_back(HALLWAY);
             } else {
-                targets.push_back(RED_SIDE_CRADLE);
-                targets.push_back(BLUE_SIDE_CRADLE);
-                targets.push_back(GREEN_SIDE_CRADLE);
+                targets.push_back(LEFT_SIDE_CRADLE);
+                targets.push_back(RIGHT_SIDE_CRADLE);
+                targets.push_back(FRONT_SIDE_CRADLE);
                 if(!inRoom){
                     targets.push_back(DOOR);
                 } else {

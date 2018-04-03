@@ -31,12 +31,13 @@ public:
 	void tossBaby(Point targetPoint);
 	void blowCandle(Point targetPoint);
 	void spinAndScan();
-	void hallwaySweep(Point& targetLoc);
-	void hallwaySimple(Point& targetLoc);
-	void goToSideFromFront();
+	void hallwaySweep(Point targetPoint);
+	void hallwaySimple(Point targetPoint);
+	void goToFrontFromLeft(Point targetPoint);
+    void goToFrontFromRight(Point targetPoint);
 	void leaveRoom();
 
-	void rotateTowards(Point target);
+	void rotateTowards(Point targetPoint);
 
 private:
     static void signalHandler(int signum);

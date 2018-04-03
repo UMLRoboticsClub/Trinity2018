@@ -19,7 +19,8 @@ class MazeMapper {
         // (robot operations)
         enum robotOps { 
             OP_NOTHING,
-            OP_CRADLE_SIDE,
+            OP_CRADLE_LEFT,
+            OP_CRADLE_RIGHT,
             OP_CRADLE_FRONT,
             OP_SAFE_ZONE,
             OP_EXTINGUISH,
