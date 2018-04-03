@@ -3,7 +3,7 @@ CXX = g++
 OBJDIR = obj
 
 #add -O2 for final build
-CXXFLAGS = -std=c++17 -g -Wall -pedantic -Wfatal-errors -O2
+CXXFLAGS = -std=c++17 -g -Wall -pedantic -Wfatal-errors
 LDLIBS = -lpthread -lpigpiod_if2 -lrt
 
 SRCFILES = $(shell find . -maxdepth 1 -name "*.cpp" | cut -c 3-)
