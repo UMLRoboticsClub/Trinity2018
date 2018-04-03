@@ -188,7 +188,9 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 void Robot::robotDrive(vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
-        drive.drive(instructions[i].x, instructions[i].y);
+        drive.drive(instructions[i]);
+
+        // double check position
     }
 
 }

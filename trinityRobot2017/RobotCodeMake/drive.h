@@ -1,5 +1,6 @@
 #pragma once
-
+#include "MPU6050.h"
+#include "gyroacc.h"
 #include "globals.h"
 #include "constants.h"
 #include "motor.h"
@@ -10,7 +11,9 @@ const double MVC_ANGLE = 270 * DEG_TO_RAD;
 
 class Drive {
     public:
-        static void drive(double deltaX, double deltaY);
+        static MPU6050 mpu;
+        static void updateTime();
+        static void drive(DoublePoint target );
         static void rotate(double radians); //contains a rotate PID loop
         //3 motors+1 accelerometer
     private:
