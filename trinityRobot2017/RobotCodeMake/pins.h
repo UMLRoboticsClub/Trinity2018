@@ -30,5 +30,5 @@ Power button:
 #define oflowMISO 12
 #define oflowMOSI 11
 #define oflowSCK 13
-#define oflowMOUSECAMRESET 22
-#define oflowMOUSECAMCS 8
+#define oflowMOUSECAM_RESET 22
+#define oflowMOUSECAM_CS 8

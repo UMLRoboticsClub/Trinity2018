@@ -9,7 +9,7 @@
 #include "drive.h"
 #include "colorsensor.h"
 #include "irsensor.h"
-#include "camera.h"
+//#include "camera.h"
 #include "gpio.h"
 
 #include <iostream>
@@ -54,7 +54,7 @@ private:
     Point		safeZoneLocation;
 
     ColorSensor colorSensor;
-    Camera		camera;
+  //  Camera		camera;
 };
 
 #endif

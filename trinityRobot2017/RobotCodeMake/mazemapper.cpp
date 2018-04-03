@@ -268,7 +268,7 @@ Point MazeMapper::closestClearPoint(const Point &target){
     }
 }
 
-vector<Point> MazeMapper::createTargetPath(Point &target) {//distance field already created
+vector<Point> MazeMapper::createTargetPath(Point target) {//distance field already created
     //start at target which has a specific val in distancie field, locate neighbor with distVal 1 less, repeat.
     //when the direction changes, push the current point into the moves list.
     vector<Point> moves;
