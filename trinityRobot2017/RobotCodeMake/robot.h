@@ -14,6 +14,14 @@
 
 #include <iostream>
 #include <thread>
+#include <string>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#define SIDE_LEFT "side_left"
+#define SIDE_RIGHT "side_right"
+#define ROBOT_SAFE_TURN_CM 5
 
 using namespace std;
 
@@ -33,11 +41,10 @@ public:
 	void spinAndScan();
 	void hallwaySweep(Point targetPoint);
 	void hallwaySimple(Point targetPoint);
-	void goToFrontFromLeft(Point targetPoint);
-    void goToFrontFromRight(Point targetPoint);
+	void goToFrontFromSide(Point targetPoint, string side);
 	void leaveRoom();
 
-	void rotateTowards(Point targetPoint);
+	void rotateTowards(DoublePoint targetPoint);
 
 private:
     static void signalHandler(int signum);
@@ -55,6 +62,7 @@ private:
 
     ColorSensor colorSensor;
   //  Camera		camera;
+   // IRSensor	IRsensor;
 };
 
 #endif
