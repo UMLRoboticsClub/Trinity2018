@@ -5,7 +5,7 @@ Status led:   16
 Power button: 
 */
 
-#define motor1APin 0
+#define motor1APin 12
 #define motor1BPin 5
 #define motor2APin 6
 #define motor2BPin 13
