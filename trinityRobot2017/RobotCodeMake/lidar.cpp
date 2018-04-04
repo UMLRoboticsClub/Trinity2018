@@ -1,7 +1,9 @@
 #include "lidar.h"
-
+#include <vector>
+#include <deque>
 Lidar::Lidar(){
-    //initLidar();
+    cout << "here" << endl;
+    initLidar();
 }
 
 Lidar::~Lidar(){
@@ -11,6 +13,7 @@ Lidar::~Lidar(){
 void Lidar::initLidar(){
     cout << "Starting lidar..." << endl;
     xv11lidar_close(lidar);
+    cout << "closed..." << endl;
     lidar = xv11lidar_init(serialDevice, laserFramesPerRead, crcTolerancePercent);
     cout << "Lidar started" << endl;
 }
@@ -30,19 +33,29 @@ void Lidar::handleBadInput(){
 }
 
 int Lidar::getRPM(int index){
+    cout << index << " " << frame[index].speed << endl;
     return frame[index].speed / 64;
 }
 
-void Lidar::processFrame(){
-    cout << getRPM(0) << endl;
+std::deque<int> Lidar::processFrame(){
+    std::deque<int> scan(360);
 
+    for(int i = 0; i < scan.size() / 4; i++){
+        for(int j = 0; j < 4; j++){
+            scan[(frame[i].index-0xA0)*4+j] = frame[i].readings[j].distance;
+        }
+    }
+
+    return scan;
 }
 
-void Lidar::scan(){
+std::deque<int> Lidar::scan(){
     if(!xv11lidar_read(lidar, frame)){
-        processFrame();
+        return processFrame();
     } else {
         handleBadInput();
+        std::deque<int> empty;
+        return empty;
     }
 }
 
