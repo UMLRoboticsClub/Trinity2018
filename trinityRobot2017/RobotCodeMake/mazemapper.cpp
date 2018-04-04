@@ -552,7 +552,7 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
     Logger::log("starting laserScanLoop");
     //vector<int> distances(360);
-    //lidar.init();
+    lidar.init();
     while (true) {
         //placeholder stuff
         //lidar.scan();
@@ -572,13 +572,13 @@ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
          */
 
         // We will figure out how often this should be called later
-        updateOccupancyGrid();
+        updateOccupancyGrid(lidar.scan());
     }
 }
 
-void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
-    DoorFinder d; //pass this the occGrid somehow !! -- TODO
-    vector<int> clean = average(testScan, 45);
+void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+    DoorFinder d(occGrid);
+    vector<int> clean = d.average(scan, 45);
 
     double newAngleSize = 360 / 45;
 
@@ -604,10 +604,12 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
         for(int j = 0; j < newAngleSize; j++){
             int len = sqrt(pow(x1,2) + pow(y1, 2));
             for(int k = 0; k < len; k++){ //Everything between us and the wall is clear
-                occGrid.update(robotPos.x + (x1 / len)*k, robotPos.y + (y1 / len)*k, CLEAR);
+                occGrid.update(getRobotPos().x + (x1 / len)*k - ((startAngle + j) / 360)(getRobotPos().x - DoorFinder::prevPos.x), 
+                    getRobotPos().y + (y1 / len)*k - ((startAngle + j) / 360)(getRobotPos().y - DoorFinder::prevPos.y), CLEAR);
             }
             if(abs(clean[two] - clean[one]) <= 150){ //If there is no sharp difference in distance, draw a wall
-                occGrid.update((int)(robotPos.x + x1), (int)(robotPos.y + y1), WALL);
+                occGrid.update((int)(getRobotPos().x + x1- ((startAngle + j) / 360)(getRobotPos().x - DoorFinder::prevPos.x)), 
+                    (int)(getRobotPos().y + y1 - ((startAngle + j) / 360)(getRobotPos().y - DoorFinder::prevPos.y)), WALL);
             }
             x1 += dx;
             y1 += dy;
@@ -615,13 +617,13 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
     }
 
 	// call find doors & hallways, which will update important values
-	d.findDoorsAndHallways(scan, targetPoints);
+	setTargetPoints(d.findDoorsAndHallways(scan, getTargetPoints()));
 
 	// call find flame, which will update important values -- TODO
 
 	// now that we have all important values for this scan, we can update the occ grid
     // i think this is how you do this for a map lol
-	for(auto element : targetPoints){ //element.first is the key, element.second is the value
+	for(auto element : getTargetPoints()){ //element.first is the key, element.second is the value
 		for(int i = 0; i < element.second.size(); i++){
 			occGrid.update(element.second[i].x, element.second[i].y, element.first);
 		}

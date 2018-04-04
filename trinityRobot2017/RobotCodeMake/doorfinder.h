@@ -31,9 +31,10 @@ class DoorFinder
 {
     public:
         /** Default constructor */
-        DoorFinder();
+        DoorFinder(OccupancyGrid o);
         vector<int> average(deque<int> scan, int numSections);
-        void findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>>& targetPoints);
+        map<int, vector<Point>> findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>> targetPoints);
+        static DoublePoint prevPos;
     private:
         vector<int> NUM_SECTIONS = {36, 30, 24, 20, 18, 16, 15, 12, 10};
         int numIndex;
@@ -87,7 +88,8 @@ class DoorFinder
        */  //fake room 2
         
         void updateAngleSize();
-        int findDistance(vector<int> averaged, int peak, bool isHallway);
+        int findDistanceHallway(vector<int> averaged, int peak);
+        int findDistanceDoor(deque<int> scan, vector<int> averaged, int peak);
         vector<int> getSubsection(deque<int> scan, int start, int end);
         bool isPeakHallway(vector<int> subsection);
         vector<int> findPeaks(vector<int> averaged, int start, int nd, bool checkEndpoints);

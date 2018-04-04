@@ -27,10 +27,13 @@ just yell at me
 
 *********************************/
 
-DoorFinder::DoorFinder(){
+DoublePoint DoorFinder::prevPos(getRobotPos());
+
+DoorFinder::DoorFinder(OccupancyGrid o){
     //set angle size and other stuff
     numIndex = 0;
     angleSize = 360 / NUM_SECTIONS[numIndex];
+    occGrid = o;
 }
 
 /*
@@ -40,15 +43,13 @@ Find Doors and Hallways
 
 This function will edit target points with the locations of doors and hallways.
 */
-void DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>>& targetPoints){
+map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>> targetPoints){
     std::vector<DH> all;
 
     numIndex = 0; //reset index of sections
 
-    //scan = testScan;
-
     //rotate scan to catch edge cases
-    for(int i = 0; i < 360; i++){
+    for(int i = 0; i < 180; i++){
         //average current scan into sections
         std::vector<int> sections = average(scan, NUM_SECTIONS[numIndex]);
         angleSize = 360 / NUM_SECTIONS[numIndex];
@@ -65,7 +66,7 @@ void DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Poin
             for(int j = 0; j < hallwayPeaks.size(); j++){ //add hallways
                 DH hallway;
                 hallway.angle = getAngle(hallwayPeaks[j], i);
-                hallway.dist = findDistance(sections, hallwayPeaks[j], true);
+                hallway.dist = findDistanceHallway(sections, hallwayPeaks[j]);
                 hallway.point = getPoint(hallway.angle, hallway.dist);
                 hallway.isHallway = true;
                 all.push_back(hallway);
@@ -73,7 +74,7 @@ void DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Poin
             for(int j = 0; j < doorPeaks.size(); j++){ //add doors
                 DH door;
                 door.angle = getAngle(doorPeaks[j], i);
-                door.dist = findDistance(sections, doorPeaks[j], false);
+                door.dist = findDistanceDoor(scan, sections, doorPeaks[j]);
                 door.point = getPoint(door.angle, door.dist);
                 door.isHallway = false;
                 all.push_back(door);
@@ -91,22 +92,25 @@ void DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Poin
 
     //put final doors and hallways in the target values list
     for(int i = 0; i < clusters.size(); i++){
-        if(clusters[i].size >= 50){
-            if(occGrid.getValue(robotPos.x + clusters[i].averagePoint.x / 10, robotPos.y + clusters[i].averagePoint.y / 10) == WALL)
+        if(clusters[i].size >= 25){
+            clusters[i].averagePoint = clusters[i].averagePoint / 10 - (clusters[i].averageAngle / 360)(getRobotPos() - prevPos); 
+            if(occGrid.getValue(getRobotPos().x + clusters[i].averagePoint.x, getRobotPos().y + clusters[i].averagePoint.y) == WALL)
                 clusters[i] = shiftCluster(clusters[i]); //if we think a door/hallway is in a wall :(
             if(clusters[i].hallwayCount >= clusters[i].size * 0.5){
                 if(targetPoints.find(HALLWAY) == targetPoints.end())
                     targetPoints.insert(std::make_pair(HALLWAY, vector()));
                 targetPoints[HALLWAY].push_back(clusters[i].averagePoint);
-                //occGrid.update(robotPos.x + clusters[i].averagePoint.x / 10, robotPos.y + clusters[i].averagePoint.y / 10, HALLWAY);
+                //occGrid.update(getRobotPos().x + clusters[i].averagePoint.x / 10, getRobotPos().y + clusters[i].averagePoint.y / 10, HALLWAY);
             } else {
                 if(targetPoints.find(DOOR) == targetPoints.end())
                     targetPoints.insert(std::make_pair(DOOR, vector()));
                 targetPoints[DOOR].push_back(clusters[i].averagePoint);
-                //occGrid.update(robotPos.x + clusters[i].averagePoint.x / 10, robotPos.y + clusters[i].averagePoint.y / 10, DOOR);
+                //occGrid.update(getRobotPos().x + clusters[i].averagePoint.x / 10, getRobotPos().y + clusters[i].averagePoint.y / 10, DOOR);
             }
         }
     }
+    prevPos = getRobotPos();
+    return targetPoints;
 }
 
 /*
@@ -115,15 +119,15 @@ If a door or hallway is in a wall, shift it towards the robot position until it 
 */
 cluster DoorFinder::shiftCluster(cluster c){
     //find length between robot and door/hall and dx and dy
-    float len = std::sqrt(std::pow((c.averagePoint.x - robotPos.x), 2) + std::pow((c.averagePoint.y - robotPos.y), 2));
-    float dx = (c.averagePoint.x - robotPos.x) / len;
-    float dy = (c.averagePoint.y - robotPos.y) / len;
+    float len = std::sqrt(std::pow((c.averagePoint.x - getRobotPos().x), 2) + std::pow((c.averagePoint.y - getRobotPos().y), 2));
+    float dx = (c.averagePoint.x - getRobotPos().x) / len;
+    float dy = (c.averagePoint.y - getRobotPos().y) / len;
 
     for(int i = 0; i < len; i++){ //shift until no longer in wall
         c.averagePoint.x += dx;
         c.averagePoint.y -= dy;
 
-        if(occGrid.getValue(robotPos.x + c.averagePoint.x / 10, robotPos.y + c.averagePoint.y / 10) != WALL)
+        if(occGrid.getValue(getRobotPos().x + c.averagePoint.x, getRobotPos().y + c.averagePoint.y) != WALL)
             break;
     }
 
@@ -131,7 +135,7 @@ cluster DoorFinder::shiftCluster(cluster c){
         c.averagePoint.x += dx;
         c.averagePoint.y -= dy;
 
-        if(occGrid.getValue(robotPos.x + c.averagePoint.x / 10, robotPos.y + c.averagePoint.y / 10) == WALL){
+        if(occGrid.getValue(getRobotPos().x + c.averagePoint.x, getRobotPos().y + c.averagePoint.y) == WALL){
             c.averagePoint.x -= dx;
             c.averagePoint.y += dy;
             break;
@@ -225,36 +229,36 @@ Find the distance to a peak by looking at the points around it
 @param isHallway: if the peak is a hallway, take less of the surrounding point into account
 because it will be a bigger spike in the data
 */
-int DoorFinder::findDistance(vector<int> averaged, int peak, bool isHallway){
+int DoorFinder::findDistanceHallway(vector<int> averaged, int peak){
     vector<int> doorDist;
     float ret;
 
     if(peak == 0) {
         doorDist.push_back(averaged[averaged.size() - 1]);
-        if(!isHallway)
-            doorDist.push_back(averaged[averaged.size() - 2]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[averaged.size() - 2]);
     } else if(peak == 1) {
-        if(!isHallway)
-            doorDist.push_back(averaged[averaged.size() - 1]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[averaged.size() - 1]);
         doorDist.push_back(averaged[0]);
     } else {
-        if(!isHallway)
-            doorDist.push_back(averaged[peak - 2]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[peak - 2]);
         doorDist.push_back(averaged[peak - 1]);
     }
 
     if(peak == averaged.size() - 1){
         doorDist.push_back(averaged[0]);
-        if(!isHallway)
-            doorDist.push_back(averaged[1]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[1]);
     } else if(peak == averaged.size() - 2){
-        if(!isHallway)
-            doorDist.push_back(averaged[0]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[0]);
         doorDist.push_back(averaged[averaged.size() - 1]);
     } else {
         doorDist.push_back(averaged[peak + 1]);
-        if(!isHallway)
-            doorDist.push_back(averaged[peak + 2]);
+        //if(!isHallway)
+        //    doorDist.push_back(averaged[peak + 2]);
     }
 
     for(int i = 0; i < doorDist.size(); i++){
@@ -262,6 +266,62 @@ int DoorFinder::findDistance(vector<int> averaged, int peak, bool isHallway){
     }
     ret /= doorDist.size();
     return (int) ret;
+}
+
+int DoorFinder::findDistanceDoor(deque<int> scan, vector<int> averaged, int peak){
+    int THRESHOLD = 200;
+    int dist = 0;
+    int numSections = averaged.size();
+    float sectionWidth = scan.size() / numSections;
+    vector<int> subsection = this->getSubsection(scan, (((peak + 1) * sectionWidth) - sectionWidth / 2 - 60), (((peak + 1) * sectionWidth ) - sectionWidth / 2 + 60));
+
+    int max = 0;
+    int index = 0;
+    for(int i = 0; i < subsection.size(); i++){
+        if(subsection[i] > max){
+            max = subsection[i];
+            index = i;
+        }
+    }
+
+
+    int offset = 1;
+    bool nd = true;
+    for(int i = index; i > 0 && nd; i--){
+        if(subsection[i] > 100){
+            while(i - offset > 0){
+                if(subsection[i - offset] > 100 && subsection[i] - subsection[i - offset] > THRESHOLD){
+                    dist = subsection[i - offset];
+                    nd = false;
+                    break;
+                } else {
+                    offset++;
+                }
+            }
+        }
+        offset = 1;
+    }
+
+    offset = 1;
+    if(dist == 0){
+        nd = true;
+        for(int i = index; i < subsection.size(); i++){
+            if(subsection[i] > 100){
+                while(i + offset < subsection.size()){
+                    if(subsection[i + offset] > 100 && subsection[i] - subsection[i + offset] > THRESHOLD){
+                        dist = subsection[i + offset];
+                        nd = false;
+                        break;
+                    } else {
+                        offset++;
+                    }
+                }
+            }
+            offset = 1;
+        }
+    }
+    return dist;
+
 }
 
 /*
@@ -348,10 +408,9 @@ std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
         bool found = false;
         for(int j = 0; j < clusters.size(); j++){
             if(isSameAngle(clusters[j].averageAngle, dh[i].angle, angleSize)){
-                //Add to existing cluster
-                clusters[j].averageAngle = (clusters[j].averageAngle + dh[i].angle) / 2;
-                clusters[j].averagePoint.x = (clusters[j].averagePoint.x + dh[i].point.x) / 2;
-                clusters[j].averagePoint.y = (clusters[j].averagePoint.y + dh[i].point.y) / 2;
+                clusters[j].averageAngle = (clusters[j].averageAngle * clusters[j].size + dh[i].angle) / (clusters[j].size + 1);
+                clusters[j].averagePoint.x = (clusters[j].averagePoint.x * clusters[j].size + dh[i].point.x) / (clusters[j].size + 1);
+                clusters[j].averagePoint.y = (clusters[j].averagePoint.y * clusters[j].size + dh[i].point.y) / (clusters[j].size + 1);
                 clusters[j].size++;
                 if(dh[i].isHallway)
                     clusters[j].hallwayCount++;
@@ -359,7 +418,7 @@ std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
                 break;
             }
         }
-        if(!found){ //Otherwise add another cluster
+        if(!found){
             clusters.push_back(cluster());
             clusters[clusters.size() - 1].averageAngle = dh[i].angle;
             clusters[clusters.size() - 1].averagePoint.x = dh[i].point.x;
@@ -370,6 +429,14 @@ std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
                 clusters[clusters.size() - 1].hallwayCount = 0;
             clusters[clusters.size() - 1].size = 1;
         }
+    }
+
+    cout << "num clusters: " << clusters.size() << endl;
+    for(int i = 0; i < clusters.size(); i++){
+        cout << "avg angle: " << clusters[i].averageAngle << endl;
+        cout << "avg point: (" << clusters[i].averagePoint.x << ", " << clusters[i].averagePoint.y << ")\n";
+        cout << "hallway count: " << clusters[i].hallwayCount << endl;
+        cout << "size: " << clusters[i].size << endl << endl;
     }
     return clusters;
 }
