@@ -1,23 +1,30 @@
 #include "lidar.h"
+#include "pins.h"
+#include "logger.h"
+#include <pigpiod_if2.h>
+
+#define LIDAR_MOTOR_SPEED 100
 
 Lidar::Lidar(){
-    //initLidar();
+    set_PWM_dutycycle(0, lidarMotorPin, LIDAR_MOTOR_SPEED);
+    initLidar();
 }
 
 Lidar::~Lidar(){
     xv11lidar_close(lidar);
+    set_PWM_dutycycle(0, lidarMotorPin, 0);
 }
 
 void Lidar::initLidar(){
-    cout << "Starting lidar..." << endl;
+    Logger::Log("Starting lidar...");
     xv11lidar_close(lidar);
     lidar = xv11lidar_init(serialDevice, laserFramesPerRead, crcTolerancePercent);
-    cout << "Lidar started" << endl;
+    Logger::Log("Lidar started");
 }
 
 void Lidar::handleBadInput(){
     if(!badData){
-        cerr << "Error reading data..." << endl;
+    Logger::Log("Error reading data...");
         errorStartTime = high_resolution_clock::now();
         badData = true;
     } else {
