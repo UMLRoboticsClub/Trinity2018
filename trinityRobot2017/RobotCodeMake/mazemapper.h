@@ -36,7 +36,7 @@ class MazeMapper {
         //vector<Point> is sequence of waypoints
         vector<Point> findNextTarget(GameState &state, robotOps &nextRobotOp, Point &targetLocation); //only function called by the robot
         robotOps determineRobotOp(int type, GameState &state);
-        vector<Point> specialTargetPath(int targetType, vector<Point>& lcoations, int& targetIndex, Point& targetLocation);
+        vector<Point> specialTargetPath(int targetType, vector<Point> lcoations, int& targetIndex, Point& targetLocation);
         Point closestClearPoint(const Point &target);
         vector<Point> createTargetPath(Point target);//updates distanceField
         vector<Point> AStar(const Point &target);
@@ -67,6 +67,26 @@ class MazeMapper {
         //map of type of targetPoints to vector of all point of that type
 
         OccupancyGrid occGrid;
+        map<int, vector<Point>> getTargetPoints(){
+            std::lock_guard<std::mutex> lock(targetPointsMutex);
+            return targetPoints;
+        }
+        void setTargetPoints(map<int, vector<Point>> newPoints){
+            std::lock_guard<std::mutex> lock(targetPointsMutex);
+            targetPoints = newPoints;
+        }
+        vector<Point> getTargetPointsOfType(int type){
+            std::lock_guard<std::mutex> lock(targetPointsMutex);
+            return targetPoints[type];
+        }
+        void addTargetPoint(int type, Point location){
+            std::lock_guard<std::mutex> lock(targetPointsMutex);
+            targetPoints[type].push_back(location);
+        }
+        void removeTargetPoint(int type, int index){
+            std::lock_guard<std::mutex> lock(targetPointsMutex);
+            targetPoints[type].erase(targetPoints[type].begin()+index);
+        }
         map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
         Lidar lidar;

@@ -61,8 +61,6 @@ private:
     Point		safeZoneLocation;
 
     ColorSensor colorSensor;
-  //  Camera		camera;
-   // IRSensor	IRsensor;
 };
 
 #endif
