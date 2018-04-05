@@ -137,7 +137,9 @@ void Drive::rotate(double error) {
         double deltaTime = updateTime();
         vel = Drive::getGyroData();
         //std::cout << vel << std::endl;
-        setRobotAngle() += vel*deltaTime;
+        //double robotAngle = getRobotAngle();
+        setRobotAngle(getRobotAngle()+vel*deltaTime);
+        //setRobotAngle(robotAngle);
 
         error -= vel*deltaTime;
         integral = integral + (error * deltaTime);
