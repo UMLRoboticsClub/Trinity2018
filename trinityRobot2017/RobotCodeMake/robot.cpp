@@ -1,5 +1,5 @@
 #include "robot.h"
-
+#include "point.h"
 #include "logger.h"
 #include <thread>
 #include <iostream>
@@ -19,7 +19,7 @@ void Robot::signalHandler(int signum){
 
 Robot::Robot():
     mazeMapper(), drive(), gameState(),
-    safeZoneLocation(), colorSensor()  //, camera()
+    safeZoneLocation(), colorSensor()// IRsensor()//, camera()
 {
 
     //catch signals to exit safely aka stop the motors when the program is killed
@@ -188,7 +188,9 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 void Robot::robotDrive(std::vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
-        drive.drive(instructions[i].x, instructions[i].y);
+        drive.drive(instructions[i]);
+
+        // double check position
     }
 
 }
@@ -267,13 +269,13 @@ void Robot::hallwaySweep(Point targetPoint) {
     int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
-    drive.drive(leftX, leftY);
+    drive.drive(DoublePoint(leftX, leftY));
     //double check position? (maybe we need a funciton like checkPosition() )?? 
     
     // vision.scan()
 
     // second patrol
-    drive.drive(rightX, rightY);
+    drive.drive(DoublePoint(rightX, rightY));
     // double check position
 
     // vision.second_scan()

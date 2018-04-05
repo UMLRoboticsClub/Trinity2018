@@ -1,3 +1,6 @@
+#pragma once
+
+#include <pigpiod_if2.h>
 #include "point.h"
 
 #define ADNS3080_PIXELS_X              30

@@ -16,15 +16,15 @@ Lidar::~Lidar(){
 }
 
 void Lidar::initLidar(){
-    Logger::Log("Starting lidar...");
+    Logger::log("Starting lidar...");
     xv11lidar_close(lidar);
     lidar = xv11lidar_init(serialDevice, laserFramesPerRead, crcTolerancePercent);
-    Logger::Log("Lidar started");
+    Logger::log("Lidar started");
 }
 
 void Lidar::handleBadInput(){
     if(!badData){
-    Logger::Log("Error reading data...");
+    Logger::log("Error reading data...");
         errorStartTime = high_resolution_clock::now();
         badData = true;
     } else {
