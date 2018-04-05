@@ -33,5 +33,5 @@ class Lidar {
         void initLidar();
         void handleBadInput();
         int getRPM(int index);
-        std::vector<int> processFrame();
+        std::deque<int> processFrame();
 };

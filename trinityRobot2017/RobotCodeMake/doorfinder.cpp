@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 #include <deque>
+#include <iostream>
 
 /*********************************
 DOOR FINDING CODE
@@ -26,6 +27,12 @@ I think I completely commented this but if i didn't
 just yell at me
 
 *********************************/
+
+using std::cout;
+using std::endl;
+using std::deque;
+using std::vector;
+using std::map;
 
 DoublePoint DoorFinder::prevPos(getRobotPos());
 
@@ -93,17 +100,18 @@ map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, m
     //put final doors and hallways in the target values list
     for(int i = 0; i < clusters.size(); i++){
         if(clusters[i].size >= 25){
-            clusters[i].averagePoint = clusters[i].averagePoint / 10 - (clusters[i].averageAngle / 360)(getRobotPos() - prevPos); 
+            double percent = clusters[i].averageAngle / 360;
+            clusters[i].averagePoint = clusters[i].averagePoint / 10.0 - (getRobotPos() - prevPos)*percent; 
             if(occGrid.getValue(getRobotPos().x + clusters[i].averagePoint.x, getRobotPos().y + clusters[i].averagePoint.y) == WALL)
                 clusters[i] = shiftCluster(clusters[i]); //if we think a door/hallway is in a wall :(
             if(clusters[i].hallwayCount >= clusters[i].size * 0.5){
                 if(targetPoints.find(HALLWAY) == targetPoints.end())
-                    targetPoints.insert(std::make_pair(HALLWAY, vector()));
+                    targetPoints.insert(std::make_pair(HALLWAY, vector<Point>()));
                 targetPoints[HALLWAY].push_back(clusters[i].averagePoint);
                 //occGrid.update(getRobotPos().x + clusters[i].averagePoint.x / 10, getRobotPos().y + clusters[i].averagePoint.y / 10, HALLWAY);
             } else {
                 if(targetPoints.find(DOOR) == targetPoints.end())
-                    targetPoints.insert(std::make_pair(DOOR, vector()));
+                    targetPoints.insert(std::make_pair(DOOR, vector<Point>()));
                 targetPoints[DOOR].push_back(clusters[i].averagePoint);
                 //occGrid.update(getRobotPos().x + clusters[i].averagePoint.x / 10, getRobotPos().y + clusters[i].averagePoint.y / 10, DOOR);
             }
@@ -111,6 +119,15 @@ map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, m
     }
     prevPos = getRobotPos();
     return targetPoints;
+}
+
+DoublePoint DoorFinder::getPoint(int angle, float distance){
+    DoublePoint point;
+
+    point.x = distance * cos((double) angle * M_PI / 180);
+    point.y = distance * sin((double) angle * M_PI / 180);
+
+    return point;
 }
 
 /*

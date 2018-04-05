@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 #include <deque>
+#include <map>
 
 using std::vector;
 using std::map;
@@ -17,13 +18,14 @@ struct cluster{
     DoublePoint averagePoint;
     float averageAngle;
     int size;
-
+    int hallwayCount;
 };
 
 struct DH{
     int angle;
     DoublePoint point;
     float dist;
+    bool isHallway;
 };
 
 class DoorFinder
