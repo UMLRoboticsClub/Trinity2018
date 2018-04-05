@@ -165,20 +165,19 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
     // iterate over all our points associated with this type
     // first point is closest path until another is shorter
 
-    for (unsigned int i = 0; i < locations.size(); ++i) {
-        if(targetType != HALLWAY){
-            //find the actual point we need to go to
-            // (so we don't slam into the object)
-            switch(targetType){
-                case FLAME:
-                case CANDLE:
-                case LEFT_SIDE_CRADLE:
-                case RIGHT_SIDE_CRADLE:
-                case FRONT_SIDE_CRADLE:
-                case SAFE_ZONE:
-                    locations[i] = closestClearPoint(locations[i]);        
+        for (unsigned int i = 0; i < locations.size(); ++i) {
+        currentTargetLoc = locations[i];
+        
+        if(targetType == FLAME
+                || targetType == CANDLE
+                || targetType == LEFT_SIDE_CRADLE
+                || targetType == RIGHT_SIDE_CRADLE
+                || targetType == FRONT_SIDE_CRADLE
+                || targetType == SAFE_ZONE){
+                locations[i] = closestClearPoint(locations[i]);        
             }
-        } else {
+        else if(targetType == HALLWAY){
+
             //we need to find the actual end of the hallway.  Look in all directions from the target, find furthest.  Should work.  Ish.  That's not really how that works.  
             //instead find shortest direction, then check both directions perpindicular to that.  
             //guees that needs to be a distance Field?  but no.  we need more circular to properly detect it.  do a circle thing.  width of hallway.  
@@ -206,20 +205,15 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
                 looking += perp1;
                 ++distance1;
             }
-
             looking = locations[i];
             while(occGrid.getValue(Point(looking)) == CLEAR){
                 looking += perp2;
                 ++distance2;
             }
-
             double dist = 0;
             if(distance1 > distance2){
                 dist = distance1;
                 direction = perp1;
-            }
-            else{
-                // matt why you put this else here?
             }
             targetLocation = locations[i];
             
@@ -230,16 +224,16 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
 
             //we need to get the target location out of here.  pass by ref again?
         }
-
-
+        
         // AStar path
         path = AStar(locations[i]);
-
+        
         // 'diagonalized' path (optimnal)
         path = optimizePath(path);
-
+        
         // return-ready vector of deltas
         convertToDeltas(path);
+        
         // length of these deltas (we want the shortest length)
         int pathLength = computePathLength(path);
         if (firstPass) {
@@ -267,7 +261,7 @@ vector<Point> MazeMapper::specialTargetPath(int targetType, vector<Point> locati
 //doesn't need a full distancefield, because the solid around it is square
 Point MazeMapper::closestClearPoint(const Point &target){
     for(int i = 0 ;; ++i){
-        if(occGrid.getValue(target + Point(0, i))  == CLEAR)
+        if(occGrid.getValue(target + Point(0, i))  == CLEAR) 
             return target + Point(0, i);
         if(occGrid.getValue(target + Point(0, -i)) == CLEAR)
             return target + Point(0, -i);
@@ -663,7 +657,7 @@ void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases a
     
     targetPoints[FLAME].push_back(Point(23, 2));
     targetPoints[SAFE_ZONE].push_back(Point(19, 23));
-    targetPoints[RED_SIDE_CRADLE].push_back(Point(4, 6));
+    targetPoints[LEFT_SIDE_CRADLE].push_back(Point(4, 6));
     targetPoints[DOOR].push_back(Point(7, 1));
     targetPoints[DOOR].push_back(Point(12, 10));
 
@@ -727,8 +721,6 @@ void MazeMapper::testSpecialTargetPath(){
 
     //insert into targetPoint
     targetPoints[CANDLE].push_back(Point(3,20));
-    //targetPoints[
-    std::cout << targetPoints[CANDLE][0].x << std::endl;
 
     GameState state(2,0,false,false,false,false,false);
     MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
@@ -747,21 +739,22 @@ void MazeMapper::testSpecialTargetPath(){
         std::cout << std::endl;
     }
 */  //really just need cases for every possible target type.  Can do.
+
     int targetIndex;
     Point targetLoc;
 
     targetPoints[FLAME].push_back(Point(23, 2));
     targetPoints[SAFE_ZONE].push_back(Point(19, 23));
-    targetPoints[RED_SIDE_CRADLE].push_back(Point(4, 6));
+    targetPoints[RIGHT_SIDE_CRADLE].push_back(Point(4, 6));
     targetPoints[DOOR].push_back(Point(7, 1));
     targetPoints[DOOR].push_back(Point(12, 10));
-  
-
+    
     path = specialTargetPath(CANDLE, targetPoints[CANDLE], targetIndex, targetLoc);
+    
     std::cout << "Candle at (3, 20), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
     path = specialTargetPath(FLAME, targetPoints[FLAME], targetIndex, targetLoc);
     std::cout << "Flame at (23, 2), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
-    path = specialTargetPath(RED_SIDE_CRADLE, targetPoints[RED_SIDE_CRADLE], targetIndex, targetLoc);
+    path = specialTargetPath(RIGHT_SIDE_CRADLE, targetPoints[RIGHT_SIDE_CRADLE], targetIndex, targetLoc);
     std::cout << "red side cradle at (4, 6), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
     path = specialTargetPath(DOOR, targetPoints[DOOR], targetIndex, targetLoc);
     std::cout << "door at (7, 1), path leads to (" << path[path.size()-1].x << ", " << path[path.size()-1].y << ") with targetLoc as (" << targetLoc.x << ", " << targetLoc.y << ")" << std::endl;
