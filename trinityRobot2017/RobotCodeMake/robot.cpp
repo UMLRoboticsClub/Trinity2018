@@ -251,8 +251,8 @@ void Robot::hallwaySweep(Point targetPoint) {
     //when camera tells us we saw the thing, record location as safeZonelocation.
     
     // get angles in directions we will patrol
-    double leftAngle = robotAngle + (M_PI_2/2);
-    double rightAngle = robotAngle - (M_PI_2/2);
+    double leftAngle = getRobotAngle() + (M_PI_2/2);
+    double rightAngle = getRobotAngle() - (M_PI_2/2);
     
     double patrolLength = ((ARENA_LENGTH_CM / 2) + ROBOT_DIAMETER_CM);
 
@@ -287,7 +287,7 @@ void Robot::rotateTowards(DoublePoint targetPoint) {
     /////
     double angleBetweenLocations = computeAngle(getRobotPos(), DoublePoint(targetPoint.x, targetPoint.y));
     // get angle that we need to rotate in order to face target
-    double rotationAngle = angleBetweenLocations - robotAngle;
+    double rotationAngle = angleBetweenLocations - getRobotAngle();
     // pass to drive
     drive.rotate(rotationAngle);
 }
