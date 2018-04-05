@@ -2,8 +2,11 @@
 
 #include <cmath>
 
-//this is very comprehensive
-//you can do pretty much anything with this point
+/*
+   IMPORTANT
+   If you are having trouble with some of these functions (like operator*),
+   remember to use "point * number" NOT "number * point"
+*/
 
 template<typename ValType>
 struct Point2 {
