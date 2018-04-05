@@ -15,6 +15,11 @@ struct Point2 {
     Point2(ValType x, ValType y) : x(x), y(y) {}
     Point2() : x(0), y(0) {}
 
+    Point2(const Point2<ValType> &p){
+        x = p.x;
+        y = p.y;
+    }
+
     template <typename T>
         Point2(const Point2<T> &p) {
             x = p.x;
