@@ -218,6 +218,9 @@ void Robot::blowCandle(Point targetPoint) {
     rotateTowards(DoublePoint(targetPoint));
 
     // blow me
+    gpio_write(0, solenoidPin, 1);
+    time_sleep(2);
+    gpio_write(0, solenoidPin, 0);
     // extinguisher.extinguish() ??
 
     // another one down
