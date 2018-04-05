@@ -46,7 +46,7 @@ public:
 
 	void rotateTowards(DoublePoint targetPoint);
 
-private:
+//private:
     static void signalHandler(int signum);
 
     static bool done;

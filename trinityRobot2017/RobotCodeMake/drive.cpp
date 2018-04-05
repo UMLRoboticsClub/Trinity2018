@@ -28,6 +28,11 @@ double timeDelta(timePoint end, timePoint begin){
     return std::chrono::duration_cast<std::chrono::microseconds>(end-begin).count()/1000000.0;
 }
 
+double Drive::getGyroData(){
+    return mpu.getRotationZ()*500/32768;
+}
+
+
 auto now = Clock::now();
 auto last = Clock::now();
 
@@ -55,13 +60,13 @@ void Drive::drive(DoublePoint target) {
     DoublePoint integral;
     DoublePoint derivative;
     DoublePoint output;
-    double kp=0.1;
-    double ki=0.1;
-    double kd=0.1;
-    double eps=0;
-    double veps=0;
-    DoublePoint error;
-    DoublePoint vel;
+    double kp=100;
+    double ki=0;
+    double kd=0;
+    double eps=1;
+    double veps=2;
+    DoublePoint error(0, 0);
+    DoublePoint vel(0, 0);
 
     double vRad = 0;
     double theta = 0;
@@ -71,14 +76,14 @@ void Drive::drive(DoublePoint target) {
 
     while(error.magnitude()>eps || vel.magnitude()>veps){
         //updateTime();
-       // auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
+        // auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
         double deltaTime = updateTime();
         robotPos += OF.readMotion();
 
         //I could accrue our displacement based on theta and correct at the end?
         //gyro correction happens here
         //so if gyro gives a velocity non zero, increase or decrease motor values respectively.
-        vRad = mpu.getRotationZ()*250/32678;
+        vRad = Drive::getGyroData();
         theta += vRad*deltaTime;
         //  cout << theta << endl;
         //  accruedError.x += sin(theta*DEG_TO_RAD)*timeDelta;
@@ -107,11 +112,11 @@ void Drive::drive(DoublePoint target) {
             motorA.set(ASpeed);
             motorB.set(BSpeed);
             motorC.set(CSpeed);
+        }
+        motorA.set(0);
+        motorB.set(0);
+        motorC.set(0);
     }
-    motorA.set(0);
-    motorB.set(0);
-    motorC.set(0);
-}
 }
 
 void Drive::rotate(double error) {
@@ -120,38 +125,36 @@ void Drive::rotate(double error) {
     double derivative = 0;
     double output = 0;
     double bias = 0;
-    double kp=20;
-    double ki=0;
+    double kp=5;
+    double ki=.2;
     double kd=0;
-    double eps=0.1;
-    double veps=0.1;
+    double eps=1;
+    double veps=0.001;
     double vel=0;
 
     while(error > eps || vel > veps){
+        std::cout << error << std::endl;
         double deltaTime = updateTime();
-        vel = mpu.getRotationZ()*deltaTime;
-        robotAngle += vel*deltaTime;
+        vel = Drive::getGyroData();
+        //std::cout << vel << std::endl;
+        setRobotAngle() += vel*deltaTime;
 
         error -= vel*deltaTime;
         integral = integral + (error * deltaTime);
         derivative = (error - error_prior) / deltaTime;
         output = kp * error + ki * integral + kd * derivative + bias;
         error_prior = error;
-        std::cout<<output<<endl;    
+        if(output < -255) output = -255;
+        if(output > 255) output = 255;
+        //std::cout<<output<<endl;    
         motorA.set(-output);
         motorB.set(-output);
         motorC.set(-output);
     }
+    motorA.set(0);
+    motorB.set(0);
+    motorC.set(0);
 }
 
 
-void signalHandler(int signum){
-    /*gpio_write(pi, motor1A, 0);
-      gpio_write(pi, motor1B, 0);
-      gpio_write(pi, motor2A, 0);
-      gpio_write(pi, motor2B, 0);
-      gpio_write(pi, motor3A, 0);
-      gpio_write(pi, motor3B, 0);
-      exit(1);*/
-    throw 3;
-}
+

@@ -16,6 +16,7 @@ class Drive {
         static void drive(DoublePoint target );
         static void rotate(double radians); //contains a rotate PID loop
         //3 motors+1 accelerometer
-    private:
+        static double getGyroData();
+//    private:
         static Motor motorA, motorB, motorC;
 };
