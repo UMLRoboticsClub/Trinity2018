@@ -257,11 +257,11 @@ void Robot::hallwaySweep(Point targetPoint) {
     double patrolLength = ((ARENA_LENGTH_CM / 2) + ROBOT_DIAMETER_CM);
 
     // calculate what patrol points are
-    int leftX = round(robotPos.x + patrolLength * cos(leftAngle));
-    int leftY = round(robotPos.y + patrolLength * sin(leftAngle));
+    int leftX = getRobotPos().x + patrolLength * cos(leftAngle);
+    int leftY = getRobotPos().y + patrolLength * sin(leftAngle);
     
-    int rightX = round(robotPos.x + patrolLength * cos(rightAngle));
-    int rightY = round(robotPos.y + patrolLength * sin(rightAngle));
+    int rightX = getRobotPos().x + patrolLength * cos(rightAngle);
+    int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
     drive.drive(leftX, leftY);
@@ -282,7 +282,10 @@ void Robot::hallwaySweep(Point targetPoint) {
 
 void Robot::rotateTowards(DoublePoint targetPoint) {
     // convert target to doublepoint for precision, and pass it with robot's position to get angle between them
-    double angleBetweenLocations = computeAngle(robotPos, targetPoint);
+    //////
+    // heads up, this line computes the angle between int and double points, remove this if it's ok
+    /////
+    double angleBetweenLocations = computeAngle(getRobotPos(), DoublePoint(targetPoint.x, targetPoint.y));
     // get angle that we need to rotate in order to face target
     double rotationAngle = angleBetweenLocations - robotAngle;
     // pass to drive

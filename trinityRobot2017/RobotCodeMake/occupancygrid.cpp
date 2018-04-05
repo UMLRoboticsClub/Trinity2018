@@ -25,8 +25,7 @@ void OccupancyGrid::initFakeWorld(int fakeSize){
     init();
     //let's make a pretty little universe.
     //start robot off more or less in the top corner
-    robotPos.x = 4;
-    robotPos.y = 3;
+    setRobotPos(DoublePoint(4, 3));
     //I AM THE GOD OF THIS NEW WORLD
     for(int i = 0; i < fakeSize; i ++){
         for(int j = 0; j < fakeSize; j ++){
@@ -61,10 +60,12 @@ void OccupancyGrid::initFakeWorld(int fakeSize){
 }
 
 int OccupancyGrid::update(float realX, float realY, int val) {
+    std::lock_guard<std::mutex> lock(occGridMutex);
     return gridVals[realX * RESOLUTION][realY * RESOLUTION].updateValue(val);
 }
 
 int OccupancyGrid::getValue(int x, int y) const {
+    std::lock_guard<std::mutex> lock(occGridMutex);
     if(x < 0 || x >= size || y < 0 || y >= size)
         return 1;
     else
@@ -72,5 +73,6 @@ int OccupancyGrid::getValue(int x, int y) const {
 }
 
 int OccupancyGrid::getValue(const Point &point) const {
+    std::lock_guard<std::mutex> lock(occGridMutex);
     return getValue(point.x, point.y);
 }
