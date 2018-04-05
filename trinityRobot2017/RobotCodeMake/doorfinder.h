@@ -1,8 +1,7 @@
 #include "globals.h"
 #include "constants.h"
-#include "Point.h"
-#include "Node.h"
-#include "OccupancyGrid.h"
+#include "point.h"
+#include "occupancygrid.h"
 
 #include <vector>
 #include <unordered_map>

@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include <deque>
 
 #include "gamestate.h"
 #include "occupancygrid.h"
@@ -12,6 +13,7 @@
 
 using std::vector;
 using std::map;
+using std::deque;
 
 class MazeMapper {
     public:
@@ -47,7 +49,7 @@ class MazeMapper {
         bool isDiag(int x_offset, int y_offset);
 
         void laserScanLoop();
-        void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
+        void updateOccupancyGrid(std::deque<int> scan); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
         Point computeDistanceField(); //takes gamestate or type of target, called in find
         vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);

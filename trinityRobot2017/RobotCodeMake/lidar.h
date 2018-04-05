@@ -3,18 +3,19 @@
 #include "xv11lidar.h"
 #include <iostream>
 #include <chrono>
-#include <vector> 
+#include <deque> 
 
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::deque;
 using namespace std::chrono;
 
 class Lidar {
     public:
         Lidar();
         ~Lidar();
-        std::vector<int> scan();
+        std::deque<int> scan();
 
     private:
         const char* serialDevice = "/dev/ttyUSB0";

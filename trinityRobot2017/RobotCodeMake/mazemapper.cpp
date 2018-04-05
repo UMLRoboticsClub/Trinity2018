@@ -552,7 +552,7 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
     Logger::log("starting laserScanLoop");
     //vector<int> distances(360);
-    lidar.init();
+    //lidar.init();
     while (true) {
         //placeholder stuff
         //lidar.scan();
