@@ -12,8 +12,8 @@ Power button:
 #define motor3APin 19
 #define motor3BPin 26
 
-#define solenoidPin 9999 //TBD
-#define lidarMotorPin 9999
+#define solenoidPin 18
+#define lidarMotorPin 16
 
 #define servo1Pin 20
 #define servo2Pin 21
