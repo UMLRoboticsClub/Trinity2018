@@ -167,7 +167,7 @@ Get the angle of a peak, given rotation
 */
 int DoorFinder::getAngle(int peak, int rotation){
     int angle = (peak + 1) * angleSize - angleSize * (3.0/4.0) - (rotation);
-    angle -= (int) (getRobotAngle() * 180 / M_PI);
+    angle -= (int) (getRobotAngle() * 180 / M_PI) + 10;
     if(angle > 360)
         angle = angle % 360;
     if(angle < 0)
