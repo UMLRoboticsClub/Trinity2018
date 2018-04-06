@@ -552,7 +552,10 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
      //vector<int> distances(360);      
 	 //lidar.init();
      while (true) {
-		 updateOccupancyGrid(lidar.scan());
+         double prevAngle = getRobotAngle();
+         deque<int> scan = lidar.scan();
+         if(abs(prevAngle - getRobotAngle()) < M_PI / 10)
+            updateOccupancyGrid(scan);
 	 }
  }
 
