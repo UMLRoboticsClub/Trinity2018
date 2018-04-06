@@ -77,6 +77,8 @@ void Robot::robotLoop() {
             cout << nextPath[i].x << " " << nextPath[i].y << endl;
         }
 
+        mazeMapper.occGrid.print(getRobotPos().x - 100, getRobotPos().x + 100, targetLocation.x, targetLocation.y);
+        cout << getRobotPos() << endl;
 //        for(int i = 580; i < 640; i ++){
 //            for(int j = 580; j < 640; j ++){
 //                cout << (mazeMapper.occGrid.getValue(i, j) == -1 ? '?' : (char)(mazeMapper.occGrid.getValue(i, j)));

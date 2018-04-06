@@ -1,7 +1,11 @@
 #include "occupancygrid.h"
+#include "logger.h"
 #include <iostream>
 #include "point.h"
 #include "constants.h"
+using std::cout;
+using std::endl;
+
 
 OccupancyGrid::OccupancyGrid():
     size(GRID_SIZE_CELLS * RESOLUTION),
@@ -61,6 +65,14 @@ void OccupancyGrid::initFakeWorld(int fakeSize){
 
 int OccupancyGrid::update(float realX, float realY, int val) {
     std::lock_guard<std::mutex> lock(occGridMutex);
+    if(val == WALL){
+        for(int i = realX - ROBOT_DIAMETER_CM / 4; i < realX + ROBOT_DIAMETER_CM / 4; i++){
+            for(int j = realY - ROBOT_DIAMETER_CM / 4; j < realY + ROBOT_DIAMETER_CM / 4; j++){
+                if(i > 0 && j > 0)
+                    gridVals[i * RESOLUTION][j * RESOLUTION].updateValue(val);
+            }
+        }
+    }
     return gridVals[realX * RESOLUTION][realY * RESOLUTION].updateValue(val);
 }
 
@@ -74,4 +86,28 @@ int OccupancyGrid::getValue(int x, int y) const {
 
 int OccupancyGrid::getValue(const Point &point) const {
     return getValue(point.x, point.y);
+
+
+}
+
+void OccupancyGrid::print(int from, int to, int targetx = -1, int targety = -1){
+    for(int i = from; i < to; i++){
+        for(int j = from; j < to; j++){
+            if(i == getRobotPos().x && j == getRobotPos().y)
+                cout << RED << "X " << RST;
+            else if(i == targetx && j == targety)
+                cout << BLU << "T " << RST;
+            else if(gridVals[i][j].getCellType() == WALL)
+                cout << GRN << "1 " << RST;
+            else if(gridVals[i][j].getCellType() == CLEAR)
+                cout << "0 ";
+            else if(gridVals[i][j].getCellType() == DOOR || gridVals[i][j].getCellType() == HALLWAY)
+                cout << YEL << gridVals[i][j].getCellType() << " " << RST; 
+            else if(gridVals[i][j].getCellType() == UNKNOWN)
+                cout << "  ";
+            else
+                cout << BLU << gridVals[i][j].getCellType() << " " << RST;
+        }
+        cout << endl;
+    }
 }

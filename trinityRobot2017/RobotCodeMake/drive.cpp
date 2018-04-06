@@ -122,7 +122,11 @@ void Drive::drive(DoublePoint target) {
         //updateTime();
         //auto deltaTime = updateTime();//std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
         deltaTime = updateTime();
-        setRobotPos(getRobotPos() + OF.readMotion());
+        DoublePoint oldPos(getRobotPos());
+        DoublePoint deltaPos = OF.readMotion();
+        oldPos.x += deltaPos.x * cos(getRobotAngle()) - deltaPos.y * sin(getRobotAngle());
+        oldPos.y += deltaPos.x * sin(getRobotAngle()) + deltaPos.y * cos(getRobotAngle());
+        setRobotPos(oldPos);
         //robotPos += OF.readMotion();
 
         //I could accrue our displacement based on theta and correct at the end?
@@ -130,7 +134,7 @@ void Drive::drive(DoublePoint target) {
         //so if gyro gives a velocity non zero, increase or decrease motor values respectively.
         vRad = Drive::getGyroData();
         theta += vRad*deltaTime;
-        setRobotAngle(getRobotAngle() + vRad*deltaTime);
+        setRobotAngle(getRobotAngle() + vRad*deltaTime*M_PI/180);
         //robotAngle += vRad*deltaTime;
         //  cout << theta << endl;
         //  accruedError.x += sin(theta*DEG_TO_RAD)*timeDelta;
@@ -153,7 +157,7 @@ void Drive::drive(DoublePoint target) {
             motorA.set(0);
             motorB.set(0);
             motorC.set(0);
-
+            cout << "robotPos in PID: " << getRobotPos() << endl;
             return;
         }
         output =  error * kp + integral * ki + derivative * kd;
@@ -204,6 +208,7 @@ void Drive::drive(DoublePoint target) {
 
     rotate(-theta);
     cout << "done" << endl;
+    cout << "robotPos in PID: " << getRobotPos() << endl;
     //cout << robotPos.x << " " << robotPos.y << " " << robotAngle << endl;
     motorA.set(0);
     motorB.set(0);
@@ -229,7 +234,7 @@ void Drive::rotate(double error) {
         vel = Drive::getGyroData();
         //cout << vel << endl;
         //double robotAngle = getRobotAngle();
-        setRobotAngle(getRobotAngle()+vel*deltaTime);
+        setRobotAngle(getRobotAngle()+vel*deltaTime*M_PI/180);
         //setRobotAngle(robotAngle);
 
         error -= vel*deltaTime;

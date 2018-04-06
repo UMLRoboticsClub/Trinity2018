@@ -564,20 +564,22 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
     void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
         Logger::log("starting laserScanLoop");
         Lidar lidar;
-        while(lidar.getRPM(0) < 300){
+        while(lidar.getRPM(0) < 300 && !Robot::done){
             cout << lidar.getRPM(0) << endl;
             deque<int> scan = lidar.scan();
             //for(int i = 0; i < scan.size(); i++)
             //    cout << scan[i] << ", ";
             //cout << endl;
-        }
+        } 
+        time_sleep(5);
         cout << "RPM: " << lidar.getRPM(0) << endl; 
-        while (!Robot::done) {
+        while(!Robot::done){
             double prevAngle = getRobotAngle();
             deque<int> scan = lidar.scan();
             if(abs(prevAngle - getRobotAngle()) < M_PI / 10 && scan.size() != 0)
                 updateOccupancyGrid(scan);
         }
+            //occGrid.print(510, 710);
         Logger::log("quitting laserScanLoop");
     }
 
@@ -609,11 +611,11 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
             //draw a line between start and end points, this is a wall   
             int startAngle = one * newAngleSize;
             int endAngle = two * newAngleSize;
-            //int angle = startAngle;
-            float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + robotAngle);
-            float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + robotAngle);
-            float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + robotAngle);
-            float y2 = clean[two] / 10.0 * sin((endAngle) * M_PI / 180 + robotAngle);
+            double offset = 105 * M_PI / 180;
+            float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + robotAngle + offset);
+            float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + robotAngle + offset);
+            float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + robotAngle + offset);
+            float y2 = clean[two] / 10.0 * sin((endAngle) * M_PI / 180 + robotAngle + offset);
 
             float dx = (x2 - x1) / newAngleSize;
             float dy = (y2 - y1) / newAngleSize;
@@ -653,6 +655,8 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
                 occGrid.update(element.second[i].x, element.second[i].y, element.first);
             }
         }
+        cout << "angle = " << getRobotAngle() << endl;
+        //occGrid.print(getRobotPos().x - 100, getRobotPos().x + 100);
     }
 
     /////////////////////////////

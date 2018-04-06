@@ -19,7 +19,7 @@ class OccupancyGrid {
         int update(float realX, float realY, int val);
         int getValue(int x, int y) const;
         int getValue(const Point &point) const; // return array
-
+        void print(int from, int to, int, int); 
         int size;
     private:
         vector<vector<NavVal>> gridVals;

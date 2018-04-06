@@ -1,6 +1,6 @@
 #include "navval.h"
 #include "constants.h"
-#include "logger.h"
+//#include "logger.h"
 
 NavVal::NavVal() : cellType(-1), timesScanned(0) {}
 
@@ -37,7 +37,7 @@ int NavVal::getCellType() const {
     //}
 
     if (cellType >= 0 && cellType <= 1) {
-    //if (1) {
+        //if (1) {
         // (basically a clearThreshhold or greater probability will return a WALL and CLEAR otherwise)
         return cellType >= CLEAR_THRESHOLD;
         //return 1;
@@ -47,4 +47,4 @@ int NavVal::getCellType() const {
         //return 1;
     }
     return 1;
-}
+    }

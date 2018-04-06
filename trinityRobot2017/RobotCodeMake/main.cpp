@@ -1,5 +1,3 @@
-#include "robot.h"
-#include "logger.h"
 //#include "drive.h"
 //#include "pins.h"
 //#include "motor.h"
@@ -9,16 +7,20 @@
 //#include "MPU6050.h"
 
 //#include <stdexcept>
-#include <pigpiod_if2.h>
-#include <csignal>
 //#include <chrono>
 //#include <unistd.h>
 //#include <iostream>
 //#include <cmath>
 
+#include "robot.h"
+#include "logger.h"
+
+#include <pigpiod_if2.h>
+#include <csignal>
+
 void signalHandler(int){
-    Logger::log("\nSignal caught, aborting...", Logger::HIGH);
     Robot::done = true;
+    Logger::log("\nSignal caught, aborting...", Logger::HIGH);
 }
 
 int main() {
@@ -29,9 +31,11 @@ int main() {
     signal(SIGSEGV, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP , signalHandler);
+
     Robot r;
     r.start();
 }
+//garbage
 //while(running){
 //    deque<int> scan = l.scan();
 //    for(int i = 0; i < scan.size(); i++)

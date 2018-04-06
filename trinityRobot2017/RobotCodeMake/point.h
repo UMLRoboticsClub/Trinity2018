@@ -4,6 +4,7 @@
 #include <ostream>
 
 using std::ostream;
+using std::endl;
 
 //this is very comprehensive
 //you can do pretty much anything with this point
@@ -156,13 +157,14 @@ struct Point2 {
             return temp;
         }
 
-    friend ostream operator<<(ostream &os, const Point2<ValType> &p){
-        os << p.x << " " << p.y;
+    friend ostream& operator<<(ostream &os, const Point2<ValType> &p){
+        os << p.x << " " << p.y << endl;
         return os;
     }
-        ValType magnitude() const { 
-            return sqrt(x*x + y*y);
-        }
+
+    ValType magnitude() const { 
+        return sqrt(x*x + y*y);
+    }
 };
 
 typedef Point2<int> Point;
