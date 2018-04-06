@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cmath>
+#include <ostream>
+
+using std::ostream;
 
 //this is very comprehensive
 //you can do pretty much anything with this point
@@ -147,7 +150,10 @@ struct Point2 {
             Point2 temp(x / p, y / p);
             return temp;
         }
-    //make things to do magnitude, direction, etc
+
+    friend ostream operator<<(ostream &os, const Point2<ValType> &p){
+        os << p.x << " " << p.y;
+    }
 };
 
 typedef Point2<int> Point;
