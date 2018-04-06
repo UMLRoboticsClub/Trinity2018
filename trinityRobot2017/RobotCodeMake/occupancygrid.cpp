@@ -73,6 +73,5 @@ int OccupancyGrid::getValue(int x, int y) const {
 }
 
 int OccupancyGrid::getValue(const Point &point) const {
-    std::lock_guard<std::mutex> lock(occGridMutex);
     return getValue(point.x, point.y);
 }

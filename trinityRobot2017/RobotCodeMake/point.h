@@ -2,11 +2,8 @@
 
 #include <cmath>
 
-/*
-   IMPORTANT
-   If you are having trouble with some of these functions (like operator*),
-   remember to use "point * number" NOT "number * point"
-*/
+//this is very comprehensive
+//you can do pretty much anything with this point
 
 template<typename ValType>
 struct Point2 {
@@ -14,6 +11,11 @@ struct Point2 {
 
     Point2(ValType x, ValType y) : x(x), y(y) {}
     Point2() : x(0), y(0) {}
+
+    Point2(const Point2<ValType> &p){
+        x = p.x;
+        y = p.y;
+    }
 
     template <typename T>
         Point2(const Point2<T> &p) {
@@ -27,17 +29,17 @@ struct Point2 {
             y = p.y;
             return *this;
         }
-    
+
     //if index is 0, return x, else y
     template<typename T>
-    const T& operator[](const int index) const {
-        return index == 0 ? x : y;
-    }
+        const T& operator[](const int index) const {
+            return index == 0 ? x : y;
+        }
 
     template<typename T>
-    T& operator[](const int index) {
-        return index == 0 ? x : y;
-    }
+        T& operator[](const int index) {
+            return index == 0 ? x : y;
+        }
 
     bool operator==(const Point2 &p) const {
         return x == p.x && y == p.y;
@@ -150,7 +152,10 @@ struct Point2 {
             Point2 temp(x / p, y / p);
             return temp;
         }
-    //make things to do magnitude, direction, etc
+
+        ValType magnitude() const { 
+            return sqrt(x*x + y*y);
+        }
 };
 
 typedef Point2<int> Point;

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <thread>
 #include <string>
+#include <vector>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -34,7 +35,7 @@ public:
 
 	void robotLoop();
 
-	void robotDrive(vector<Point> instructions);
+	void robotDrive(std::vector<Point> instructions);
 	void getBaby(Point targetPoint);
 	void tossBaby(Point targetPoint);
 	void blowCandle(Point targetPoint);
@@ -46,7 +47,7 @@ public:
 
 	void rotateTowards(DoublePoint targetPoint);
 
-private:
+//private:
     static void signalHandler(int signum);
 
     static bool done;
