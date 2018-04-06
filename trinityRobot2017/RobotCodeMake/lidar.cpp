@@ -23,7 +23,7 @@ Lidar::~Lidar(){
 void Lidar::initLidar(){
     Logger::log("Starting lidar...");
     xv11lidar_close(lidar);
-    time_sleep(1);
+    time_sleep(2);
     lidar = xv11lidar_init(serialDevice, laserFramesPerRead, crcTolerancePercent);
     Logger::log("Lidar started");
 }

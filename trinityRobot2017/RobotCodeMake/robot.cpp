@@ -10,35 +10,15 @@
 
 std::atomic<bool> Robot::done = false;
 
-/*void Robot::signalHandler(int signum){
-    cout << "\n";
-    Logger::log(string(strsignal(signum)) + ", aborting...", Logger::HIGH);
-    done = true;
-
-    //remove this soon
-    //exit(signum);
-}*/
-
 Robot::Robot():
     mazeMapper(), gameState(), safeZoneLocation()
 {
-
-    /*//catch signals to exit safely aka stop the motors when the program is killed
-    signal(SIGINT , Robot::signalHandler);
-    signal(SIGABRT, Robot::signalHandler);
-    signal(SIGFPE , Robot::signalHandler);
-    signal(SIGILL , Robot::signalHandler);
-    signal(SIGSEGV, Robot::signalHandler);
-    signal(SIGTERM, Robot::signalHandler);
-    signal(SIGHUP , Robot::signalHandler);*/
-
-    set_mode(0, solenoidPin, PI_OUTPUT);
+    set_mode(0, solenoidPin,   PI_OUTPUT);
     set_mode(0, lidarMotorPin, PI_OUTPUT);
-    set_mode(0, redLedPin, PI_OUTPUT);
-    set_mode(0, greenLedPin, PI_OUTPUT);
-    set_mode(0, blueLedPin, PI_OUTPUT);
-    set_mode(0, irSensorPin, PI_INPUT);
-
+    set_mode(0, redLedPin,     PI_OUTPUT);
+    set_mode(0, greenLedPin,   PI_OUTPUT);
+    set_mode(0, blueLedPin,    PI_OUTPUT);
+    set_mode(0, irSensorPin,   PI_INPUT);
 
     Logger::log("robot initialized");
     // variables are initialized through the constructor for now
@@ -85,7 +65,7 @@ void Robot::robotLoop() {
         cout << "Current location: " << getRobotPos().x << " " << getRobotPos().y << endl;
         cout << "Target location: " << targetLocation.x << " " << targetLocation.y << endl;
         cout << "path: ";
-        for(int i = 0; i < nextPath.size(); i ++){
+        for(unsigned i = 0; i < nextPath.size(); i ++){
             cout << nextPath[i].x << " " << nextPath[i].y << endl;
         }
 
@@ -141,7 +121,8 @@ void Robot::robotLoop() {
                 break;
             case MazeMapper::OP_HALLWAY_SIMPLE:
                 Logger::log("hallwaySimple");
-                hallwaySimple(targetLocation);
+                //hallwaySimple(targetLocation);
+                hallwaySimple();
                 break;
             case MazeMapper::OP_STOP:
                 Logger::log("success!");
@@ -154,7 +135,7 @@ void Robot::robotLoop() {
     Logger::log("exiting robotLoop");
 }
 
-void Robot::hallwaySimple(Point targetPoint){
+void Robot::hallwaySimple(){
     gameState.secondArena = false;
 }
 
