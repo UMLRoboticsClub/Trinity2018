@@ -35,6 +35,7 @@ class MazeMapper {
         };
 
         MazeMapper();
+        ~MazeMapper();
 
         //vector<Point> is sequence of waypoints
         vector<Point> findNextTarget(GameState &state, robotOps &nextRobotOp, Point &targetLocation); //only function called by the robot
@@ -69,7 +70,7 @@ class MazeMapper {
         void testComputeDistanceField();
         void testComputePathLength();
 
-    private:
+//    private:
         //map of type of targetPoints to vector of all point of that type
 
         OccupancyGrid occGrid;

@@ -5,6 +5,7 @@
 #include "point.h"
 #include "gpio.h"
 #include "MPU6050.h"
+#include "logger.h"
 
 #include <stdexcept>
 #include <cstdlib>
@@ -13,6 +14,40 @@
 #include <chrono>
 #include <iostream>
 #include <cmath>
+
+void signalHandler(int){
+    Logger::log("signal caught, aborting...", Logger::HIGH);
+    Robot::done = true; //exits robotLoop and laserScanloop cleanly
+}
+
+int main() {
+    signal(SIGINT , signalHandler);
+    signal(SIGABRT, signalHandler);
+    signal(SIGFPE , signalHandler);
+    signal(SIGILL , signalHandler);
+    signal(SIGSEGV, signalHandler);
+    signal(SIGTERM, signalHandler);
+    signal(SIGHUP , signalHandler);
+
+    Robot robot;
+    Drive::mpu.initialize();
+    Drive::OF.init();
+    robot.start();
+
+    //Drive::drive(getRobotPos());
+    //rotate();
+    // while(1){
+    // std::cin >> a >> b;
+    // drive(a, b);
+    //}
+    //Drive::drive(getRobotPos() + DoublePoint(10, 0));
+    // Drive::rotate(60);
+    //drive(1, 0);
+    //drive(0, 1);
+    //drive(-1, 0);
+    //drive(0, -1);
+    // rotate();
+}
 
 ////using namespace std;
 //typedef std::chrono::high_resolution_clock Clock;
@@ -105,46 +140,3 @@
 ////  motorB.set(0);
 ////  motorC.set(0);
 ////}
-//
-void signalHandler(int){
-      cout << "\nsignal caught, aborting..." << endl;
-      gpio_write(0, Drive::motorA.pinA, 0);
-      gpio_write(0, Drive::motorA.pinB, 0);
-      gpio_write(0, Drive::motorB.pinA, 0);
-      gpio_write(0, Drive::motorB.pinB, 0);
-      gpio_write(0, Drive::motorC.pinA, 0);
-      gpio_write(0, Drive::motorC.pinB, 0);
-      cout << "bye" << endl;
-
-      _Exit(1);
-      //throw std::runtime_error("Exit signal caught, aborting...");
-}
-
-int main() {
-    signal(SIGINT , signalHandler);
-    signal(SIGABRT, signalHandler);
-    signal(SIGFPE , signalHandler);
-    signal(SIGILL , signalHandler);
-    signal(SIGSEGV, signalHandler);
-    signal(SIGTERM, signalHandler);
-    signal(SIGHUP , signalHandler);
-
-    GPIO gpio;
-    Drive::mpu.initialize();
-    Drive::OF.init();
-
-    Drive::drive(getRobotPos());
-    //rotate();
-    // while(1){
-    // std::cin >> a >> b;
-    // drive(a, b);
-    //}
-    Drive::drive(getRobotPos() + DoublePoint(10, 0));
-   // Drive::rotate(60);
-    //drive(1, 0);
-    //drive(0, 1);
-    //drive(-1, 0);
-    //drive(0, -1);
-    // rotate();
-}
-

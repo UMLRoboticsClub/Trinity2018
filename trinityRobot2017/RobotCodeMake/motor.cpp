@@ -5,7 +5,10 @@
 
 Motor::Motor(unsigned pinA, unsigned pinB):
     pinA(pinA), pinB(pinB)
-{}
+{
+    set_mode(0, pinA, PI_OUTPUT);  
+    set_mode(0, pinB, PI_OUTPUT);  
+}
 
 Motor::~Motor(){
     gpio_write(0, pinA, 0);

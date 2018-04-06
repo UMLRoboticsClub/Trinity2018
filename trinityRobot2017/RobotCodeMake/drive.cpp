@@ -159,13 +159,13 @@ void Drive::drive(DoublePoint target) {
         output =  error * kp + integral * ki + derivative * kd;
         error_prior = error;
         angle = atan2(output.y, output.x);
-        cout << setw(10) << error.x << " " << setw(10) <<  error.y << " " << setw(10) << output.x << " " << setw(10) << output.y << " " << setw(10) << integral.x << " " << setw(10) << integral.y << " " << setw(10) << derivative.x << " " << setw(10) << derivative.y;
+        //cout << setw(10) << error.x << " " << setw(10) <<  error.y << " " << setw(10) << output.x << " " << setw(10) << output.y << " " << setw(10) << integral.x << " " << setw(10) << integral.y << " " << setw(10) << derivative.x << " " << setw(10) << derivative.y;
 
         double ASpeed = output.magnitude() * cos(MVA_ANGLE - angle);
         double BSpeed = output.magnitude() * cos(MVB_ANGLE - angle);
         double CSpeed = output.magnitude() * cos(MVC_ANGLE - angle);
         normalize(ASpeed,BSpeed,CSpeed);
-        cout << setw(10) << ASpeed << " " << setw(10) << BSpeed << " " << setw(10) << CSpeed << endl;
+        //cout << setw(10) << ASpeed << " " << setw(10) << BSpeed << " " << setw(10) << CSpeed << endl;
         //cout<< "Output = "<<output.x<<" "<<output.y<<endl;
 
         //cout << "ASpeed = " << ASpeed << endl;
@@ -188,7 +188,7 @@ void Drive::drive(DoublePoint target) {
     motorC.set(CSpeed);
         // cout << robotPos.x << " " << robotPos.y << endl;
     }
-    cout << robotPos.x << " " << robotPos.y;
+    //cout << robotPos.x << " " << robotPos.y;
     
     //continue gathering data to snure accurate robotPos and robotAngle
     //start = Clock::now();
@@ -204,7 +204,7 @@ void Drive::drive(DoublePoint target) {
 
     rotate(-theta);
     cout << "done" << endl;
-    cout << robotPos.x << " " << robotPos.y << " " << robotAngle << endl;
+    //cout << robotPos.x << " " << robotPos.y << " " << robotAngle << endl;
     motorA.set(0);
     motorB.set(0);
     motorC.set(0);

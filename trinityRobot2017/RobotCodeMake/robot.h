@@ -5,7 +5,6 @@
 #include "gamestate.h"
 #include "globals.h"
 #include "constants.h"
-#include "colorsensor.h"
 #include "irsensor.h"
 //#include "camera.h"
 #include "gpio.h"
@@ -14,6 +13,7 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <atomic>
 
 //#define _USE_MATH_DEFINES
 #include <cmath>
@@ -26,6 +26,7 @@ class Robot {
 
 public:
 	Robot();
+	~Robot();
 
 	void start();
 
@@ -43,10 +44,10 @@ public:
 
 	void rotateTowards(DoublePoint targetPoint);
 
-//private:
-    static void signalHandler(int signum);
+    static std::atomic<bool> done;
 
-    static bool done;
+//private:
+    //static void signalHandler(int signum);
 
     GPIO gpio; //needs to be initialized before all sensors
     thread laserScanInputThread;
@@ -54,5 +55,4 @@ public:
     MazeMapper  mazeMapper;
     GameState	gameState;
     Point		safeZoneLocation;
-    ColorSensor colorSensor;
 };

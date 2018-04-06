@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "point.h"
 #include "node.h"
+#include "robot.h"
 
 #include <vector>
 #include <unordered_map>
@@ -21,6 +22,10 @@ MazeMapper::MazeMapper(): occGrid(), targetPoints(), lidar(){
             distanceField[i][j] = -1;
         }
     }
+}
+
+MazeMapper::~MazeMapper(){
+    Logger::log("MazeMapper quitting");
 }
 
 ///////////////////////////
@@ -112,19 +117,28 @@ vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp
             */
         }
     }
-
+    
     //no important points already found, go to distance field and find an unknown
-    Point target = computeDistanceField();
+    targetLocation = computeDistanceField();
+    
     //list of solely UDLR directional movements
-    vector<Point> moves = createTargetPath(target);
+    //this somehow came out uninitialized.  wtf.
+    vector<Point> moves = createTargetPath(targetLocation);
+    cout << "move 1: " << moves[0].x << " " << moves[0].y << endl;
     //optimizes with direct diagonalized motion
     moves = optimizePath(moves);
+    cout << "move 2: " << moves[0].x << " " << moves[0].y << endl;
     //reduce last move by robotRadius, or to zero.
     Point lastMove = moves[moves.size()-1];
-    double mag = sqrt(pow(lastMove.x, 2) + pow(lastMove.y, 2));
+    Point prevMove = moves.size() > 1 ? moves[moves.size()-2] : Point(getRobotPos());
+    Point delta = lastMove - prevMove;
+    double mag = sqrt(pow(lastMove.x - prevMove.x, 2) + pow(lastMove.y - prevMove.y, 2));
     double mult = mag - ROBOT_DIAMETER_CM/2 < 0 ? 0 : mag - ROBOT_DIAMETER_CM/2;
-    moves[moves.size()-1] *= mult;
-    convertToDeltas(moves);
+    delta *= mult;
+    lastMove = prevMove + delta;
+    cout << "move 3 " << moves[0].x << " " << moves[0].y << endl;
+    //convertToDeltas(moves);
+    cout << "move 4: " << moves[0].x << " " << moves[0].y << endl;
     return moves;
 }
 
@@ -285,7 +299,7 @@ vector<Point> MazeMapper::createTargetPath(Point target) {//distance field alrea
         neighbors = findOpenNeighbors(target); //grab all neighboring cells
         for(Point neighbor : neighbors){   //find a cell one unit closer to the robot then the current one
             if(distanceField[neighbor.x][neighbor.y] == distVal -1){
-                if(neighbor-target != direction || sqrt(pow(target.x - moves[moves.size()-1].x, 2) + pow(target.y - moves[moves.size()-1], 2)) > 50){
+                if(neighbor-target != direction || sqrt(pow(target.x - moves[moves.size()-1].x, 2) + pow(target.y - moves[moves.size()-1].y, 2)) > 50){
                     //change in direction, add to moves
                     moves.push_back(target);
                     direction = neighbor-target;
@@ -549,23 +563,28 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 
  void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 	 Logger::log("starting laserScanLoop");
+     while(lidar.getRPM(0) < 300){
+        //cout << lidar.getRPM(0) << endl;
+     };
+     cout << "RPM: " << lidar.getRPM(0) << endl; 
      //vector<int> distances(360);      
-	 //lidar.init();
-     while (true) {
+     while (!Robot::done) {
          double prevAngle = getRobotAngle();
          deque<int> scan = lidar.scan();
          if(abs(prevAngle - getRobotAngle()) < M_PI / 10)
             updateOccupancyGrid(scan);
 	 }
+	 Logger::log("quitting laserScanLoop");
  }
 
 void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+    Logger::log("updating occupancy grid");
 	DoorFinder d(occGrid);
 	vector<int> clean = d.average(scan, 45);
 
 	double newAngleSize = 360 / 45;
 
-	for(int i = 0; i < clean.size(); i++){ //for each element in the scan
+	for(int i = 0; i < clean.size(); ++i){ //for each element in the scan
 		int one = i - 1;
         int two = i;
         if(i == 0){

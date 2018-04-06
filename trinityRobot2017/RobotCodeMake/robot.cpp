@@ -8,32 +8,44 @@
 #include <csignal>
 #include <cstring>
 
-bool Robot::done = false;
+std::atomic<bool> Robot::done = false;
 
-void Robot::signalHandler(int signum){
+/*void Robot::signalHandler(int signum){
     cout << "\n";
     Logger::log(string(strsignal(signum)) + ", aborting...", Logger::HIGH);
     done = true;
 
     //remove this soon
     //exit(signum);
-}
+}*/
 
 Robot::Robot():
-    mazeMapper(), gameState(), safeZoneLocation(), colorSensor()// IRsensor()//, camera()
+    mazeMapper(), gameState(), safeZoneLocation()
 {
 
-    //catch signals to exit safely aka stop the motors when the program is killed
+    /*//catch signals to exit safely aka stop the motors when the program is killed
     signal(SIGINT , Robot::signalHandler);
     signal(SIGABRT, Robot::signalHandler);
     signal(SIGFPE , Robot::signalHandler);
     signal(SIGILL , Robot::signalHandler);
     signal(SIGSEGV, Robot::signalHandler);
     signal(SIGTERM, Robot::signalHandler);
-    signal(SIGHUP , Robot::signalHandler);
+    signal(SIGHUP , Robot::signalHandler);*/
+
+    set_mode(0, solenoidPin, PI_OUTPUT);
+    set_mode(0, lidarMotorPin, PI_OUTPUT);
+    set_mode(0, redLedPin, PI_OUTPUT);
+    set_mode(0, greenLedPin, PI_OUTPUT);
+    set_mode(0, blueLedPin, PI_OUTPUT);
+    set_mode(0, irSensorPin, PI_INPUT);
+
 
     Logger::log("robot initialized");
     // variables are initialized through the constructor for now
+}
+
+Robot::~Robot(){
+    Logger::log("robot quitting");
 }
 
 ///////////////////////////
@@ -41,10 +53,9 @@ Robot::Robot():
 void Robot::start() {
     // maybe this can go in the constructor in the future
     // Thread dedicated to looping the lazer scanner until the robot dies.
-    thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
+    thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
     laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
 
-    Logger::log("starting robotLoop"); // Let's start this thing
     robotLoop();
 }
 
@@ -56,6 +67,7 @@ void Robot::start() {
 //bool secondArena;
 
 void Robot::robotLoop() {
+    Logger::log("starting robotLoop"); // Let's start this thing
     // initialize to nothing (doesn't really matter)
     MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
 
@@ -70,6 +82,19 @@ void Robot::robotLoop() {
         Logger::log("finding next target");
         // call this bad boy
         nextPath = mazeMapper.findNextTarget(gameState, nextRobotOperation, targetLocation);
+        cout << "Current location: " << getRobotPos().x << " " << getRobotPos().y << endl;
+        cout << "Target location: " << targetLocation.x << " " << targetLocation.y << endl;
+        cout << "path: ";
+        for(int i = 0; i < nextPath.size(); i ++){
+            cout << nextPath[i].x << " " << nextPath[i].y << endl;
+        }
+
+        //`for(int i = 580; i < 640; i ++){
+        //`    for(int j = 580; j < 640; j ++){
+        //`        cout << mazeMapper.occGrid.getValue(i, j);
+        //`    }
+        //`    cout << endl;
+        //`}
 
         Logger::log("driving to next path");
         // always drive to next location, then do other stuff depending on nextRobotOperation
@@ -124,9 +149,9 @@ void Robot::robotLoop() {
                 break;
         }
         // annnnd.. repeat
-        break; // without break, code will keep on running forever. Remove this when we start serious testing.
+        //break; // without break, code will keep on running forever. Remove this when we start serious testing.
     }
-    Logger::log("exiting");
+    Logger::log("exiting robotLoop");
 }
 
 void Robot::hallwaySimple(Point targetPoint){

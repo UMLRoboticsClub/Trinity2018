@@ -16,7 +16,7 @@ class Lidar {
         Lidar();
         ~Lidar();
         std::deque<int> scan();
-
+        int getRPM(int index);
     private:
         const char* serialDevice = "/dev/ttyUSB0";
         const int serialBaudRate = 115200;
@@ -32,6 +32,5 @@ class Lidar {
 
         void initLidar();
         void handleBadInput();
-        int getRPM(int index);
         std::deque<int> processFrame();
 };
