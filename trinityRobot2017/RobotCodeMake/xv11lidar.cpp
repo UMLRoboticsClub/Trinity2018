@@ -140,7 +140,7 @@ struct xv11lidar *xv11lidar_free(struct xv11lidar *lidar_data, const char *error
 		close(lidar_data->fd);
 	free(lidar_data->data);
 	free(lidar_data);
-    exit(1);
+    //exit(1);
 	return NULL; //for convenience
 }
 
@@ -260,6 +260,7 @@ void xv11lidar_close(struct xv11lidar *lidar_data)
 		return;
 	tcsetattr(lidar_data->fd, TCSAFLUSH, &lidar_data->old_io);	
 	xv11lidar_free(lidar_data, NULL);
+
 }
 
 /*

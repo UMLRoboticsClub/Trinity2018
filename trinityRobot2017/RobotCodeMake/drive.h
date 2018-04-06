@@ -14,13 +14,13 @@ const double MVC_ANGLE = M_PI - (270 - 150)* DEG_TO_RAD;
 
 class Drive {
     public:
-        Drive() = delete;
+        Drive();
         static MPU6050 mpu;
         static opticalFlow OF;
-        static void drive(DoublePoint target );
-        static void rotate(double radians); //contains a rotate PID loop
+        void drive(DoublePoint target );
+        void rotate(double radians); //contains a rotate PID loop
         //3 motors+1 accelerometer
         static double getGyroData();
 //    private:
-        static Motor motorA, motorB, motorC;
+        Motor motorA, motorB, motorC;
 };

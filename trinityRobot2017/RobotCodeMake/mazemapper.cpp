@@ -14,7 +14,7 @@
 #include <iomanip>
 
 //constructors
-MazeMapper::MazeMapper(): occGrid(), targetPoints(), lidar(){
+MazeMapper::MazeMapper(): occGrid(), targetPoints(){//, lidar(){
     distanceField = vector<vector<int>>(GRID_SIZE_CELLS);
     for(unsigned int i = 0; i < distanceField.size(); ++i){
         distanceField[i] = vector<int>(GRID_SIZE_CELLS);
@@ -563,15 +563,19 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 
  void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
 	 Logger::log("starting laserScanLoop");
+     Lidar lidar;
      while(lidar.getRPM(0) < 300){
-        //cout << lidar.getRPM(0) << endl;
-     };
+        cout << lidar.getRPM(0) << endl;
+        deque<int> scan = lidar.scan();
+        for(int i = 0; i < scan.size(); i++)
+            cout << scan[i] << ", ";
+        cout << endl;
+     }
      cout << "RPM: " << lidar.getRPM(0) << endl; 
-     //vector<int> distances(360);      
      while (!Robot::done) {
          double prevAngle = getRobotAngle();
          deque<int> scan = lidar.scan();
-         if(abs(prevAngle - getRobotAngle()) < M_PI / 10)
+         if(abs(prevAngle - getRobotAngle()) < M_PI / 10 && scan.size() != 0)
             updateOccupancyGrid(scan);
 	 }
 	 Logger::log("quitting laserScanLoop");
@@ -584,7 +588,7 @@ void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and upd
 
 	double newAngleSize = 360 / 45;
 
-	for(int i = 0; i < clean.size(); ++i){ //for each element in the scan
+	for(unsigned i = 0; i < clean.size(); ++i){ //for each element in the scan
 		int one = i - 1;
         int two = i;
         if(i == 0){
@@ -594,7 +598,7 @@ void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and upd
         //draw a line between start and end points, this is a wall   
 		int startAngle = one * newAngleSize;
         int endAngle = two * newAngleSize;
-        int angle = startAngle;
+        //int angle = startAngle;
         float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + robotAngle);
         float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + robotAngle);
         float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + robotAngle);
@@ -626,7 +630,7 @@ void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and upd
     // now that we have all important values for this scan, we can update the occ grid
     // i think this is how you do this for a map lol
     for(auto element : getTargetPoints()){ //element.first is the key, element.second is the value
-        for(int i = 0; i < element.second.size(); i++){
+        for(unsigned i = 0; i < element.second.size(); i++){
             occGrid.update(element.second[i].x, element.second[i].y, element.first);
         }
     }

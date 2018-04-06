@@ -1,7 +1,6 @@
 #include "robot.h"
 #include "point.h"
 #include "logger.h"
-#include "drive.h"
 
 #include <thread>
 #include <iostream>
@@ -33,9 +32,18 @@ Robot::~Robot(){
 void Robot::start() {
     // maybe this can go in the constructor in the future
     // Thread dedicated to looping the lazer scanner until the robot dies.
-    thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
-    laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
-
+    //thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
+    //laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
+   // Lidar l;
+   //// while(1)//`mazeMapper.lidar.getRPM(0) < 300)
+   //while(1){
+   //    deque<int> scan = l.scan();
+   //    for(int i = 0; i < scan.size(); i++)
+   //        cout << scan[i] << ", ";
+   //    cout << endl;
+   //}
+   //     cout << l.getRPM(0) << endl;
+    mazeMapper.laserScanLoop();
     robotLoop();
 }
 
@@ -192,7 +200,7 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 void Robot::robotDrive(std::vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
-        Drive::drive(instructions[i]);
+        drive.drive(instructions[i]);
 
         // double check position
     }
@@ -236,7 +244,7 @@ void Robot::blowCandle(Point targetPoint) {
 void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
-    Drive::rotate(2 * M_PI);
+    drive.rotate(2 * M_PI);
 
     gameState.inRoom = true;
 }
@@ -273,13 +281,13 @@ void Robot::hallwaySweep(Point targetPoint) {
     int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
-    Drive::drive(DoublePoint(leftX, leftY));
+    drive.drive(DoublePoint(leftX, leftY));
     //double check position? (maybe we need a funciton like checkPosition() )?? 
     
     // vision.scan()
 
     // second patrol
-    Drive::drive(DoublePoint(rightX, rightY));
+    drive.drive(DoublePoint(rightX, rightY));
     // double check position
 
     // vision.second_scan()
@@ -298,5 +306,5 @@ void Robot::rotateTowards(DoublePoint targetPoint) {
     // get angle that we need to rotate in order to face target
     double rotationAngle = angleBetweenLocations - getRobotAngle();
     // pass to drive
-    Drive::rotate(rotationAngle);
+    drive.rotate(rotationAngle);
 }

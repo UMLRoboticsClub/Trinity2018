@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "irsensor.h"
 #include "gpio.h"
+#include "drive.h"
 
 #include <iostream>
 #include <thread>
@@ -49,4 +50,5 @@ class Robot {
         MazeMapper  mazeMapper;
         GameState	gameState;
         Point		safeZoneLocation;
+        Drive       drive;
 };

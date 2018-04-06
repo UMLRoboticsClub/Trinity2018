@@ -96,5 +96,5 @@ class MazeMapper {
         }
         map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
-        Lidar lidar;
+//        Lidar lidar;
 };

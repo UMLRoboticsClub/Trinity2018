@@ -157,7 +157,7 @@ struct Point2 {
         }
 
     friend ostream operator<<(ostream &os, const Point2<ValType> &p){
-        //os << p.x << " " << p.y;
+        os << p.x << " " << p.y;
         return os;
     }
         ValType magnitude() const { 
