@@ -2,6 +2,7 @@
 
 #include "pins.h"
 #include <pigpiod_if2.h>
+
 #include <iostream>
 
 using std::cout;
@@ -49,6 +50,9 @@ DoublePoint opticalFlow::readMotion(){
         data.x -= 256;
     if(data.y > 127)
         data.y -=256;
+    data*=-0.1178;
+//    data.y *= -1;
+//    cout << data.x << " " << data.y << " " ;
     return data;
 }
 

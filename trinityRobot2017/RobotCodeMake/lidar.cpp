@@ -4,6 +4,7 @@
 #include <pigpiod_if2.h>
 
 #define LIDAR_MOTOR_SPEED 100
+//#define LIDAR_MOTOR_SPEED 255
 
 Lidar::Lidar(){
     set_PWM_dutycycle(0, lidarMotorPin, LIDAR_MOTOR_SPEED);

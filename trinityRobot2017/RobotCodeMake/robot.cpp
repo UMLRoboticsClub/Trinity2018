@@ -1,6 +1,8 @@
 #include "robot.h"
 #include "point.h"
 #include "logger.h"
+#include "drive.h"
+
 #include <thread>
 #include <iostream>
 #include <csignal>
@@ -14,12 +16,11 @@ void Robot::signalHandler(int signum){
     done = true;
 
     //remove this soon
-    exit(signum);
+    //exit(signum);
 }
 
 Robot::Robot():
-    mazeMapper(), drive(), gameState(),
-    safeZoneLocation(), colorSensor()// IRsensor()//, camera()
+    mazeMapper(), gameState(), safeZoneLocation(), colorSensor()// IRsensor()//, camera()
 {
 
     //catch signals to exit safely aka stop the motors when the program is killed
@@ -43,9 +44,7 @@ void Robot::start() {
     thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
     laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
 
-
-    Logger::log("starting robotLoop");
-    // Let's start this thing
+    Logger::log("starting robotLoop"); // Let's start this thing
     robotLoop();
 }
 
@@ -135,7 +134,6 @@ void Robot::hallwaySimple(Point targetPoint){
 }
 
 void Robot::leaveRoom(){
-
     gameState.inRoom = false;
 }
 
@@ -154,7 +152,7 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
     double pointToFront = 0;
     if(side == SIDE_LEFT){ 
         pointToFront = angleBetween + (M_PI/2.0);
-    }else if(side == SIDE_RIGHT){
+    } else if(side == SIDE_RIGHT){
         pointToFront = angleBetween - (M_PI/2.0);
     }
 
@@ -188,7 +186,7 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 void Robot::robotDrive(vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
-        drive.drive(instructions[i]);
+        Drive::drive(instructions[i]);
 
         // double check position
     }
@@ -229,7 +227,7 @@ void Robot::blowCandle(Point targetPoint) {
 void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
-    drive.rotate(2 * M_PI);
+    Drive::rotate(2 * M_PI);
 
     gameState.inRoom = true;
 }
@@ -266,13 +264,13 @@ void Robot::hallwaySweep(Point targetPoint) {
     int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
-    drive.drive(DoublePoint(leftX, leftY));
+    Drive::drive(DoublePoint(leftX, leftY));
     //double check position? (maybe we need a funciton like checkPosition() )?? 
     
     // vision.scan()
 
     // second patrol
-    drive.drive(DoublePoint(rightX, rightY));
+    Drive::drive(DoublePoint(rightX, rightY));
     // double check position
 
     // vision.second_scan()
@@ -291,5 +289,5 @@ void Robot::rotateTowards(DoublePoint targetPoint) {
     // get angle that we need to rotate in order to face target
     double rotationAngle = angleBetweenLocations - getRobotAngle();
     // pass to drive
-    drive.rotate(rotationAngle);
+    Drive::rotate(rotationAngle);
 }
