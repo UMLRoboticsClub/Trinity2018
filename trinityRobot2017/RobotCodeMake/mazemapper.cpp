@@ -547,35 +547,67 @@ void MazeMapper::convertToDeltas(vector<Point> &moves) {
 
 /////////////////////////////
 
-void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
-    Logger::log("starting laserScanLoop");
-    //vector<int> distances(360);
-    //lidar.init();
-    while (true) {
-        //placeholder stuff
-        //lidar.scan();
-        //lidar.processFrame();
+ void MazeMapper::laserScanLoop() { //loops updateOccupancyGrid()
+	 Logger::log("starting laserScanLoop");
+     //vector<int> distances(360);      
+	 //lidar.init();
+     while (true) {
+		 updateOccupancyGrid(lidar.scan());
+	 }
+ }
 
-        //if(!lidar.newFrame()){
-        //    //sleep a few ms
-        //    continue;
-        //}
-        //lidar.getValues(distances); 
+void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+	DoorFinder d(occGrid);
+	vector<int> clean = d.average(scan, 45);
 
-        /*
-         * IMPORTANT:
-         * There needs to be a mutex that locks ANY data that could be accessed by two threads at once
-         * Otherwise, nothing will work and you will go crazy trying to figure it out.
-         * I say this from experience - Jackson
-         */
+	double newAngleSize = 360 / 45;
 
-        // We will figure out how often this should be called later
-        updateOccupancyGrid();
+	for(int i = 0; i < clean.size(); i++){ //for each element in the scan
+		int one = i - 1;
+        int two = i;
+        if(i == 0){
+            one = clean.size() - 1;
+            two = i;
+        }
+        //draw a line between start and end points, this is a wall   
+		int startAngle = one * newAngleSize;
+        int endAngle = two * newAngleSize;
+        int angle = startAngle;
+        float x1 = clean[one] / 10.0 * cos((startAngle + robotAngle) * M_PI / 180);
+        float y1 = clean[one] / 10.0 * sin((startAngle + robotAngle) * M_PI / 180);
+        float x2 = clean[two] / 10.0 * cos((endAngle + robotAngle) * M_PI / 180);
+        float y2 = clean[two] / 10.0 * sin((endAngle + robotAngle) * M_PI / 180);
+
+        float dx = (x2 - x1) / newAngleSize;
+        float dy = (y2 - y1) / newAngleSize;
+
+        for(int j = 0; j < newAngleSize; j++){
+            int len = sqrt(pow(x1,2) + pow(y1, 2));
+            for(int k = 0; k < len; k++){ //Everything between us and the wall is clear
+                occGrid.update(getRobotPos().x + (x1 / len)*k - ((startAngle + j) / 360)*(getRobotPos().x - DoorFinder::prevPos.x), 
+                       getRobotPos().y + (y1 / len)*k - ((startAngle + j) / 360)*(getRobotPos().y - DoorFinder::prevPos.y), CLEAR);
+            }
+            if(abs(clean[two] - clean[one]) <= 150){ //If there is no sharp difference in distance, draw a wall
+                occGrid.update((int)(getRobotPos().x + x1- ((startAngle + j) / 360)*(getRobotPos().x - DoorFinder::prevPos.x)), 
+                       (int)(getRobotPos().y + y1 - ((startAngle + j) / 360)*(getRobotPos().y - DoorFinder::prevPos.y)), WALL);
+            }
+            x1 += dx;
+            y1 += dy;
+        }
     }
-}
 
-void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid potentially have running on interrupt somehow whenever we get a laser scan
+    // call find doors & hallways, which will update important values
+    setTargetPoints(d.findDoorsAndHallways(scan, getTargetPoints()));
 
+    // call find flame, which will update important values -- TODO
+
+    // now that we have all important values for this scan, we can update the occ grid
+    // i think this is how you do this for a map lol
+    for(auto element : getTargetPoints()){ //element.first is the key, element.second is the value
+        for(int i = 0; i < element.second.size(); i++){
+            occGrid.update(element.second[i].x, element.second[i].y, element.first);
+        }
+    }
 }
 
 /////////////////////////////
