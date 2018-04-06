@@ -285,7 +285,7 @@ vector<Point> MazeMapper::createTargetPath(Point target) {//distance field alrea
         neighbors = findOpenNeighbors(target); //grab all neighboring cells
         for(Point neighbor : neighbors){   //find a cell one unit closer to the robot then the current one
             if(distanceField[neighbor.x][neighbor.y] == distVal -1){
-                if(neighbor-target != direction){
+                if(neighbor-target != direction || sqrt(pow(target.x - moves[moves.size()-1].x, 2) + pow(target.y - moves[moves.size()-1], 2)) > 50){
                     //change in direction, add to moves
                     moves.push_back(target);
                     direction = neighbor-target;
