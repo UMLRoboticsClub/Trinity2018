@@ -2,6 +2,7 @@
 
 #include "pins.h"
 #include <pigpiod_if2.h>
+
 #include <iostream>
 
 using std::cout;
@@ -49,6 +50,9 @@ DoublePoint opticalFlow::readMotion(){
         data.x -= 256;
     if(data.y > 127)
         data.y -=256;
+    data*=-0.1126;
+//    data.y *= -1;
+//    cout << data.x << " " << data.y << " " ;
     return data;
 }
 
@@ -66,7 +70,7 @@ int opticalFlow::readReg(int reg){
     time_sleep(.000075);
     int ret = transferBits(0xff);
     gpio_write(1, oflowMOUSECAM_CS, 1);
-    time_sleep(000001);
+    time_sleep(.000001);
     return ret;
 }
 

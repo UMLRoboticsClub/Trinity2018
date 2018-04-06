@@ -9,6 +9,6 @@ class Motor {
         ~Motor();
         void set(int power);
 
-    private:
+//    private:
         unsigned pinA, pinB;
 };

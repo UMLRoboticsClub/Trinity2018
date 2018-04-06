@@ -1,7 +1,6 @@
 TARGET = robot
 CXX = g++
 OBJDIR = obj
-
 #add -O2 for final build
 CXXFLAGS = -std=c++17 -g -Wall -Wextra -pedantic -Wfatal-errors
 LDLIBS = -lpthread -lpigpiod_if2 -lrt

@@ -1,3 +1,6 @@
+#pragma once
+
+#include <pigpiod_if2.h>
 #include "point.h"
 
 #define ADNS3080_PIXELS_X              30
@@ -11,6 +14,7 @@
 #define ADNS3080_SQUAL                 0x05
 #define ADNS3080_PIXEL_SUM             0x06
 #define ADNS3080_MAXIMUM_PIXEL         0x07
+//#define ADNS3080_CONFIGURATION_BITS    0x0a
 #define ADNS3080_CONFIGURATION_BITS    0x0a
 #define ADNS3080_EXTENDED_CONFIG       0x0b
 #define ADNS3080_DATA_OUT_LOWER        0x0c

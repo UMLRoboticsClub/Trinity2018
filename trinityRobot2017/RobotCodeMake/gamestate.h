@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 #include "constants.h"
 #include "globals.h"
 
@@ -45,6 +46,17 @@ struct GameState {
     bool safeZoneFound;
     bool inRoom;
     bool secondArena;
+
+    friend ostream& operator<<(ostream& out, GameState state){
+        return out 
+        << "level: " << state.levelOfCompetition << std::endl
+        << "numCandlesExtinguished: " << state.numCandlesExtinguished << std::endl
+        << "babySaved: " << state.babySaved << std::endl
+        << "babyObtained: " << state.babyObtained << std::endl
+        << "safeZoneFound: " << state.safeZoneFound << std::endl
+        << "inRoom: " << state.inRoom << std::endl
+        << "secondArena: " << state.secondArena << std::endl;
+    }
 
     vector<int> getTargetType() {
         //returns what kind of objects (in order or priority) to look for in the important object map before resorting to exploring

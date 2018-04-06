@@ -1,13 +1,12 @@
 #include "robot.h"
-
+#include "point.h"
 #include "logger.h"
+#include "drive.h"
+
 #include <thread>
 #include <iostream>
 #include <csignal>
 #include <cstring>
-#include <math.h>
-
-#define PI 3.14159265
 
 bool Robot::done = false;
 
@@ -17,13 +16,13 @@ void Robot::signalHandler(int signum){
     done = true;
 
     //remove this soon
-    exit(signum);
+    //exit(signum);
 }
 
 Robot::Robot():
-    mazeMapper(), drive(), gameState(),
-    safeZoneLocation(), colorSensor()//, camera()
+    mazeMapper(), gameState(), safeZoneLocation(), colorSensor()// IRsensor()//, camera()
 {
+
     //catch signals to exit safely aka stop the motors when the program is killed
     signal(SIGINT , Robot::signalHandler);
     signal(SIGABRT, Robot::signalHandler);
@@ -45,9 +44,7 @@ void Robot::start() {
     thread laserScanInputThread(&MazeMapper::laserScanLoop, mazeMapper);
     laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
 
-
-    Logger::log("starting robotLoop");
-    // Let's start this thing
+    Logger::log("starting robotLoop"); // Let's start this thing
     robotLoop();
 }
 
@@ -66,7 +63,7 @@ void Robot::robotLoop() {
     Point targetLocation;
 
     // our path variable
-    vector<Point> nextPath;
+    std::vector<Point> nextPath;
     //bool done = false;
 
     while (!done) {
@@ -85,11 +82,11 @@ void Robot::robotLoop() {
                 break;
             case MazeMapper::OP_CRADLE_LEFT:
                 Logger::log("goToFrontFromLeft");
-                goToFrontFromLeft(targetLocation);
+                goToFrontFromSide(targetLocation, SIDE_LEFT);
                 break;
             case MazeMapper::OP_CRADLE_RIGHT:
                 Logger::log("goToFrontFromRight");
-                goToFrontFromRight(targetLocation);
+                goToFrontFromSide(targetLocation, SIDE_RIGHT);
                 break;
             case MazeMapper::OP_CRADLE_FRONT:
                 Logger::log("getBaby");
@@ -137,21 +134,59 @@ void Robot::hallwaySimple(Point targetPoint){
 }
 
 void Robot::leaveRoom(){
-
     gameState.inRoom = false;
 }
 
-void Robot::goToFrontFromLeft(Point targetPoint){
+void Robot::goToFrontFromSide(Point targetPoint, string side){
+    
+    // orientate ourselves
+    Point closestClear = mazeMapper.closestClearPoint(targetPoint);
 
+    // get angle between side of cradle and the closest clear point
+    double angleBetween = computeAngle(targetPoint, closestClear);
+    
+    // center is opposite way
+    double pointToCenter = angleBetween + M_PI;
+
+    // add or subtract 90 degrees to get diretion that points to the front of cradle
+    double pointToFront = 0;
+    if(side == SIDE_LEFT){ 
+        pointToFront = angleBetween + (M_PI/2.0);
+    } else if(side == SIDE_RIGHT){
+        pointToFront = angleBetween - (M_PI/2.0);
+    }
+
+    // safeDistance is for turning, then we get to correct distance afterward
+    double cradleHalf = CRADLE_SIZE_CM / 2.0;
+    double robotHalf = ROBOT_DIAMETER_CM / 2.0;
+    double safeDistance = robotHalf + ROBOT_SAFE_TURN_CM;
+    
+    // calculate front of cradle by adding these two vector scaled by the cradle's size
+    DoublePoint cradleFront = DoublePoint(cradleHalf * cos(pointToCenter), cradleHalf * sin(pointToCenter)) + DoublePoint(cradleHalf * cos(pointToFront), cradleHalf * sin(pointToFront));
+
+    // these are rounded just to be safe
+    // robot safe rotate distance vector
+    Point safeRotatePoint( round(cradleFront.x + safeDistance * cos(pointToFront)), round(cradleFront.y + safeDistance * sin(pointToFront)) );
+    
+    // robot 'touching cradle vector'
+    Point touchCradlePoint( round(cradleFront.x + robotHalf * cos(pointToFront)), round(cradleFront.y + robotHalf * sin(pointToFront)) );
+
+    // astar returns path to safe point and then we optimize and we then drive the path
+    robotDrive(mazeMapper.optimizePath(mazeMapper.AStar(safeRotatePoint)));
+     
+    // now we rotate towards the cradle
+    rotateTowards(cradleFront);
+
+    //now we get up real close
+    robotDrive(mazeMapper.optimizePath(mazeMapper.AStar(touchCradlePoint)));
+    
+    // SNATCH_BABY()
 }
-void Robot::goToFrontFromRight(Point targetPoint){
 
-}
-
-void Robot::robotDrive(vector<Point> instructions) {
+void Robot::robotDrive(std::vector<Point> instructions) {
 
     for (unsigned int i = 0; i < instructions.size(); i++) {
-        drive.drive(instructions[i].x, instructions[i].y);
+        Drive::drive(instructions[i]);
 
         // double check position
     }
@@ -160,7 +195,7 @@ void Robot::robotDrive(vector<Point> instructions) {
 
 void Robot::getBaby(Point targetPoint) {
     // rotate towards baby and stare into soul
-    rotateTowards(targetPoint);
+    rotateTowards(DoublePoint(targetPoint));
 
     // kidnapBaby.exe
 
@@ -170,7 +205,7 @@ void Robot::getBaby(Point targetPoint) {
 
 void Robot::tossBaby(Point targetPoint) {
     // rotate towards window
-    rotateTowards(targetPoint);
+    rotateTowards(DoublePoint(targetPoint));
 
     // "save baby".exe
 
@@ -180,9 +215,12 @@ void Robot::tossBaby(Point targetPoint) {
 
 void Robot::blowCandle(Point targetPoint) {
     // face the candle head on
-    rotateTowards(targetPoint);
+    rotateTowards(DoublePoint(targetPoint));
 
     // blow me
+    gpio_write(0, solenoidPin, 1);
+    time_sleep(2);
+    gpio_write(0, solenoidPin, 0);
     // extinguisher.extinguish() ??
 
     // another one down
@@ -192,7 +230,7 @@ void Robot::blowCandle(Point targetPoint) {
 void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
-    drive.rotate(M_PI);
+    Drive::rotate(2 * M_PI);
 
     gameState.inRoom = true;
 }
@@ -200,12 +238,12 @@ void Robot::spinAndScan() {
 void Robot::hallwaySweep(Point targetPoint) {
     /*
        (potentially) : drive down the hallway, using lidar to detect once we have exited the hallway.
-       Then turn the robot so camera is facing back where we came from(so it'¿½ll detect the safezone target)
+       Then turn the robot so camera is facing back where we came from(so it'Â¿Â½ll detect the safezone target)
        then drive the robot sideways through each of the side hallways.Theoretically this should guarantee
        that we find the correct window.
     */
 
-    rotateTowards(targetPoint);
+    rotateTowards(DoublePoint(targetPoint));
     //now we need to move "left" and "right" which is done via robotAngle
 
     //so we need to find which direction the hallway is in  this happens in MazeMapper!  targetLoc
@@ -216,26 +254,26 @@ void Robot::hallwaySweep(Point targetPoint) {
     //when camera tells us we saw the thing, record location as safeZonelocation.
     
     // get angles in directions we will patrol
-    double leftAngle = robotAngle + (PI/2);
-    double rightAngle = robotAngle - (PI/2);
+    double leftAngle = getRobotAngle() + (M_PI_2/2);
+    double rightAngle = getRobotAngle() - (M_PI_2/2);
     
     double patrolLength = ((ARENA_LENGTH_CM / 2) + ROBOT_DIAMETER_CM);
 
     // calculate what patrol points are
-    int leftX = robotPos.x + patrolLength * cos(leftAngle);
-    int leftY = robotPos.y + patrolLength * sin(leftAngle);
+    int leftX = getRobotPos().x + patrolLength * cos(leftAngle);
+    int leftY = getRobotPos().y + patrolLength * sin(leftAngle);
     
-    int rightX = robotPos.x + patrolLength * cos(rightAngle);
-    int rightY = robotPos.y + patrolLength * sin(rightAngle);
+    int rightX = getRobotPos().x + patrolLength * cos(rightAngle);
+    int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
-    drive.drive(leftX, leftY);
+    Drive::drive(DoublePoint(leftX, leftY));
     //double check position? (maybe we need a funciton like checkPosition() )?? 
     
     // vision.scan()
 
     // second patrol
-    drive.drive(rightX, rightY);
+    Drive::drive(DoublePoint(rightX, rightY));
     // double check position
 
     // vision.second_scan()
@@ -245,16 +283,14 @@ void Robot::hallwaySweep(Point targetPoint) {
     gameState.safeZoneFound = true;
 }
 
-void Robot::rotateTowards(Point targetPoint) {
+void Robot::rotateTowards(DoublePoint targetPoint) {
     // convert target to doublepoint for precision, and pass it with robot's position to get angle between them
     //////
     // heads up, this line computes the angle between int and double points, remove this if it's ok
     /////
-    double angleBetweenLocations = computeAngle(robotPos, DoublePoint(targetPoint.x, targetPoint.y));
+    double angleBetweenLocations = computeAngle(getRobotPos(), DoublePoint(targetPoint.x, targetPoint.y));
     // get angle that we need to rotate in order to face target
-    double rotationAngle = angleBetweenLocations - robotAngle;
-    // pass to drivei
-    drive.rotate(rotationAngle);
-    // update robot's angle
-    robotAngle += rotationAngle;
+    double rotationAngle = angleBetweenLocations - getRobotAngle();
+    // pass to drive
+    Drive::rotate(rotationAngle);
 }

@@ -1,12 +1,10 @@
-#ifndef ROBOT_H
-#define ROBOT_H
+#pragma once
 
 #include "point.h"
 #include "mazemapper.h"
 #include "gamestate.h"
 #include "globals.h"
 #include "constants.h"
-#include "drive.h"
 #include "colorsensor.h"
 #include "irsensor.h"
 //#include "camera.h"
@@ -14,8 +12,15 @@
 
 #include <iostream>
 #include <thread>
+#include <string>
+#include <vector>
 
-using namespace std;
+//#define _USE_MATH_DEFINES
+#include <cmath>
+
+#define SIDE_LEFT "side_left"
+#define SIDE_RIGHT "side_right"
+#define ROBOT_SAFE_TURN_CM 5
 
 class Robot {
 
@@ -26,20 +31,19 @@ public:
 
 	void robotLoop();
 
-	void robotDrive(vector<Point> instructions);
+	void robotDrive(std::vector<Point> instructions);
 	void getBaby(Point targetPoint);
 	void tossBaby(Point targetPoint);
 	void blowCandle(Point targetPoint);
 	void spinAndScan();
 	void hallwaySweep(Point targetPoint);
 	void hallwaySimple(Point targetPoint);
-	void goToFrontFromLeft(Point targetPoint);
-    void goToFrontFromRight(Point targetPoint);
+	void goToFrontFromSide(Point targetPoint, string side);
 	void leaveRoom();
 
-	void rotateTowards(Point targetPoint);
+	void rotateTowards(DoublePoint targetPoint);
 
-private:
+//private:
     static void signalHandler(int signum);
 
     static bool done;
@@ -47,14 +51,8 @@ private:
     GPIO gpio; //needs to be initialized before all sensors
     thread laserScanInputThread;
 
-    MazeMapper mazeMapper;
-    Drive		drive;
-
+    MazeMapper  mazeMapper;
     GameState	gameState;
     Point		safeZoneLocation;
-
     ColorSensor colorSensor;
-  //  Camera		camera;
 };
-
-#endif
