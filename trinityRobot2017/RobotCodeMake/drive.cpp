@@ -13,6 +13,9 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
+
+#define MINIMUM 75
+
 using std::setw;
 
 using std::cout;
@@ -45,25 +48,30 @@ double updateTime(){
     return timeDelta(now, last);
 }
 
-void normalize(double& a, double& b, double& c){
+void normalize(double& a, double& b, double& c, int max = 255){
     double am = fabs(a), bm = fabs(b), cm = fabs(c);
     double largest = am > bm ? (am > cm ? am : cm) : (bm > cm ? bm : cm);
-    if(largest > 255){
-        a = a*255/largest;
-        b = b*255/largest;
-        c = c*255/largest;
+    if(largest > max){
+        a = a*max/largest;
+        b = b*max/largest;
+        c = c*max/largest;
     }
 }
 
 void Drive::drive(DoublePoint target) {
 //    motorA.set(255);
+//    motorB.set(255);
+//    motorC.set(255);
+//    time_sleep(4);
+//    exit(1);
+    //    motorA.set(255);
 //    time_sleep(1);
 //    motorA.set(0);
 //    motorB.set(255);
 //    time_sleep(1);
 //    motorB.set(0);
 //    exit(1);
-    double angle = atan2((target.y-robotPos.y), (target.x-robotPos.x));
+    double angle = atan2((target.y-getRobotPos().y), (target.x-getRobotPos().x));
 //    double ASpeed = 255*cos(MVA_ANGLE - angle);
 //    double BSpeed = 255*cos(MVB_ANGLE - angle);
 //    double CSpeed = 255*cos(MVC_ANGLE - angle);
@@ -77,20 +85,21 @@ void Drive::drive(DoublePoint target) {
 //    exit(1);
 
         //int max_power=255;
-    //auto start = Clock::now();
+    auto start = Clock::now();
     DoublePoint error_prior;
     DoublePoint integral;
     DoublePoint derivative;
     DoublePoint output;
-    double kp   = 40;
-    double ki   = 0;
-    double kd   = 0;
-    double eps  = 1;
+    double kp   = 20;
+    double ki   = 15;
+    double kd   = 5;
+    double gyroK = 5;
+    double eps  = 2;
     double veps = 2;
     double vRad = 0;
     double theta = 0;
-    //double gyroThreshold = 0.1;
-    //double timeDelta = 0;
+    double gyroThreshold = .5;
+    double deltaTime = 0;
     //double bias;
     
     DoublePoint error = target - getRobotPos();
@@ -98,25 +107,35 @@ void Drive::drive(DoublePoint target) {
 
     while(error.magnitude() > eps || vel.magnitude() > veps){
         //updateTime();
-        // auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
-        double deltaTime = updateTime();
-        robotPos += OF.readMotion();
-
+        //auto deltaTime = updateTime();//std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
+        deltaTime = updateTime();
+        setRobotPos(getRobotPos() + OF.readMotion());
+        //robotPos += OF.readMotion();
+        
         //I could accrue our displacement based on theta and correct at the end?
         //gyro correction happens here
         //so if gyro gives a velocity non zero, increase or decrease motor values respectively.
         vRad = Drive::getGyroData();
         theta += vRad*deltaTime;
+        setRobotAngle(getRobotAngle() + vRad*deltaTime);
+        //robotAngle += vRad*deltaTime;
         //  cout << theta << endl;
         //  accruedError.x += sin(theta*DEG_TO_RAD)*timeDelta;
         //  accruedError.y += (1 - cos(theta*DEG_TO_RAD))*timeDelta;
-        error = target - robotPos;
-        integral += error * deltaTime;
+        error = target - getRobotPos();
+        if((error.x > 0) != (error_prior.x < 0))
+            integral.x = 0;
+        if((error.y > 0) != (error_prior.y > 0))
+            integral.y = 0;
+        // motion profiling
+        if(error.magnitude() <= 10){
+            integral += error * deltaTime;
+        }
         derivative = (error - error_prior) / deltaTime;
         output =  error * kp + integral * ki + derivative * kd;
         error_prior = error;
         angle = atan2(output.y, output.x);
-        cout << setw(10) << error.x << " " << setw(10) <<  error.y << " " << setw(10) << output.x << " " << setw(10) << output.y << " ";
+        cout << setw(10) << error.x << " " << setw(10) <<  error.y << " " << setw(10) << output.x << " " << setw(10) << output.y << " " << setw(10) << integral.x << " " << setw(10) << integral.y << " " << setw(10) << derivative.x << " " << setw(10) << derivative.y;
 
         double ASpeed = output.magnitude() * cos(MVA_ANGLE - angle);
         double BSpeed = output.magnitude() * cos(MVB_ANGLE - angle);
@@ -132,41 +151,58 @@ void Drive::drive(DoublePoint target) {
         //cout << "BSpeed = " << BSpeed << endl;
         //cout << "CSpeed = " << CSpeed << endl;
 
-        /* if(vRad > gyroThreshold || vRad < -gyroThreshold){//alternatively do it based on theta rather than vRad.  Give it a shot
-           ASpeed += vRad*ki;
-           BSpeed += vRad*ki; 
-           CSpeed += vRad*ki;
+         if(theta > gyroThreshold || theta < -gyroThreshold){//alternatively do it based on theta rather than vRad.  Give it a shot
+           
+           ASpeed -= vRad*gyroK;
+           BSpeed -= vRad*gyroK; 
+           CSpeed -= vRad*gyroK;
 
-           normalize(ASpeed, BSpeed, CSpeed);
+           normalize(ASpeed, BSpeed, CSpeed, 150);
 
            motorA.set(ASpeed);
            motorB.set(BSpeed);
            motorC.set(CSpeed);
-           }*/
+           }
+        // cout << robotPos.x << " " << robotPos.y << endl;
     }
+    cout << robotPos.x << " " << robotPos.y;
+    
+    //continue gathering data to snure accurate robotPos and robotAngle
+    //start = Clock::now();
+    //while(timeDelta(now, start) < 0.5){
+    //    double deltaTime = updateTime();
+    //    setRobotPos(getRobotPos()+OF.readMotion());
+    //    //robotPos += OF.readMotion();
+    //    vRad = Drive::getGyroData();
+    //    theta += vRad*deltaTime;
+    //    setRobotAngle(getRobotAngle() + vRad*deltaTime);
+    //    //robotAngle += vRad*deltaTime;
+    //}
 
+    rotate(-theta);
     cout << "done" << endl;
-
+    cout << robotPos.x << " " << robotPos.y << " " << robotAngle << endl;
     motorA.set(0);
     motorB.set(0);
     motorC.set(0);
 }
 
 void Drive::rotate(double error) {
+    
     double error_prior = 0;
     double integral = 0;
     double derivative = 0;
     double output = 0;
     double bias = 0;
-    double kp=5;
-    double ki=.2;
-    double kd=0;
-    double eps=1;
-    double veps=0.001;
+    double kp=2;
+    double ki=3;
+    double kd=0.1;
+    double eps=5;
+    double veps=0.01;
     double vel=0;
 
-    while(error > eps || vel > veps){
-        cout << error << endl;
+    while(abs(error) > eps || abs(vel) > veps){
+        //cout << error << endl;
         double deltaTime = updateTime();
         vel = Drive::getGyroData();
         //cout << vel << endl;
@@ -177,17 +213,19 @@ void Drive::rotate(double error) {
         error -= vel*deltaTime;
         integral = integral + (error * deltaTime);
         derivative = (error - error_prior) / deltaTime;
+        
         output = kp * error + ki * integral + kd * derivative + bias;
+        
         error_prior = error;
         if(output < -255) output = -255;
         if(output > 255) output = 255;
+        if(output > 0 && output < 75)
+            output = 75;
+        if(output < 0 && output > -75)
+            output = -75;
         //cout<<output<<endl;    
-        motorA.set(-output);
-        motorB.set(-output);
-        motorC.set(-output);
-    }
-    motorA.set(0);
-    motorB.set(0);
+        motorA.set(output);
+        motorB.set(output);
     motorC.set(0);
 }
 

@@ -7,9 +7,10 @@
 #include "motor.h"
 
 const double DEG_TO_RAD = M_PI / 180.0;
-const double MVA_ANGLE = (150 - 150)* DEG_TO_RAD;
-const double MVB_ANGLE = (30  - 150)* DEG_TO_RAD;
-const double MVC_ANGLE = (270 - 150)* DEG_TO_RAD;
+const double MVA_ANGLE = M_PI - (150 - 150)* DEG_TO_RAD;
+const double MVB_ANGLE = M_PI - (30  - 150)* DEG_TO_RAD;
+const double MVC_ANGLE = M_PI - (270 - 150)* DEG_TO_RAD;
+
 
 class Drive {
     public:

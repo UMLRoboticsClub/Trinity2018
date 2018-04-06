@@ -50,7 +50,7 @@ DoublePoint opticalFlow::readMotion(){
         data.x -= 256;
     if(data.y > 127)
         data.y -=256;
-    data*=-0.1178;
+    data*=-0.1126;
 //    data.y *= -1;
 //    cout << data.x << " " << data.y << " " ;
     return data;
