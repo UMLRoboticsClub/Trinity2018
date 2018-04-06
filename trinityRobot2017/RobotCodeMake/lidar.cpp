@@ -13,21 +13,22 @@ Lidar::Lidar(){
 }
 
 Lidar::~Lidar(){
-    xv11lidar_close(lidar);
+    Logger::log("Stopping lidar...");
     set_PWM_dutycycle(0, lidarMotorPin, 0);
+    xv11lidar_close(lidar);
+    Logger::log("Done");
 }
 
 void Lidar::initLidar(){
-    Logger::Log("Starting lidar...");
+    Logger::log("Starting lidar...");
     xv11lidar_close(lidar);
-    cout << "closed..." << endl;
     lidar = xv11lidar_init(serialDevice, laserFramesPerRead, crcTolerancePercent);
-    Logger::Log("Lidar started");
+    Logger::log("Lidar started");
 }
 
 void Lidar::handleBadInput(){
     if(!badData){
-    Logger::Log("Error reading data...");
+    Logger::log("Error reading data...");
         errorStartTime = high_resolution_clock::now();
         badData = true;
     } else {
