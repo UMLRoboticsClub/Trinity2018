@@ -1,12 +1,10 @@
-#ifndef ROBOT_H
-#define ROBOT_H
+#pragma once
 
 #include "point.h"
 #include "mazemapper.h"
 #include "gamestate.h"
 #include "globals.h"
 #include "constants.h"
-#include "drive.h"
 #include "colorsensor.h"
 #include "irsensor.h"
 //#include "camera.h"
@@ -17,14 +15,12 @@
 #include <string>
 #include <vector>
 
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 #include <cmath>
 
 #define SIDE_LEFT "side_left"
 #define SIDE_RIGHT "side_right"
 #define ROBOT_SAFE_TURN_CM 5
-
-using namespace std;
 
 class Robot {
 
@@ -55,13 +51,8 @@ public:
     GPIO gpio; //needs to be initialized before all sensors
     thread laserScanInputThread;
 
-    MazeMapper mazeMapper;
-    Drive		drive;
-
+    MazeMapper  mazeMapper;
     GameState	gameState;
     Point		safeZoneLocation;
-
     ColorSensor colorSensor;
 };
-
-#endif

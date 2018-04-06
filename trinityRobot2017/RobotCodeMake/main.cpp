@@ -5,12 +5,12 @@
 #include "point.h"
 #include "gpio.h"
 #include "MPU6050.h"
-#include <stdexcept>
 
+#include <stdexcept>
+#include <cstdlib>
 #include <pigpiod_if2.h>
 #include <csignal>
 #include <chrono>
-#include <unistd.h>
 #include <iostream>
 #include <cmath>
 
@@ -106,42 +106,45 @@
 ////  motorC.set(0);
 ////}
 //
-//void signalHandler(int signum){
-//      gpio_write(0,Drive::motorA.pinA, 0);
-//      gpio_write(0,Drive::motorA.pinB, 0);
-//      gpio_write(0,Drive::motorB.pinA, 0);
-//      gpio_write(0,Drive::motorB.pinB, 0);
-//      gpio_write(0,Drive::motorC.pinA, 0);
-//      gpio_write(0,Drive::motorC.pinB, 0);
-//      exit(1);
-//    //throw std::runtime_error("Exit signal caught, aborting...");
-//
-//}
+void signalHandler(int){
+      cout << "\nsignal caught, aborting..." << endl;
+      gpio_write(0, Drive::motorA.pinA, 0);
+      gpio_write(0, Drive::motorA.pinB, 0);
+      gpio_write(0, Drive::motorB.pinA, 0);
+      gpio_write(0, Drive::motorB.pinB, 0);
+      gpio_write(0, Drive::motorC.pinA, 0);
+      gpio_write(0, Drive::motorC.pinB, 0);
+      cout << "bye" << endl;
+
+      _Exit(1);
+      //throw std::runtime_error("Exit signal caught, aborting...");
+}
 
 int main() {
+    signal(SIGINT , signalHandler);
+    signal(SIGABRT, signalHandler);
+    signal(SIGFPE , signalHandler);
+    signal(SIGILL , signalHandler);
+    signal(SIGSEGV, signalHandler);
+    signal(SIGTERM, signalHandler);
+    signal(SIGHUP , signalHandler);
+
     GPIO gpio;
     Drive::mpu.initialize();
     Drive::OF.init();
-//    signal(SIGINT , signalHandler);
-//    signal(SIGABRT, signalHandler);
-//    signal(SIGFPE , signalHandler);
-//    signal(SIGILL , signalHandler);
-//    signal(SIGSEGV, signalHandler);
-//    signal(SIGTERM, signalHandler);
-//    signal(SIGHUP , signalHandler);
 
+    Drive::drive(getRobotPos());
     //rotate();
     // while(1){
     // std::cin >> a >> b;
     // drive(a, b);
     //}
-    Drive::drive(DoublePoint(1,0));
+    Drive::drive(getRobotPos() + DoublePoint(10, 0));
    // Drive::rotate(60);
     //drive(1, 0);
     //drive(0, 1);
     //drive(-1, 0);
     //drive(0, -1);
     // rotate();
-    return 0;
 }
 
