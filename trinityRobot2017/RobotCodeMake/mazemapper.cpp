@@ -580,6 +580,7 @@ void MazeMapper::updateOccupancyGrid(){ //gets laser data and updates grid poten
 
 /////////////////////////////
 Point MazeMapper::computeDistanceField() { //takes type of target, called in find
+    
     //determine appropriate items to look for
     vector<Point> boundary;
     boundary.push_back(getRobotPos());
@@ -587,13 +588,16 @@ Point MazeMapper::computeDistanceField() { //takes type of target, called in fin
     distanceField[getRobotPos().x][getRobotPos().y] = 0;
     Point currentCell;
     int currentDistance;
+
     while (!boundary.empty()) {
         currentCell = boundary.front();
         neighbors = findOpenNeighbors(currentCell);
         currentDistance = distanceField[currentCell.x][currentCell.y];
         for (Point neighbor : neighbors) {
             if(distanceField[neighbor.x][neighbor.y] == -1){//neighbor not already index by function
-                if (occGrid.getValue(neighbor) == -1){
+                // if point is unknown, check to see if local area is made up of unknowns as well
+                if (occGrid.getValue(neighbor) == -1 && unknownLargeEnough(neighbor)){
+                    // this point actually does represent an unkown region`
                     distanceField[neighbor.x][neighbor.y] = currentDistance + 1;
                     return neighbor;
                 }
@@ -625,7 +629,25 @@ bool MazeMapper::isDiag(int x_offset, int y_offset) {
     return ((x_offset + y_offset + 2) % 2 == 0);
 }
 
-//TESTING FUNCTIONS
+
+// returns true if area is all unknowns, false otherwise
+bool MazeMapper::unknownLargeEnough(Point center){
+    int areaSize  = 2; // (2 results in an inclusive 3*3 grid)
+
+    for(int i = center.x - (areaSize - 1); i < center.x + areaSize; i++){
+        for(int j = center.y - (areaSize - 1); j < center.y + areaSize; j++){
+            if(occGrid.getValue(i, j) != -1) return false; // something other than unknown has been found, so return false
+        }
+    }
+
+    // all unknowns
+    return true;
+}
+
+
+
+
+//TESTING FUNCTIONS ==========================================================================================================
 //honestly at this point I should just make up a whole freaking mini occGrid for the robot to work with.  Bleagh again.
 
 void MazeMapper::testFindNextTarget(){//prolly just make a bunch of test cases and see where it wants us to go, display in grid
@@ -723,7 +745,8 @@ void MazeMapper::testSpecialTargetPath(){
     targetPoints[CANDLE].push_back(Point(3,20));
 
     GameState state(2,0,false,false,false,false,false);
-    MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
+    //MazeMapper::robotOps nextRobotOperation = MazeMapper::robotOps::OP_NOTHING;
+    
     Point targetLocation;
     vector<Point> path;
     // draw path
