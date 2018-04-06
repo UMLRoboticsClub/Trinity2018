@@ -50,7 +50,9 @@ class MazeMapper {
         Point computeDistanceField(); //takes gamestate or type of target, called in find
         vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);
-    //TESTING FUNCTIONS FOR MAZEMAPPER
+        bool unknownLargeEnough(Point center);
+        
+        //TESTING FUNCTIONS FOR MAZEMAPPER
         void testFindNextTarget();
         void testDetermineRobotOp();
         void testSpecialTargetPath();
@@ -63,6 +65,7 @@ class MazeMapper {
         void testUpdateOccupancyGrid();//this one'll be demon in and of itself.  probably compartmentalize for less hell
         void testComputeDistanceField();
         void testComputePathLength();
+
     private:
         //map of type of targetPoints to vector of all point of that type
 
