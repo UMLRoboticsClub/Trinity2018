@@ -2,6 +2,8 @@
 #include "pins.h"
 #include "logger.h"
 #include <pigpiod_if2.h>
+#include <vector>
+#include <deque>
 
 #define LIDAR_MOTOR_SPEED 100
 
@@ -11,8 +13,10 @@ Lidar::Lidar(){
 }
 
 Lidar::~Lidar(){
-    xv11lidar_close(lidar);
+    Logger::log("Stopping lidar...");
     set_PWM_dutycycle(0, lidarMotorPin, 0);
+    xv11lidar_close(lidar);
+    Logger::log("Done");
 }
 
 void Lidar::initLidar(){
@@ -37,18 +41,28 @@ void Lidar::handleBadInput(){
 }
 
 int Lidar::getRPM(int index){
+    cout << index << " " << frame[index].speed << endl;
     return frame[index].speed / 64;
 }
 
-void Lidar::processFrame(){
-    cout << getRPM(0) << endl;
+std::deque<int> Lidar::processFrame(){
+    std::deque<int> scan(360);
 
+    for(int i = 0; i < scan.size() / 4; i++){
+        for(int j = 0; j < 4; j++){
+            scan[(frame[i].index-0xA0)*4+j] = frame[i].readings[j].distance;
+        }
+    }
+
+    return scan;
 }
 
-void Lidar::scan(){
+std::deque<int> Lidar::scan(){
     if(!xv11lidar_read(lidar, frame)){
-        processFrame();
+        return processFrame();
     } else {
         handleBadInput();
+        std::deque<int> empty;
+        return empty;
     }
 }

@@ -3,21 +3,24 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include <deque>
 
 #include "gamestate.h"
 #include "occupancygrid.h"
 #include "lidar.h"
 #include "point.h"
+#include "doorfinder.h"
 
 using std::vector;
 using std::map;
+using std::deque;
 
 class MazeMapper {
     public:
 
         // enum of what findNextTarget's return by reference data.
         // (robot operations)
-        enum robotOps { 
+        enum robotOps {
             OP_NOTHING,
             OP_CRADLE_LEFT,
             OP_CRADLE_RIGHT,
@@ -29,7 +32,7 @@ class MazeMapper {
             OP_HALLWAY,
             OP_HALLWAY_SIMPLE,
             OP_STOP
-        }; 
+        };
 
         MazeMapper();
 
@@ -46,7 +49,7 @@ class MazeMapper {
         bool isDiag(int x_offset, int y_offset);
 
         void laserScanLoop();
-        void updateOccupancyGrid(); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
+        void updateOccupancyGrid(std::deque<int> scan); //gets laser data and updates grid potentiall have running on interrupt somehow whenever we get a laser scan
         Point computeDistanceField(); //takes gamestate or type of target, called in find
         vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);
