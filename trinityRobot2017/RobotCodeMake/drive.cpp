@@ -57,6 +57,17 @@ void normalize(double& a, double& b, double& c, int max = 255){
         c = c*max/largest;
     }
 }
+void normalizeUp(double& a, double& b, double& c, int max = 255){
+    double am = fabs(a), bm = fabs(b), cm = fabs(c);
+    double largest = am > bm ? (am > cm ? am : cm) : (bm > cm ? bm : cm);
+    if(largest < max){
+        a = a*max/largest;
+        b = b*max/largest;
+        c = c*max/largest;
+    }
+}
+
+
 
 void Drive::drive(DoublePoint target) {
 //    motorA.set(255);
@@ -100,12 +111,14 @@ void Drive::drive(DoublePoint target) {
     double theta = 0;
     double gyroThreshold = .5;
     double deltaTime = 0;
+    double frozenCount = 0;
     //double bias;
     
     DoublePoint error = target - getRobotPos();
     DoublePoint vel(0, 0);
 
     while(error.magnitude() > eps || vel.magnitude() > veps){
+        
         //updateTime();
         //auto deltaTime = updateTime();//std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
         deltaTime = updateTime();
@@ -132,6 +145,17 @@ void Drive::drive(DoublePoint target) {
             integral += error * deltaTime;
         }
         derivative = (error - error_prior) / deltaTime;
+        if(derivative.magnitude() == 0)
+            frozenCount += deltaTime;
+        else
+            frozenCount = 0;
+        if(frozenCount > 1){
+            motorA.set(0);
+            motorB.set(0);
+            motorC.set(0);
+            
+            return;
+        }
         output =  error * kp + integral * ki + derivative * kd;
         error_prior = error;
         angle = atan2(output.y, output.x);
@@ -141,9 +165,6 @@ void Drive::drive(DoublePoint target) {
         double BSpeed = output.magnitude() * cos(MVB_ANGLE - angle);
         double CSpeed = output.magnitude() * cos(MVC_ANGLE - angle);
         normalize(ASpeed,BSpeed,CSpeed);
-        motorA.set(ASpeed);
-        motorB.set(BSpeed);
-        motorC.set(CSpeed);
         cout << setw(10) << ASpeed << " " << setw(10) << BSpeed << " " << setw(10) << CSpeed << endl;
         //cout<< "Output = "<<output.x<<" "<<output.y<<endl;
 
@@ -157,12 +178,14 @@ void Drive::drive(DoublePoint target) {
            BSpeed -= vRad*gyroK; 
            CSpeed -= vRad*gyroK;
 
-           normalize(ASpeed, BSpeed, CSpeed, 150);
-
-           motorA.set(ASpeed);
-           motorB.set(BSpeed);
-           motorC.set(CSpeed);
            }
+    normalizeUp(ASpeed, BSpeed, CSpeed, 75);
+    normalize(ASpeed, BSpeed, CSpeed, 150);
+    
+
+    motorA.set(ASpeed);
+    motorB.set(BSpeed);
+    motorC.set(CSpeed);
         // cout << robotPos.x << " " << robotPos.y << endl;
     }
     cout << robotPos.x << " " << robotPos.y;
@@ -226,6 +249,10 @@ void Drive::rotate(double error) {
         //cout<<output<<endl;    
         motorA.set(output);
         motorB.set(output);
+        motorC.set(output);
+    }
+    motorA.set(0);
+    motorB.set(0);
     motorC.set(0);
 }
 
