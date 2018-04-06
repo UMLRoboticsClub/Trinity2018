@@ -576,10 +576,10 @@ void MazeMapper::updateOccupancyGrid(deque<int> scan){ //gets laser data and upd
 		int startAngle = one * newAngleSize;
         int endAngle = two * newAngleSize;
         int angle = startAngle;
-        float x1 = clean[one] / 10.0 * cos((startAngle + robotAngle) * M_PI / 180);
-        float y1 = clean[one] / 10.0 * sin((startAngle + robotAngle) * M_PI / 180);
-        float x2 = clean[two] / 10.0 * cos((endAngle + robotAngle) * M_PI / 180);
-        float y2 = clean[two] / 10.0 * sin((endAngle + robotAngle) * M_PI / 180);
+        float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + robotAngle);
+        float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + robotAngle);
+        float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + robotAngle);
+        float y2 = clean[two] / 10.0 * sin((endAngle) * M_PI / 180 + robotAngle);
 
         float dx = (x2 - x1) / newAngleSize;
         float dy = (y2 - y1) / newAngleSize;
