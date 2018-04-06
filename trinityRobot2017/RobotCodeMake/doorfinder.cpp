@@ -422,8 +422,8 @@ to find out what the most likely candidate is
 */
 std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
     std::vector<cluster> clusters;
-    cout << getRobotPos().x << " " << getRobotPos().y << endl;
-    cout << getRobotAngle() << endl;
+    //cout << getRobotPos().x << " " << getRobotPos().y << endl;
+    //cout << getRobotAngle() << endl;
     for(unsigned i = 0; i < dh.size(); i++){
         bool found = false;
         for(unsigned j = 0; j < clusters.size(); j++){
@@ -451,12 +451,12 @@ std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
         }
     }
 
-    cout << "num clusters: " << clusters.size() << endl;
-    for(unsigned i = 0; i < clusters.size(); i++){
-        cout << "avg angle: " << clusters[i].averageAngle << endl;
-        cout << "avg point: (" << clusters[i].averagePoint.x << ", " << clusters[i].averagePoint.y << ")\n";
-        cout << "hallway count: " << clusters[i].hallwayCount << endl;
-        cout << "size: " << clusters[i].size << endl << endl;
-    }
+    //cout << "num clusters: " << clusters.size() << endl;
+    //for(unsigned i = 0; i < clusters.size(); i++){
+    //    cout << "avg angle: " << clusters[i].averageAngle << endl;
+    //    cout << "avg point: (" << clusters[i].averagePoint.x << ", " << clusters[i].averagePoint.y << ")\n";
+    //    cout << "hallway count: " << clusters[i].hallwayCount << endl;
+    //    cout << "size: " << clusters[i].size << endl << endl;
+   // }
     return clusters;
 }

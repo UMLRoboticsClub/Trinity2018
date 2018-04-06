@@ -12,6 +12,7 @@ std::atomic<bool> Robot::done = false;
 Robot::Robot():
     mazeMapper(), gameState(), safeZoneLocation()
 {
+    Logger::log("Initializing robot");
     set_mode(0, solenoidPin,   PI_OUTPUT);
     set_mode(0, lidarMotorPin, PI_OUTPUT);
     set_mode(0, redLedPin,     PI_OUTPUT);
@@ -19,7 +20,6 @@ Robot::Robot():
     set_mode(0, blueLedPin,    PI_OUTPUT);
     set_mode(0, irSensorPin,   PI_INPUT);
 
-    Logger::log("robot initialized");
     // variables are initialized through the constructor for now
 }
 
@@ -32,8 +32,8 @@ Robot::~Robot(){
 void Robot::start() {
     // maybe this can go in the constructor in the future
     // Thread dedicated to looping the lazer scanner until the robot dies.
-    //thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
-    //laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
+    thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
+    laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
    // Lidar l;
    //// while(1)//`mazeMapper.lidar.getRPM(0) < 300)
    //while(1){
@@ -43,7 +43,7 @@ void Robot::start() {
    //    cout << endl;
    //}
    //     cout << l.getRPM(0) << endl;
-    mazeMapper.laserScanLoop();
+    //mazeMapper.laserScanLoop();
     robotLoop();
 }
 
@@ -77,12 +77,12 @@ void Robot::robotLoop() {
             cout << nextPath[i].x << " " << nextPath[i].y << endl;
         }
 
-        //`for(int i = 580; i < 640; i ++){
-        //`    for(int j = 580; j < 640; j ++){
-        //`        cout << mazeMapper.occGrid.getValue(i, j);
-        //`    }
-        //`    cout << endl;
-        //`}
+//        for(int i = 580; i < 640; i ++){
+//            for(int j = 580; j < 640; j ++){
+//                cout << (mazeMapper.occGrid.getValue(i, j) == -1 ? '?' : (char)(mazeMapper.occGrid.getValue(i, j)));
+//            }
+//            cout << endl;
+//        }
 
         Logger::log("driving to next path");
         // always drive to next location, then do other stuff depending on nextRobotOperation
@@ -198,13 +198,10 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 }
 
 void Robot::robotDrive(std::vector<Point> instructions) {
-
-    for (unsigned int i = 0; i < instructions.size(); i++) {
+    for (unsigned i = 0; i < instructions.size(); i++) {
         drive.drive(instructions[i]);
-
         // double check position
     }
-
 }
 
 void Robot::getBaby(Point targetPoint) {
@@ -245,7 +242,6 @@ void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
     drive.rotate(2 * M_PI);
-
     gameState.inRoom = true;
 }
 
