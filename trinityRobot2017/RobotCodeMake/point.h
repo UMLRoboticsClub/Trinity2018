@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cmath>
+#include <ostream>
+
+using std::ostream;
 
 //this is very comprehensive
 //you can do pretty much anything with this point
@@ -153,6 +156,9 @@ struct Point2 {
             return temp;
         }
 
+    friend ostream operator<<(ostream &os, const Point2<ValType> &p){
+        os << p.x << " " << p.y;
+    }
         ValType magnitude() const { 
             return sqrt(x*x + y*y);
         }
