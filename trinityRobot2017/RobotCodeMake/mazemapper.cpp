@@ -587,19 +587,24 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         Logger::log("updating occupancy grid");
         DoorFinder d(occGrid);
         vector<int> clean = d.average(scan, 45);
-        cout << "real scan: ";
+        //cout << "real scan: ";
 
-        for(unsigned i = 0; i < scan.size(); i++)
-            cout << scan[i] << ", ";
-        cout << endl;
+        //for(unsigned i = 0; i < scan.size(); i++)
+        //    cout << scan[i] << ", ";
+        //cout << endl;
 
-        cout << "clean scan: ";
+        //cout << "clean scan: ";
 
-        for(unsigned i = 0; i < clean.size(); i++)
-            cout << clean[i] << ", ";
-        cout << endl;
+        //for(unsigned i = 0; i < clean.size(); i++)
+        //    cout << clean[i] << ", ";
+        //cout << endl;
 
         double newAngleSize = 360 / 45;
+
+        //getDirection - rad
+
+        sillySLAM(clean);
+
 
         for(unsigned i = 0; i < clean.size(); ++i){ //for each element in the scan
             int one = i - 1;
@@ -659,6 +664,26 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         //occGrid.print(getRobotPos().x - 100, getRobotPos().x + 100);
     }
 
+   void MazeMapper::sillySLAM(vector<int> clean){ 
+        double dir = getDirection() * 180 / M_PI;
+        double dirRad = getDirection();
+        int index = (dir / 360) * 45;
+        int dist = clean[index] - dirRad;
+
+        //float xReal = dist / 10.0 * cos(dirRad);
+        //float yReal = dist / 10.0 * sin(dirRad);
+
+        DoublePoint lastPos = getRobotPos();
+        int oldDist;
+        for(oldDist = 0; ; oldDist++){
+            if(occGrid.getValue(lastPos.x + oldDist*cos(dirRad), lastPos.y + oldDist*sin(dirRad), true) != CLEAR && 
+                    occGrid.getValue(lastPos.x + oldDist*cos(dirRad), lastPos.y + oldDist*sin(dirRad) != FAKE))
+                break;
+        }
+
+        double diff = dist - oldDist;
+        setRobotPos(getRobotPos() + DoublePoint(diff*cos(dirRad), diff*sin(dirRad)));        
+   }
     /////////////////////////////
     Point MazeMapper::computeDistanceField() { //takes type of target, called in find
 

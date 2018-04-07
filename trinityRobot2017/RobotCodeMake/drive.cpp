@@ -70,6 +70,8 @@ void normalizeUp(double& a, double& b, double& c, int max = 255){
 }
 
 void Drive::drive(DoublePoint target) {
+    
+    
     //    motorA.set(255);
     //    motorB.set(255);
     //    motorC.set(255);
@@ -83,6 +85,8 @@ void Drive::drive(DoublePoint target) {
     //    motorB.set(0);
     //    exit(1);
     double angle = atan2((target.y-getRobotPos().y), (target.x-getRobotPos().x));
+    setDirection(angle);
+    
     //    double ASpeed = 255*cos(MVA_ANGLE - angle);
     //    double BSpeed = 255*cos(MVB_ANGLE - angle);
     //    double CSpeed = 255*cos(MVC_ANGLE - angle);
@@ -122,11 +126,11 @@ void Drive::drive(DoublePoint target) {
         //updateTime();
         //auto deltaTime = updateTime();//std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime).count()/1000000.0;
         deltaTime = updateTime();
-        DoublePoint oldPos(getRobotPos());
-        DoublePoint deltaPos = OF.readMotion();
-        oldPos.x += deltaPos.x * cos(getRobotAngle()) - deltaPos.y * sin(getRobotAngle());
-        oldPos.y += deltaPos.x * sin(getRobotAngle()) + deltaPos.y * cos(getRobotAngle());
-        setRobotPos(oldPos);
+       // DoublePoint oldPos(getRobotPos());
+       // DoublePoint deltaPos = OF.readMotion();
+       // oldPos.x += deltaPos.x * cos(getRobotAngle()) - deltaPos.y * sin(getRobotAngle());
+       // oldPos.y += deltaPos.x * sin(getRobotAngle()) + deltaPos.y * cos(getRobotAngle());
+       // setRobotPos(oldPos);
         //robotPos += OF.readMotion();
 
         //I could accrue our displacement based on theta and correct at the end?

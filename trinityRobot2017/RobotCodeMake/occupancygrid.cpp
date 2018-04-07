@@ -66,18 +66,20 @@ void OccupancyGrid::initFakeWorld(int fakeSize){
 int OccupancyGrid::update(float realX, float realY, int val) {
     std::lock_guard<std::mutex> lock(occGridMutex);
     if(val == WALL){
-        for(int i = realX - ROBOT_DIAMETER_CM / 4; i < realX + ROBOT_DIAMETER_CM / 4; i++){
-            for(int j = realY - ROBOT_DIAMETER_CM / 4; j < realY + ROBOT_DIAMETER_CM / 4; j++){
+        for(int i = realX - ROBOT_DIAMETER_CM / 2; i < realX + ROBOT_DIAMETER_CM / 2; i++){
+            for(int j = realY - ROBOT_DIAMETER_CM / 2; j < realY + ROBOT_DIAMETER_CM / 2; j++){
                 if(i > 0 && j > 0)
-                    gridVals[i * RESOLUTION][j * RESOLUTION].updateValue(val);
+                    gridVals[i * RESOLUTION][j * RESOLUTION].updateValue(FAKE);
             }
         }
     }
     return gridVals[realX * RESOLUTION][realY * RESOLUTION].updateValue(val);
 }
 
-int OccupancyGrid::getValue(int x, int y) const {
+int OccupancyGrid::getValue(int x, int y, bool fakeWall) const {
     std::lock_guard<std::mutex> lock(occGridMutex);
+    if(!fakeWall && gridVals[x][y].getCellType() == FAKE)
+        return WALL;
     if(x < 0 || x >= size || y < 0 || y >= size)
         return 1;
     else
@@ -99,6 +101,8 @@ void OccupancyGrid::print(int from, int to, int targetx = -1, int targety = -1){
                 cout << BLU << "T " << RST;
             else if(gridVals[i][j].getCellType() == WALL)
                 cout << GRN << "1 " << RST;
+            else if(gridVals[i][j].getCellType() == FAKE)
+                cout << GRN << "F " << RST;
             else if(gridVals[i][j].getCellType() == CLEAR)
                 cout << "0 ";
             else if(gridVals[i][j].getCellType() == DOOR || gridVals[i][j].getCellType() == HALLWAY)
