@@ -22,7 +22,7 @@ Power button:
 #define greenLedPin 24
 #define blueLedPin 25 //I think this is wrong
 
-#define irSensorPin 27
+#define irSensorPin 20
 #define imuSDAPin 2
 #define imuSCLPin 3
 
