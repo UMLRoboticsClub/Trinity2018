@@ -50,7 +50,7 @@ Find Doors and Hallways
 
 This function will edit target points with the locations of doors and hallways.
 */
-map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>> targetPoints){
+map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, map<int, vector<Point>> targetPoints, GameState g){
     std::vector<DH> all;
 
     numIndex = 0; //reset index of sections
@@ -73,15 +73,18 @@ map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, m
             for(int j = 0; j < hallwayPeaks.size(); j++){ //add hallways
                 DH hallway;
                 hallway.angle = getAngle(hallwayPeaks[j], i);
-                hallway.dist = findDistanceHallway(sections, hallwayPeaks[j]);
+                hallway.dist = findDistance(scan, sections, hallwayPeaks[j], g);
                 hallway.point = getPoint(hallway.angle, hallway.dist);
-                hallway.isHallway = true;
+                if(g.inRoom || hallway.dist < 500)
+                    hallway.isHallway = false;
+                else
+                    hallway.isHallway = true;
                 all.push_back(hallway);
             }
             for(int j = 0; j < doorPeaks.size(); j++){ //add doors
                 DH door;
                 door.angle = getAngle(doorPeaks[j], i);
-                door.dist = findDistanceDoor(scan, sections, doorPeaks[j]);
+                door.dist = findDistance(scan, sections, doorPeaks[j], g);
                 door.point = getPoint(door.angle, door.dist);
                 door.isHallway = false;
                 all.push_back(door);
@@ -99,7 +102,7 @@ map<int, vector<Point>> DoorFinder::findDoorsAndHallways(std::deque<int> scan, m
 
     //put final doors and hallways in the target values list
     for(int i = 0; i < clusters.size(); i++){
-        if(clusters[i].size >= 25){
+        if(clusters[i].size >= 25 && !g.inRoom){
             double percent = clusters[i].averageAngle / 360;
             clusters[i].averagePoint = clusters[i].averagePoint / 10.0 - (getRobotPos() - prevPos)*percent; 
             if(occGrid.getValue(getRobotPos().x + clusters[i].averagePoint.x, getRobotPos().y + clusters[i].averagePoint.y) == WALL)
@@ -138,24 +141,26 @@ If a door or hallway is in a wall, shift it towards the robot position until it 
 */
 cluster DoorFinder::shiftCluster(cluster c){
     //find length between robot and door/hall and dx and dy
-    float len = std::sqrt(std::pow((c.averagePoint.x - getRobotPos().x), 2) + std::pow((c.averagePoint.y - getRobotPos().y), 2));
-    float dx = (c.averagePoint.x - getRobotPos().x) / len;
-    float dy = (c.averagePoint.y - getRobotPos().y) / len;
+    float len = std::sqrt(std::pow((c.averagePoint.x), 2) + std::pow((c.averagePoint.y), 2));
+    float dx = (c.averagePoint.x) / len;
+    float dy = (c.averagePoint.y) / len;
 
-    for(int i = 0; i < len; i++){ //shift until no longer in wall
-        c.averagePoint.x += dx;
+    cout << dx << " " << dy << endl;
+
+    for(int i = 0; i < len; i++){
+        c.averagePoint.x -= dx;
         c.averagePoint.y -= dy;
 
-        if(occGrid.getValue(getRobotPos().x + c.averagePoint.x, getRobotPos().y + c.averagePoint.y) != WALL)
+        if(occGrid.getValue(robotPos.x + c.averagePoint.x, robotPos.y + c.averagePoint.y) != WALL)
             break;
     }
 
-    for(int i = 0; i < 35; i++){ //shift a little extra
-        c.averagePoint.x += dx;
+    for(int i = 0; i < 4; i++){
+        c.averagePoint.x -= dx;
         c.averagePoint.y -= dy;
 
-        if(occGrid.getValue(getRobotPos().x + c.averagePoint.x, getRobotPos().y + c.averagePoint.y) == WALL){
-            c.averagePoint.x -= dx;
+        if(occGrid.getValue(robotPos.x + c.averagePoint.x, robotPos.y + c.averagePoint.y) == WALL){
+            c.averagePoint.x += dx;
             c.averagePoint.y += dy;
             break;
         }
@@ -244,56 +249,16 @@ vector<int> DoorFinder::findPeaks(vector<int> averaged, int start, int nd, bool 
     return indices;
 }
 
-/*
-Find the distance to a peak by looking at the points around it
-@param isHallway: if the peak is a hallway, take less of the surrounding point into account
-because it will be a bigger spike in the data
-*/
-int DoorFinder::findDistanceHallway(vector<int> averaged, int peak){
-    vector<int> doorDist;
-    float ret = 0;
 
-    if(peak == 0) {
-        doorDist.push_back(averaged[averaged.size() - 1]);
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[averaged.size() - 2]);
-    } else if(peak == 1) {
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[averaged.size() - 1]);
-        doorDist.push_back(averaged[0]);
-    } else {
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[peak - 2]);
-        doorDist.push_back(averaged[peak - 1]);
-    }
-
-    if(peak == averaged.size() - 1){
-        doorDist.push_back(averaged[0]);
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[1]);
-    } else if(peak == averaged.size() - 2){
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[0]);
-        doorDist.push_back(averaged[averaged.size() - 1]);
-    } else {
-        doorDist.push_back(averaged[peak + 1]);
-        //if(!isHallway)
-        //    doorDist.push_back(averaged[peak + 2]);
-    }
-
-    for(int i = 0; i < doorDist.size(); i++){
-        ret += doorDist[i];
-    }
-    ret /= doorDist.size();
-    return (int) ret;
-}
-
-int DoorFinder::findDistanceDoor(deque<int> scan, vector<int> averaged, int peak){
+int DoorFinder::findDistance(deque<int> scan, vector<int> averaged, int peak, GameState g){
     int THRESHOLD = 200;
-    int dist = 0;
+    int dist1 = 0;
+    int dist2 = 0;
+    bool h1 = true;
+    bool h2 = true;
     int numSections = averaged.size();
     float sectionWidth = scan.size() / numSections;
-    vector<int> subsection = this->getSubsection(scan, (((peak + 1) * sectionWidth) - sectionWidth / 2 - 60), (((peak + 1) * sectionWidth ) - sectionWidth / 2 + 60));
+    vector<int> subsection = this->getSubsection(scan, (((peak + 1) * sectionWidth) - sectionWidth / 2 - 50), (((peak + 1) * sectionWidth ) - sectionWidth / 2 + 50));
 
     int max = 0;
     int index = 0;
@@ -306,14 +271,20 @@ int DoorFinder::findDistanceDoor(deque<int> scan, vector<int> averaged, int peak
 
 
     int offset = 1;
-    bool nd = true;
-    for(int i = index; i > 0 && nd; i--){
+    bool nd1 = true;
+    for(int i = index; i > 0 && nd1; i--){
         if(subsection[i] > 100){
             while(i - offset > 0){
                 if(subsection[i - offset] > 100 && subsection[i] - subsection[i - offset] > THRESHOLD){
-                    dist = subsection[i - offset];
-                    nd = false;
-                    break;
+                    dist1 = subsection[i - offset];
+                    nd1 = false;
+                    if(dist1 <= 950)
+                        h1 = false;
+                    else if(g.inRoom){
+                        h1 = true;
+                        nd1 = true;
+                    }
+                     break;
                 } else {
                     offset++;
                 }
@@ -323,24 +294,33 @@ int DoorFinder::findDistanceDoor(deque<int> scan, vector<int> averaged, int peak
     }
 
     offset = 1;
-    if(dist == 0){
-        nd = true;
-        for(int i = index; i < subsection.size(); i++){
-            if(subsection[i] > 100){
-                while(i + offset < subsection.size()){
-                    if(subsection[i + offset] > 100 && subsection[i] - subsection[i + offset] > THRESHOLD){
-                        dist = subsection[i + offset];
-                        nd = false;
-                        break;
-                    } else {
-                        offset++;
+    bool nd2 = true;
+    for(int i = index; i < subsection.size() && nd2; i++){
+        if(subsection[i] > 100){
+            while(i + offset < subsection.size()){
+                if(subsection[i + offset] > 100 && subsection[i] - subsection[i + offset] > THRESHOLD){
+                    dist2 = subsection[i + offset];
+                    nd2 = false;
+                    if(dist2 <= 950)
+                        h2 = false;
+                    else if(g.inRoom){
+                        h2 = true;
+                        nd2 = true;
                     }
+                    break;
+                } else {
+                    offset++;
                 }
             }
-            offset = 1;
         }
+        offset = 1;
     }
-    return dist;
+    if(h1 && !h2)
+        return dist2;
+    else if(!h1 && h2)
+        return dist1;
+    else
+        return (dist1 + dist2) / 2;
 
 }
 
