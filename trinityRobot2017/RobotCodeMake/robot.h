@@ -6,16 +6,14 @@
 #include "globals.h"
 #include "constants.h"
 #include "irsensor.h"
-//#include "camera.h"
 #include "gpio.h"
+#include "drive.h"
 
 #include <iostream>
 #include <thread>
 #include <string>
 #include <vector>
 #include <atomic>
-
-//#define _USE_MATH_DEFINES
 #include <cmath>
 
 #define SIDE_LEFT "side_left"
@@ -23,36 +21,34 @@
 #define ROBOT_SAFE_TURN_CM 5
 
 class Robot {
+    public:
+        Robot();
+        ~Robot();
 
-public:
-	Robot();
-	~Robot();
+        void start();
 
-	void start();
+        void robotLoop();
 
-	void robotLoop();
+        void robotDrive(std::vector<Point> instructions);
+        void getBaby(Point targetPoint);
+        void tossBaby(Point targetPoint);
+        void blowCandle(Point targetPoint);
+        void spinAndScan();
+        void hallwaySweep(Point targetPoint);
+        void hallwaySimple();
+        void goToFrontFromSide(Point targetPoint, string side);
+        void leaveRoom();
 
-	void robotDrive(std::vector<Point> instructions);
-	void getBaby(Point targetPoint);
-	void tossBaby(Point targetPoint);
-	void blowCandle(Point targetPoint);
-	void spinAndScan();
-	void hallwaySweep(Point targetPoint);
-	void hallwaySimple(Point targetPoint);
-	void goToFrontFromSide(Point targetPoint, string side);
-	void leaveRoom();
+        void rotateTowards(DoublePoint targetPoint);
 
-	void rotateTowards(DoublePoint targetPoint);
+        static std::atomic<bool> done;
 
-    static std::atomic<bool> done;
+        //private:
+        GPIO gpio; //needs to be initialized before all sensors
+        thread laserScanInputThread;
 
-//private:
-    //static void signalHandler(int signum);
-
-    GPIO gpio; //needs to be initialized before all sensors
-    thread laserScanInputThread;
-
-    MazeMapper  mazeMapper;
-    GameState	gameState;
-    Point		safeZoneLocation;
+        MazeMapper  mazeMapper;
+        GameState	gameState;
+        Point		safeZoneLocation;
+        Drive       drive;
 };

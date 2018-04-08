@@ -127,6 +127,8 @@ DoublePoint DoorFinder::getPoint(int angle, float distance){
     point.x = distance * cos((double) angle * M_PI / 180);
     point.y = distance * sin((double) angle * M_PI / 180);
 
+    //cout << " " << distance << " " << point.x << " " << point.y << " " << angle << endl;
+
     return point;
 }
 
@@ -167,7 +169,8 @@ Get the angle of a peak, given rotation
 */
 int DoorFinder::getAngle(int peak, int rotation){
     int angle = (peak + 1) * angleSize - angleSize * (3.0/4.0) - (rotation);
-    angle += (int) (getRobotAngle() * 180 / M_PI) + 15;
+    double offset = 105 * M_PI / 180;
+    angle += (int) ((getRobotAngle() + offset) * 180 / M_PI);
     if(angle > 360)
         angle = angle % 360;
     if(angle < 0)
@@ -248,7 +251,7 @@ because it will be a bigger spike in the data
 */
 int DoorFinder::findDistanceHallway(vector<int> averaged, int peak){
     vector<int> doorDist;
-    float ret;
+    float ret = 0;
 
     if(peak == 0) {
         doorDist.push_back(averaged[averaged.size() - 1]);
@@ -414,16 +417,17 @@ bool DoorFinder::isSameAngle(float a1, float a2, float tolerance){
 }
 
 /*
-Average door/hallway estimations into clusters of what the code thinks are the
+Average door/hallway estimation into clusters of what the code thinks are the
 same door/hallway. Counts the number of times it was scanned as a door/hallway
 to find out what the most likely candidate is
 */
 std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
     std::vector<cluster> clusters;
-
-    for(int i = 0; i < dh.size(); i++){
+    //cout << getRobotPos().x << " " << getRobotPos().y << endl;
+    //cout << getRobotAngle() << endl;
+    for(unsigned i = 0; i < dh.size(); i++){
         bool found = false;
-        for(int j = 0; j < clusters.size(); j++){
+        for(unsigned j = 0; j < clusters.size(); j++){
             if(isSameAngle(clusters[j].averageAngle, dh[i].angle, angleSize)){
                 clusters[j].averageAngle = (clusters[j].averageAngle * clusters[j].size + dh[i].angle) / (clusters[j].size + 1);
                 clusters[j].averagePoint.x = (clusters[j].averagePoint.x * clusters[j].size + dh[i].point.x) / (clusters[j].size + 1);
@@ -448,12 +452,12 @@ std::vector<cluster> DoorFinder::averageEstimations(std::vector<DH> dh){
         }
     }
 
-    cout << "num clusters: " << clusters.size() << endl;
-    for(int i = 0; i < clusters.size(); i++){
-        cout << "avg angle: " << clusters[i].averageAngle << endl;
-        cout << "avg point: (" << clusters[i].averagePoint.x << ", " << clusters[i].averagePoint.y << ")\n";
-        cout << "hallway count: " << clusters[i].hallwayCount << endl;
-        cout << "size: " << clusters[i].size << endl << endl;
-    }
+    //cout << "num clusters: " << clusters.size() << endl;
+    //for(unsigned i = 0; i < clusters.size(); i++){
+    //    cout << "avg angle: " << clusters[i].averageAngle << endl;
+    //    cout << "avg point: (" << clusters[i].averagePoint.x << ", " << clusters[i].averagePoint.y << ")\n";
+    //    cout << "hallway count: " << clusters[i].hallwayCount << endl;
+    //    cout << "size: " << clusters[i].size << endl << endl;
+   // }
     return clusters;
 }

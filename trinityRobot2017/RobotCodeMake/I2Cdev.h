@@ -41,9 +41,10 @@ THE SOFTWARE.
 ===============================================
 */
 
-#ifndef _I2CDEV_H_
-#define _I2CDEV_H_
+#pragma once
+
 #include<cstdint>
+
 #ifndef TRUE
 #define TRUE	(1==1)
 #define FALSE	(0==1)
@@ -52,7 +53,8 @@ THE SOFTWARE.
 class I2Cdev {
     public:
         I2Cdev();
-        
+
+        //static int8_t readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
         static int8_t readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
         static int8_t readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
         static int8_t readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
@@ -74,4 +76,3 @@ class I2Cdev {
         static uint16_t readTimeout;
 };
 
-#endif /* _I2CDEV_H_ */

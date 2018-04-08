@@ -5,8 +5,8 @@
 
 class IRSensor {
     public:
-        bool flameVisible() const {
-            return gpio_read(0, irSensorPin);
+        static bool flameVisible(){
+            return !gpio_read(0, irSensorPin);
         }
     private:
         IRSensor(); //hidden constructor, not needed

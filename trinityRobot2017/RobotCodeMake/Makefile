@@ -2,7 +2,7 @@ TARGET = robot
 CXX = g++
 OBJDIR = obj
 #add -O2 for final build
-CXXFLAGS = -std=c++17 -g -Wall -Wextra -pedantic -Wfatal-errors
+CXXFLAGS = -std=c++17 -g -Wall -Wextra -pedantic -Wfatal-errors -Wno-sign-compare -MMD -Wno-psabi
 LDLIBS = -lpthread -lpigpiod_if2 -lrt
 
 SRCFILES = $(shell find . -maxdepth 1 -name "*.cpp" | cut -c 3-)
@@ -18,4 +18,4 @@ $(OBJDIR)/%.o : %.cpp
 
 clean:
 	rm -f $(OBJECTS)
-	rm -f $(TARGET)
+	#rm -f $(TARGET)

@@ -1,7 +1,6 @@
 #include "robot.h"
 #include "point.h"
 #include "logger.h"
-#include "drive.h"
 
 #include <thread>
 #include <iostream>
@@ -10,37 +9,17 @@
 
 std::atomic<bool> Robot::done = false;
 
-/*void Robot::signalHandler(int signum){
-    cout << "\n";
-    Logger::log(string(strsignal(signum)) + ", aborting...", Logger::HIGH);
-    done = true;
-
-    //remove this soon
-    //exit(signum);
-}*/
-
 Robot::Robot():
     mazeMapper(), gameState(), safeZoneLocation()
 {
-
-    /*//catch signals to exit safely aka stop the motors when the program is killed
-    signal(SIGINT , Robot::signalHandler);
-    signal(SIGABRT, Robot::signalHandler);
-    signal(SIGFPE , Robot::signalHandler);
-    signal(SIGILL , Robot::signalHandler);
-    signal(SIGSEGV, Robot::signalHandler);
-    signal(SIGTERM, Robot::signalHandler);
-    signal(SIGHUP , Robot::signalHandler);*/
-
-    set_mode(0, solenoidPin, PI_OUTPUT);
+    Logger::log("Initializing robot");
+    set_mode(0, solenoidPin,   PI_OUTPUT);
     set_mode(0, lidarMotorPin, PI_OUTPUT);
-    set_mode(0, redLedPin, PI_OUTPUT);
-    set_mode(0, greenLedPin, PI_OUTPUT);
-    set_mode(0, blueLedPin, PI_OUTPUT);
-    set_mode(0, irSensorPin, PI_INPUT);
+    set_mode(0, redLedPin,     PI_OUTPUT);
+    set_mode(0, greenLedPin,   PI_OUTPUT);
+    set_mode(0, blueLedPin,    PI_OUTPUT);
+    set_mode(0, irSensorPin,   PI_INPUT);
 
-
-    Logger::log("robot initialized");
     // variables are initialized through the constructor for now
 }
 
@@ -55,7 +34,16 @@ void Robot::start() {
     // Thread dedicated to looping the lazer scanner until the robot dies.
     thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
     laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
-
+   // Lidar l;
+   //// while(1)//`mazeMapper.lidar.getRPM(0) < 300)
+   //while(1){
+   //    deque<int> scan = l.scan();
+   //    for(int i = 0; i < scan.size(); i++)
+   //        cout << scan[i] << ", ";
+   //    cout << endl;
+   //}
+   //     cout << l.getRPM(0) << endl;
+    //mazeMapper.laserScanLoop();
     robotLoop();
 }
 
@@ -85,16 +73,18 @@ void Robot::robotLoop() {
         cout << "Current location: " << getRobotPos().x << " " << getRobotPos().y << endl;
         cout << "Target location: " << targetLocation.x << " " << targetLocation.y << endl;
         cout << "path: ";
-        for(int i = 0; i < nextPath.size(); i ++){
+        for(unsigned i = 0; i < nextPath.size(); i ++){
             cout << nextPath[i].x << " " << nextPath[i].y << endl;
         }
 
-        //`for(int i = 580; i < 640; i ++){
-        //`    for(int j = 580; j < 640; j ++){
-        //`        cout << mazeMapper.occGrid.getValue(i, j);
-        //`    }
-        //`    cout << endl;
-        //`}
+        mazeMapper.occGrid.print(getRobotPos().x - 100, getRobotPos().x + 100, targetLocation.x, targetLocation.y);
+        cout << getRobotPos() << endl;
+//        for(int i = 580; i < 640; i ++){
+//            for(int j = 580; j < 640; j ++){
+//                cout << (mazeMapper.occGrid.getValue(i, j) == -1 ? '?' : (char)(mazeMapper.occGrid.getValue(i, j)));
+//            }
+//            cout << endl;
+//        }
 
         Logger::log("driving to next path");
         // always drive to next location, then do other stuff depending on nextRobotOperation
@@ -141,7 +131,8 @@ void Robot::robotLoop() {
                 break;
             case MazeMapper::OP_HALLWAY_SIMPLE:
                 Logger::log("hallwaySimple");
-                hallwaySimple(targetLocation);
+                //hallwaySimple(targetLocation);
+                hallwaySimple();
                 break;
             case MazeMapper::OP_STOP:
                 Logger::log("success!");
@@ -154,7 +145,7 @@ void Robot::robotLoop() {
     Logger::log("exiting robotLoop");
 }
 
-void Robot::hallwaySimple(Point targetPoint){
+void Robot::hallwaySimple(){
     gameState.secondArena = false;
 }
 
@@ -209,13 +200,10 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
 }
 
 void Robot::robotDrive(std::vector<Point> instructions) {
-
-    for (unsigned int i = 0; i < instructions.size(); i++) {
-        Drive::drive(instructions[i]);
-
+    for (unsigned i = 0; i < instructions.size(); i++) {
+        drive.drive(instructions[i]);
         // double check position
     }
-
 }
 
 void Robot::getBaby(Point targetPoint) {
@@ -255,8 +243,18 @@ void Robot::blowCandle(Point targetPoint) {
 void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
-    Drive::rotate(2 * M_PI);
-
+    for(double i = 0; i < 2 * M_PI; i += M_PI / 36){
+        if(irSensor::flameVisible()){
+            gpio_write(0, solenoidPin, 1);
+            while(irSensor::flameVisible()){
+                time_sleep(0.25);
+                drive.rotate(M_PI / 36);
+                time_sleep(0.25);
+                drive.rotate(M_PI / -36);
+            }
+        }
+        drive.rotate(M_PI / 36);
+    }
     gameState.inRoom = true;
 }
 
@@ -292,13 +290,13 @@ void Robot::hallwaySweep(Point targetPoint) {
     int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
-    Drive::drive(DoublePoint(leftX, leftY));
+    drive.drive(DoublePoint(leftX, leftY));
     //double check position? (maybe we need a funciton like checkPosition() )?? 
     
     // vision.scan()
 
     // second patrol
-    Drive::drive(DoublePoint(rightX, rightY));
+    drive.drive(DoublePoint(rightX, rightY));
     // double check position
 
     // vision.second_scan()
@@ -317,5 +315,5 @@ void Robot::rotateTowards(DoublePoint targetPoint) {
     // get angle that we need to rotate in order to face target
     double rotationAngle = angleBetweenLocations - getRobotAngle();
     // pass to drive
-    Drive::rotate(rotationAngle);
+    drive.rotate(rotationAngle);
 }

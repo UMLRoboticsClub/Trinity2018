@@ -1,13 +1,16 @@
 #include "lidar.h"
 #include "pins.h"
 #include "logger.h"
+
 #include <pigpiod_if2.h>
 #include <vector>
 #include <deque>
 
 #define LIDAR_MOTOR_SPEED 100
+//#define LIDAR_MOTOR_SPEED 110
 
 Lidar::Lidar(){
+    Logger::log("Lidar init...");
     set_mode(0, lidarMotorPin, PI_OUTPUT);
     set_PWM_dutycycle(0, lidarMotorPin, LIDAR_MOTOR_SPEED);
     initLidar();
@@ -50,7 +53,7 @@ int Lidar::getRPM(int index){
 std::deque<int> Lidar::processFrame(){
     std::deque<int> scan(360);
 
-    for(int i = 0; i < scan.size() / 4; i++){
+    for(unsigned i = 0; i < scan.size() / 4; i++){
         for(int j = 0; j < 4; j++){
             scan[(frame[i].index-0xA0)*4+j] = frame[i].readings[j].distance;
         }
@@ -68,3 +71,4 @@ std::deque<int> Lidar::scan(){
         return empty;
     }
 }
+

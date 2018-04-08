@@ -38,6 +38,7 @@ class MazeMapper {
         ~MazeMapper();
 
         //vector<Point> is sequence of waypoints
+        void sillySLAM(vector<int> clean);
         vector<Point> findNextTarget(GameState &state, robotOps &nextRobotOp, Point &targetLocation); //only function called by the robot
         robotOps determineRobotOp(int type, GameState &state);
         vector<Point> specialTargetPath(int targetType, vector<Point> lcoations, int& targetIndex, Point& targetLocation);
@@ -96,5 +97,5 @@ class MazeMapper {
         }
         map<int, vector<Point>> targetPoints;
         vector<vector<int>> distanceField;
-        Lidar lidar;
+//        Lidar lidar;
 };

@@ -31,6 +31,7 @@ enum cellType {
     DOOR,
     EXPLORED_DOOR,
     HALLWAY,
-    START_ZONE
+    START_ZONE,
+    FAKE
 };
 
