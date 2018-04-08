@@ -646,7 +646,7 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         //      }
 
         // call find doors & hallways, which will update important values
-        setTargetPoints(d.findDoorsAndHallways(scan, getTargetPoints()));
+        setTargetPoints(d.findDoorsAndHallways(scan, getTargetPoints(), getGameState()));
 
         // call find flame, which will update important values -- TODO
 
