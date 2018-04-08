@@ -23,9 +23,9 @@ using std::endl;
 
 //#define testIR
 //#define testMotors
-//#define testSolenoid
+#define testSolenoid
 //#define testGyro
-#define testLidar
+//#define testLidar
 //#define testLED
 
 
@@ -51,7 +51,6 @@ set_mode(0, irSensorPin, PI_INPUT);
 #ifdef testIR
     while(1){
         cout << IRSensor::flameVisible() << endl;
-        time_sleep(.1);
     }
 #endif
 #ifdef testMotors
