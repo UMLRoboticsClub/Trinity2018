@@ -667,8 +667,9 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
    void MazeMapper::sillySLAM(vector<int> clean){ 
         double dir = getDirection() * 180 / M_PI;
         double dirRad = getDirection();
-        int index = (dir / 360) * 45;
-        int dist = clean[index] - dirRad;
+
+        int index = (dir / 360) * 45; //need to get more accurate than this, let's do some math
+        int dist = clean[index] - dirRad; //this is bad.  Like really bad in some cases.  We need to fix
 
         //float xReal = dist / 10.0 * cos(dirRad);
         //float yReal = dist / 10.0 * sin(dirRad);
@@ -677,12 +678,14 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         int oldDist;
         for(oldDist = 0; ; oldDist++){
             if(occGrid.getValue(lastPos.x + oldDist*cos(dirRad), lastPos.y + oldDist*sin(dirRad), true) != CLEAR && 
-                    occGrid.getValue(lastPos.x + oldDist*cos(dirRad), lastPos.y + oldDist*sin(dirRad) != FAKE))
+                    occGrid.getValue(lastPos.x + oldDist*cos(dirRad), lastPos.y + oldDist*sin(dirRad), true) != FAKE)
                 break;
         }
 
         double diff = dist - oldDist;
-        setRobotPos(getRobotPos() + DoublePoint(diff*cos(dirRad), diff*sin(dirRad)));        
+        double thresh = 10;
+        if(diff < thresh)//makes sure to now fuck everything up if we shift a little bit and look past a wall
+            setRobotPos(getRobotPos() + DoublePoint(diff*cos(dirRad), diff*sin(dirRad)));        
    }
     /////////////////////////////
     Point MazeMapper::computeDistanceField() { //takes type of target, called in find
