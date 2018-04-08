@@ -46,6 +46,12 @@ double MazeMapper::computePathLength(const vector<Point> &deltas) {
 
 //vector<Point> is sequence of waypoints
 vector<Point> MazeMapper::findNextTarget(GameState &state, robotOps &nextRobotOp, Point& targetLocation) { //only function called by the robot
+    if(state.getTargetType() == START_ZONE){
+        vector<Point> path = AStar(Point(610, 610));
+        path = optimizePath(path);
+        nextRobotOp = OP_STOP;
+        return path;
+    }
     nextRobotOp = OP_NOTHING;
     for(unsigned i = 0; i < distanceField.size(); ++i){
         for(unsigned j = 0; j < distanceField[i].size(); j ++){
@@ -602,8 +608,8 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         double newAngleSize = 360 / 45;
 
         //getDirection - rad
-
-        sillySLAM(clean);
+        if(getDirection != 7)
+             sillySLAM(clean);
 
 
         for(unsigned i = 0; i < clean.size(); ++i){ //for each element in the scan
@@ -617,10 +623,10 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
             int startAngle = one * newAngleSize;
             int endAngle = two * newAngleSize;
             double offset = 105 * M_PI / 180;
-            float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + robotAngle + offset);
-            float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + robotAngle + offset);
-            float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + robotAngle + offset);
-            float y2 = clean[two] / 10.0 * sin((endAngle) * M_PI / 180 + robotAngle + offset);
+            float x1 = clean[one] / 10.0 * cos((startAngle) * M_PI / 180 + getRobotAngle() + offset);
+            float y1 = clean[one] / 10.0 * sin((startAngle) * M_PI / 180 + getRobotAngle() + offset);
+            float x2 = clean[two] / 10.0 * cos((endAngle) * M_PI / 180 + getRobotAngle() + offset);
+            float y2 = clean[two] / 10.0 * sin((endAngle) * M_PI / 180 + getRobotAngle() + offset);
 
             float dx = (x2 - x1) / newAngleSize;
             float dy = (y2 - y1) / newAngleSize;
@@ -665,14 +671,24 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
     }
 
    void MazeMapper::sillySLAM(vector<int> clean){ 
+        DoublePoint start;
+        DoublePoint end;
         double dir = getDirection() * 180 / M_PI;
         double dirRad = getDirection();
 
         int index = (dir / 360) * 45; //need to get more accurate than this, let's do some math
-        int dist = clean[index] - dirRad; //this is bad.  Like really bad in some cases.  We need to fix
 
-        //float xReal = dist / 10.0 * cos(dirRad);
-        //float yReal = dist / 10.0 * sin(dirRad);
+        int startAngle = index * 8;
+        int endAngle = (index + 1) * 8;
+        double offset = 105 * M_PI / 180;
+        start.x = clean[index] / 10.0 * cos((startAngle) * M_PI / 180 + getRobotAngle() + offset);
+        start.y = clean[index] / 10.0 * sin((startAngle) * M_PI / 180 + getRobotAngle() + offset);
+        end.x = clean[(index + 1) % 45] / 10.0 * cos((endAngle) * M_PI / 180 + getRobotAngle() + offset);
+        end.y = clean[(index + 1) % 45] / 10.0 * sin((endAngle) * M_PI / 180 + getRobotAngle() + offset);
+
+        DoublePoint final = (start * (endAngle - dir) + end * (dir - startAngle)) / 8;
+
+        int dist = sqrt(pow(final.x - getRobotPos().x, 2) + pow(final.y - getRobotPos().y));
 
         DoublePoint lastPos = getRobotPos();
         int oldDist;
@@ -683,8 +699,8 @@ bool MazeMapper::pathIsBlocked(const Point &start, const Point &end){
         }
 
         double diff = dist - oldDist;
-        double thresh = 10;
-        if(diff < thresh)//makes sure to now fuck everything up if we shift a little bit and look past a wall
+        double thresh = 30;
+        if(diff < thresh)//makes sure to not fuck everything up if we shift a little bit and look past a wall
             setRobotPos(getRobotPos() + DoublePoint(diff*cos(dirRad), diff*sin(dirRad)));        
    }
     /////////////////////////////

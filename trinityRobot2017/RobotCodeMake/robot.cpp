@@ -243,7 +243,18 @@ void Robot::blowCandle(Point targetPoint) {
 void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
-    drive.rotate(2 * M_PI);
+    for(double i = 0; i < 2 * M_PI; i += M_PI / 36){
+        if(irSensor::flameVisible()){
+            gpio_write(0, solenoidPin, 1);
+            while(irSensor::flameVisible()){
+                time_sleep(0.25);
+                drive.rotate(M_PI / 36);
+                time_sleep(0.25);
+                drive.rotate(M_PI / -36);
+            }
+        }
+        drive.rotate(M_PI / 36);
+    }
     gameState.inRoom = true;
 }
 

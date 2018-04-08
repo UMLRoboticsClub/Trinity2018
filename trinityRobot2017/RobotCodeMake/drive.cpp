@@ -209,7 +209,7 @@ void Drive::drive(DoublePoint target) {
     //    setRobotAngle(getRobotAngle() + vRad*deltaTime);
     //    //robotAngle += vRad*deltaTime;
     //}
-
+    setDirection(7);//goin nowhere, 7 is a random number :( 
     rotate(-theta);
     cout << "done" << endl;
     cout << "robotPos in PID: " << getRobotPos() << endl;
