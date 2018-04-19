@@ -4,6 +4,7 @@
 #include <map>
 #include <cmath>
 #include <deque>
+#include <thread>
 
 #include "gamestate.h"
 #include "occupancygrid.h"
@@ -14,6 +15,7 @@
 using std::vector;
 using std::map;
 using std::deque;
+using std::ostream;
 
 class MazeMapper {
     public:
@@ -56,7 +58,10 @@ class MazeMapper {
         vector<Point> findOpenNeighbors(const Point &currentPos);
         double computePathLength(const vector<Point> &deltas);
         bool unknownLargeEnough(Point center);
-        
+        Point getInsideRoomPoint(Point, Point);
+        Point findClosestWall(Point target);
+        std::vector<Point> findAllNeighbors(const Point&);
+
         //TESTING FUNCTIONS FOR MAZEMAPPER
         void testFindNextTarget();
         void testDetermineRobotOp();

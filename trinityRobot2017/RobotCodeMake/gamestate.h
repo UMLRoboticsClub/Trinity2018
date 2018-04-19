@@ -3,9 +3,11 @@
 #include <vector>
 #include <iostream>
 #include "constants.h"
-#include "globals.h"
 
-using namespace std;
+using std::vector;
+using std::ostream;
+
+//using namespace std;
 //right now we don't have baby as a target type wut
 //we need baby to be a target type
 struct GameState {

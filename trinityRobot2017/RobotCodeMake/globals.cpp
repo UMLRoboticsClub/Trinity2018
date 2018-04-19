@@ -7,12 +7,14 @@ double robotAngle = 0;
 
 double direction = 10;
 
+GameState state;
+
 std::mutex occGridMutex;
 std::mutex robotPosMutex;
 std::mutex targetPointsMutex;
 std::mutex robotAngleMutex;
 std::mutex directionMutex;
-
+std::mutex gameStateMutex;
 DoublePoint getRobotPos(){
     std::lock_guard<std::mutex> lock(robotPosMutex);
     return robotPos;
@@ -42,3 +44,14 @@ void setDirection(double newDirect){
     std::lock_guard<std::mutex> lock(directionMutex);
     direction = newDirect;
 }
+
+GameState getGameState(){
+    std::lock_guard<std::mutex> lock(gameStateMutex);
+    return state;
+}
+
+void setGameState(GameState newState){
+    std::lock_guard<std::mutex> lock(gameStateMutex);
+    state = newState;
+}
+
