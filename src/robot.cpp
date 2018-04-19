@@ -10,7 +10,7 @@
 std::atomic<bool> Robot::done = false;
 
 Robot::Robot():
-    mazeMapper(), gameState(), safeZoneLocation()
+    mazeMapper(), gameState(), safeZoneLocation(), drive()
 {
     Logger::log("Initializing robot");
     set_mode(0, solenoidPin,   PI_OUTPUT);
@@ -32,7 +32,7 @@ Robot::~Robot(){
 void Robot::start() {
     // maybe this can go in the constructor in the future
     // Thread dedicated to looping the lazer scanner until the robot dies.
-    thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
+    std::thread laserScanInputThread(&MazeMapper::laserScanLoop, &mazeMapper);
     laserScanInputThread.detach(); // thread should run freely on its own ( this function doesn't wait for it to finish)
    // Lidar l;
    //// while(1)//`mazeMapper.lidar.getRPM(0) < 300)
@@ -246,9 +246,9 @@ void Robot::spinAndScan() {
     //robot will be in appropriate position, so just spin around and get flame and camera data
     //updating the important points vector as necessary
     for(double i = 0; i < 2 * M_PI; i += M_PI / 36){
-        if(irSensor::flameVisible()){
+        if(IRSensor::flameVisible()){
             gpio_write(0, solenoidPin, 1);
-            while(irSensor::flameVisible()){
+            while(IRSensor::flameVisible()){
                 time_sleep(0.25);
                 drive.rotate(M_PI / 36);
                 time_sleep(0.25);

@@ -20,6 +20,8 @@
 #define SIDE_RIGHT "side_right"
 #define ROBOT_SAFE_TURN_CM 5
 
+using std::string;
+
 class Robot {
     public:
         Robot();
@@ -45,7 +47,7 @@ class Robot {
 
         //private:
         GPIO gpio; //needs to be initialized before all sensors
-        thread laserScanInputThread;
+        std::thread laserScanInputThread;
 
         MazeMapper  mazeMapper;
         GameState	gameState;
