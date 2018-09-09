@@ -5,6 +5,7 @@ UML Robotics Club's Trinity 2018 code
 This is designed to run on a Raspberry Pi and uses [pigpio](http://abyz.me.uk/rpi/pigpio/pigpiod.html) for gpio access.
 
 Other hardware includes:
+* XV11 lidar module to map walls of maze
 * 3 motors in a kiwi drive configuration
 * 2 servos for cradle grabber
 * solenoid to release CO2
