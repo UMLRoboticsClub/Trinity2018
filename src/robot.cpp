@@ -54,6 +54,7 @@ void Robot::start() {
 //bool inRoom;
 //bool secondArena;
 
+//ya main boi
 void Robot::robotLoop() {
     Logger::log("starting robotLoop"); // Let's start this thing
     // initialize to nothing (doesn't really matter)
@@ -153,20 +154,21 @@ void Robot::leaveRoom(){
     gameState.inRoom = false;
 }
 
+//KEY POINT prolly very wrong
 void Robot::goToFrontFromSide(Point targetPoint, string side){
-    
+
     // orientate ourselves
     Point closestClear = mazeMapper.closestClearPoint(targetPoint);
 
     // get angle between side of cradle and the closest clear point
     double angleBetween = computeAngle(targetPoint, closestClear);
-    
+
     // center is opposite way
     double pointToCenter = angleBetween + M_PI;
 
     // add or subtract 90 degrees to get diretion that points to the front of cradle
     double pointToFront = 0;
-    if(side == SIDE_LEFT){ 
+    if(side == SIDE_LEFT){
         pointToFront = angleBetween + (M_PI/2.0);
     } else if(side == SIDE_RIGHT){
         pointToFront = angleBetween - (M_PI/2.0);
@@ -176,26 +178,26 @@ void Robot::goToFrontFromSide(Point targetPoint, string side){
     double cradleHalf = CRADLE_SIZE_CM / 2.0;
     double robotHalf = ROBOT_DIAMETER_CM / 2.0;
     double safeDistance = robotHalf + ROBOT_SAFE_TURN_CM;
-    
+
     // calculate front of cradle by adding these two vector scaled by the cradle's size
     DoublePoint cradleFront = DoublePoint(cradleHalf * cos(pointToCenter), cradleHalf * sin(pointToCenter)) + DoublePoint(cradleHalf * cos(pointToFront), cradleHalf * sin(pointToFront));
 
     // these are rounded just to be safe
     // robot safe rotate distance vector
     Point safeRotatePoint( round(cradleFront.x + safeDistance * cos(pointToFront)), round(cradleFront.y + safeDistance * sin(pointToFront)) );
-    
+
     // robot 'touching cradle vector'
     Point touchCradlePoint( round(cradleFront.x + robotHalf * cos(pointToFront)), round(cradleFront.y + robotHalf * sin(pointToFront)) );
 
     // astar returns path to safe point and then we optimize and we then drive the path
     robotDrive(mazeMapper.optimizePath(mazeMapper.AStar(safeRotatePoint)));
-     
+
     // now we rotate towards the cradle
     rotateTowards(cradleFront);
 
     //now we get up real close
     robotDrive(mazeMapper.optimizePath(mazeMapper.AStar(touchCradlePoint)));
-    
+
     // SNATCH_BABY()
 }
 
@@ -270,29 +272,29 @@ void Robot::hallwaySweep(Point targetPoint) {
     //now we need to move "left" and "right" which is done via robotAngle
 
     //so we need to find which direction the hallway is in  this happens in MazeMapper!  targetLoc
-    //then we need to move down it until we are no longer in the hallway.  can we see the end of it?  
+    //then we need to move down it until we are no longer in the hallway.  can we see the end of it?
     //if we can see the far end of the arena we can just subtract for distance to move
     //move that far, and we also have direction which tells us which way to face
     //then strafe sideways set distance and check camera
     //when camera tells us we saw the thing, record location as safeZonelocation.
-    
+
     // get angles in directions we will patrol
     double leftAngle = getRobotAngle() + (M_PI_2/2);
     double rightAngle = getRobotAngle() - (M_PI_2/2);
-    
+
     double patrolLength = ((ARENA_LENGTH_CM / 2) + ROBOT_DIAMETER_CM);
 
     // calculate what patrol points are
     int leftX = getRobotPos().x + patrolLength * cos(leftAngle);
     int leftY = getRobotPos().y + patrolLength * sin(leftAngle);
-    
+
     int rightX = getRobotPos().x + patrolLength * cos(rightAngle);
     int rightY = getRobotPos().y + patrolLength * sin(rightAngle);
 
     // first patrol
     drive.drive(DoublePoint(leftX, leftY));
-    //double check position? (maybe we need a funciton like checkPosition() )?? 
-    
+    //double check position? (maybe we need a funciton like checkPosition() )??
+
     // vision.scan()
 
     // second patrol

@@ -69,9 +69,11 @@ void normalizeUp(double& a, double& b, double& c, int max = 255){
     }
 }
 
+
+//takes an absolute position in the grid
 void Drive::drive(DoublePoint target) {
-    
-    
+
+
     //    motorA.set(255);
     //    motorB.set(255);
     //    motorC.set(255);
@@ -86,7 +88,7 @@ void Drive::drive(DoublePoint target) {
     //    exit(1);
     double angle = atan2((target.y-getRobotPos().y), (target.x-getRobotPos().x));
     setDirection(angle);
-    
+
     //    double ASpeed = 255*cos(MVA_ANGLE - angle);
     //    double BSpeed = 255*cos(MVB_ANGLE - angle);
     //    double CSpeed = 255*cos(MVC_ANGLE - angle);
@@ -115,12 +117,14 @@ void Drive::drive(DoublePoint target) {
     double theta = 0;
     double gyroThreshold = .5;
     double deltaTime = 0;
-    double frozenCount = 0;
+    double frozenCount = 0; //FLAG FOR DELETE
     //double bias;
 
     DoublePoint error = target - getRobotPos();
     DoublePoint vel(0, 0);
 
+
+//KEY POINT TO THE MAXXXXXXXXX maybe optical flow, maybe not, who knows
     while(error.magnitude() > eps || vel.magnitude() > veps){
 
         //updateTime();
@@ -183,7 +187,7 @@ void Drive::drive(DoublePoint target) {
         if(theta > gyroThreshold || theta < -gyroThreshold){//alternatively do it based on theta rather than vRad.  Give it a shot
 
             ASpeed -= vRad*gyroK;
-            BSpeed -= vRad*gyroK; 
+            BSpeed -= vRad*gyroK;
             CSpeed -= vRad*gyroK;
 
         }
@@ -209,7 +213,7 @@ void Drive::drive(DoublePoint target) {
     //    setRobotAngle(getRobotAngle() + vRad*deltaTime);
     //    //robotAngle += vRad*deltaTime;
     //}
-    setDirection(7);//goin nowhere, 7 is a random number :( 
+    setDirection(7);//goin nowhere, 7 is a random number :(
     rotate(-theta);
     cout << "done" << endl;
     cout << "robotPos in PID: " << getRobotPos() << endl;
@@ -254,7 +258,7 @@ void Drive::rotate(double error) {
             output = 75;
         if(output < 0 && output > -75)
             output = -75;
-        //cout<<output<<endl;    
+        //cout<<output<<endl;
         motorA.set(output);
         motorB.set(output);
         motorC.set(output);
@@ -263,6 +267,3 @@ void Drive::rotate(double error) {
     motorB.set(0);
     motorC.set(0);
 }
-
-
-
